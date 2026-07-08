@@ -1,0 +1,559 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    .overview-container {
+        background: var(--card-bg);
+        -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px);
+        border: 1px solid var(--border-color);
+        border-radius: 1rem;
+        padding: 2rem;
+        overflow-x: auto;
+    }
+
+    .matrix-table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 800px;
+    }
+
+    .matrix-table th,
+    .matrix-table td {
+        padding: 1rem;
+        text-align: center;
+        border: 1px solid var(--border-color);
+    }
+
+    .matrix-table th {
+        background: rgba(0, 0, 0, 0.3);
+        color: #cbd5e1;
+        font-weight: 600;
+    }
+
+    .room-name {
+        text-align: left !important;
+        font-weight: 600;
+        color: var(--primary);
+        background: rgba(0, 0, 0, 0.2);
+    }
+
+    .cell-slot {
+        background: rgba(16, 185, 129, 0.1);
+        color: #10b981;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-decoration: none;
+        display: block;
+        width: 100%;
+        height: 100%;
+        border-radius: 0.25rem;
+        padding: 0.5rem 0;
+    }
+
+    .cell-slot:hover {
+        background: rgba(16, 185, 129, 0.3);
+        transform: scale(1.05);
+    }
+
+    .cell-slot.booked {
+        background: rgba(239, 68, 68, 0.1);
+        color: #ef4444;
+        cursor: not-allowed;
+        text-decoration: line-through;
+    }
+
+    .cell-slot.booked:hover {
+        background: rgba(239, 68, 68, 0.1);
+        transform: none;
+    }
+
+    /* Takvim CSS */
+    .calendar-container {
+        background: var(--card-bg);
+        -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px);
+        border: 1px solid var(--border-color);
+        border-top: 1px solid rgba(255, 255, 255, 0.15);
+        border-left: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 1rem;
+        padding: 2.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1), 0 20px 25px -5px rgba(0,0,0,0.5);
+    }
+    .calendar-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+    }
+    .calendar-title {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: #f8fafc;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    .calendar-grid {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 0.75rem;
+    }
+    .calendar-day-header {
+        text-align: center;
+        font-weight: 600;
+        color: #94a3b8;
+        padding: 0.5rem;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        letter-spacing: 1px;
+    }
+    .calendar-day {
+        aspect-ratio: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        border-radius: 0.5rem;
+        cursor: pointer;
+        font-weight: 700;
+        font-size: 1.25rem;
+        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        border: 2px solid rgba(255,255,255,0.05);
+        color: #f8fafc;
+        position: relative;
+    }
+    .calendar-day:hover {
+        transform: scale(1.05) translateY(-2px);
+        z-index: 2;
+        box-shadow: 0 10px 15px -3px rgba(0,0,0,0.5);
+    }
+    .day-empty {
+        background: #10b981;
+        color: #fff;
+        border-color: #059669;
+        font-weight: 700;
+    }
+    .day-partial {
+        background: #f59e0b;
+        color: #fff;
+        border-color: #d97706;
+        font-weight: 700;
+    }
+    .day-full {
+        background: #ef4444;
+        color: #fff;
+        border-color: #dc2626;
+        font-weight: 700;
+    }
+    .day-selected {
+        border-color: white !important;
+        border-width: 3px !important;
+        box-shadow: 0 0 20px rgba(255,255,255,0.8);
+        transform: scale(1.1);
+        z-index: 5;
+    }
+    .day-other-month {
+        opacity: 0.2;
+        pointer-events: none;
+        border: none;
+    }
+    .legend-dot {
+        display: inline-block;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+    }
+    .legend-container {
+        margin-top: 2rem; 
+        display: flex; 
+        gap: 1.5rem; 
+        justify-content: center; 
+        font-size: 0.9rem; 
+        color: #cbd5e1; 
+        font-weight: 500;
+        flex-wrap: wrap;
+    }
+
+    /* Mobile Responsiveness */
+    @media (max-width: 768px) {
+        .calendar-container {
+            padding: 1.5rem 1rem;
+        }
+        .calendar-header {
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .calendar-title {
+            order: -1; /* Başlık telefonda en üstte görünsün */
+            font-size: 1.25rem;
+        }
+        .calendar-day-header {
+            font-size: 0.7rem;
+            padding: 0.2rem;
+        }
+        .calendar-day {
+            font-size: 1rem;
+            border-width: 1px;
+        }
+        .overview-container {
+            padding: 1rem;
+        }
+        .matrix-table th, .matrix-table td {
+            padding: 0.5rem;
+            font-size: 0.85rem;
+        }
+        .legend-container {
+            gap: 0.75rem;
+            font-size: 0.8rem;
+        }
+    }
+</style>
+
+<div style="display: flex; flex-direction: column; gap: 1rem; margin-bottom: 2rem; text-align: center;">
+    <div>
+        <h2 style="font-size: 2rem; margin: 0; color: #10b981;">Aylık Doluluk & Günlük Genel Bakış</h2>
+        <p style="color: #cbd5e1; margin-top: 0.5rem;">Takvimden gün seçerek detayları aşağıdan inceleyebilir ve boş saatlere tıklayarak rezervasyon yapabilirsiniz.</p>
+    </div>
+    <div style="display: none;">
+        <label for="overview-date">Gizli Tarih:</label>
+        <input type="date" id="overview-date" value="{{ today }}">
+    </div>
+</div>
+
+<!-- Aylık Takvim -->
+<div class="calendar-container">
+    <div class="calendar-header">
+        <button id="prevMonth" class="btn" style="width: auto; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1);">&laquo; Önceki Ay</button>
+        <div id="calendarTitle" class="calendar-title">AY YIL</div>
+        <button id="nextMonth" class="btn" style="width: auto; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1);">Sonraki Ay &raquo;</button>
+    </div>
+    <div class="calendar-grid" id="calendarGrid">
+        <div class="calendar-day-header">Pzt</div>
+        <div class="calendar-day-header">Sal</div>
+        <div class="calendar-day-header">Çar</div>
+        <div class="calendar-day-header">Per</div>
+        <div class="calendar-day-header">Cum</div>
+        <div class="calendar-day-header">Cmt</div>
+        <div class="calendar-day-header">Paz</div>
+        <!-- JS Dolduracak -->
+    </div>
+    <div class="legend-container">
+        <div style="display: flex; align-items: center; gap: 0.5rem;"><span class="legend-dot" style="background:#10b981; box-shadow: 0 0 10px rgba(16,185,129,0.5);"></span> Tamamen Boş</div>
+        <div style="display: flex; align-items: center; gap: 0.5rem;"><span class="legend-dot" style="background:#f59e0b; box-shadow: 0 0 10px rgba(245,158,11,0.5);"></span> Kısmen Dolu</div>
+        <div style="display: flex; align-items: center; gap: 0.5rem;"><span class="legend-dot" style="background:#ef4444; box-shadow: 0 0 10px rgba(239,68,68,0.5);"></span> Tamamen Dolu</div>
+    </div>
+</div>
+
+<div class="overview-container" style="margin-top: 2rem;">
+    <div id="loading" style="text-align: center; padding: 2rem; color: var(--primary); display: none;">Veriler
+        yükleniyor...</div>
+
+    <table class="matrix-table" id="matrix-table">
+        <thead>
+            <tr>
+                <th style="width: 200px;">Toplantı Odası</th>
+                <th>09:00</th>
+                <th>10:00</th>
+                <th>11:00</th>
+                <th>12:00</th>
+                <th>13:00</th>
+                <th>14:00</th>
+                <th>15:00</th>
+                <th>16:00</th>
+                <th>17:00</th>
+            </tr>
+        </thead>
+        <tbody id="matrix-body">
+            {% for room in rooms %}
+            <tr data-room-id="{{ room.id }}">
+                <td class="room-name">{{ room.name }} <br><span
+                        style="font-size: 0.75rem; color: #94a3b8; font-weight: normal;">Kapasite: {{ room.capacity
+                        }}</span></td>
+                <!-- JS tarafından doldurulacak hücreler -->
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script>
+    const dateInput = document.getElementById('overview-date');
+    const matrixBody = document.getElementById('matrix-body');
+    const loading = document.getElementById('loading');
+    const matrixTable = document.getElementById('matrix-table');
+
+    const serverToday = '{{ today }}';
+    const serverCurrentHour = '{{ current_hour }}';
+    const isAdmin = {{ 'true' if current_user.is_admin else 'false' }};
+    const workHours = ["09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00"];
+    let pollingInterval;
+    let currentCalYear = parseInt(serverToday.split('-')[0]);
+    let currentCalMonth = parseInt(serverToday.split('-')[1]);
+    let selectedDate = serverToday;
+    
+    const monthNames = ["OCAK", "ŞUBAT", "MART", "NİSAN", "MAYIS", "HAZİRAN", "TEMMUZ", "AĞUSTOS", "EYLÜL", "EKİM", "KASIM", "ARALIK"];
+
+    function loadCalendar(year, month) {
+        document.getElementById('calendarTitle').textContent = `${monthNames[month-1]} ${year}`;
+        const grid = document.getElementById('calendarGrid');
+        
+        // Sadece gün hücrelerini temizle (ilk 7 div header)
+        while (grid.children.length > 7) {
+            grid.removeChild(grid.lastChild);
+        }
+
+        fetch(`/api/calendar/${year}/${month}`)
+            .then(res => res.json())
+            .then(data => {
+                const firstDay = new Date(year, month - 1, 1).getDay();
+                const daysInMonth = new Date(year, month, 0).getDate();
+                
+                // Pazartesi'yi 0 yap (0=Pzt, 6=Paz)
+                let startOffset = firstDay === 0 ? 6 : firstDay - 1;
+
+                // Boş kutular (önceki aydan kalan gün yerleri)
+                for(let i=0; i<startOffset; i++) {
+                    const emptyDiv = document.createElement('div');
+                    emptyDiv.className = 'calendar-day day-other-month';
+                    grid.appendChild(emptyDiv);
+                }
+
+                for(let day=1; day<=daysInMonth; day++) {
+                    const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                    const status = data[dateStr] || 'empty';
+                    
+                    const dayDiv = document.createElement('div');
+                    dayDiv.className = `calendar-day day-${status}`;
+                    if(dateStr === selectedDate) dayDiv.classList.add('day-selected');
+                    
+                    dayDiv.textContent = day;
+                    
+                    dayDiv.addEventListener('click', () => {
+                        document.querySelectorAll('.calendar-day').forEach(d => d.classList.remove('day-selected'));
+                        dayDiv.classList.add('day-selected');
+                        
+                        selectedDate = dateStr;
+                        dateInput.value = dateStr; 
+                        fetchOverview(dateStr);
+                        
+                        // Ekranı aşağıdaki matrix'e (saat seçme ekranına) kaydır
+                        setTimeout(() => {
+                            const overviewContainer = document.querySelector('.overview-container');
+                            if (overviewContainer) {
+                                overviewContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                            }
+                        }, 100);
+                    });
+                    
+                    grid.appendChild(dayDiv);
+                }
+            });
+    }
+
+    document.getElementById('prevMonth').addEventListener('click', () => {
+        currentCalMonth--;
+        if(currentCalMonth < 1) { currentCalMonth = 12; currentCalYear--; }
+        loadCalendar(currentCalYear, currentCalMonth);
+    });
+
+    document.getElementById('nextMonth').addEventListener('click', () => {
+        currentCalMonth++;
+        if(currentCalMonth > 12) { currentCalMonth = 1; currentCalYear++; }
+        loadCalendar(currentCalYear, currentCalMonth);
+    });
+
+    function fetchOverview(date) {
+        matrixTable.style.opacity = '0.5';
+        loading.style.display = 'block';
+
+        if (pollingInterval) clearInterval(pollingInterval);
+
+        fetch(`/api/overview/${date}`)
+            .then(res => res.json())
+            .then(data => {
+                matrixTable.style.opacity = '1';
+                loading.style.display = 'none';
+
+                // Her satır (oda) için hücreleri (saatleri) doldur
+                const rows = matrixBody.querySelectorAll('tr');
+                rows.forEach(row => {
+                    const roomId = row.dataset.roomId;
+                    const bookedSlots = data[roomId] || {};
+
+                    // Önceki saat hücrelerini sil
+                    while (row.children.length > 1) {
+                        row.removeChild(row.lastChild);
+                    }
+
+                    // Yeni hücreleri ekle
+                    workHours.forEach(hour => {
+                        const td = document.createElement('td');
+
+                        let isPast = false;
+                        if (date < serverToday || (date === serverToday && hour < serverCurrentHour)) {
+                            isPast = true;
+                        }
+
+                        if (hour in bookedSlots || isPast) {
+                            const div = document.createElement('div');
+                            div.className = 'cell-slot booked';
+
+                            if (hour in bookedSlots) {
+                                const resData = bookedSlots[hour];
+                                div.textContent = 'Dolu';
+                                div.title = `Rezerve eden: ${resData.username}`;
+
+                                if (isAdmin) {
+                                    div.style.cursor = 'pointer';
+                                    div.addEventListener('click', () => {
+                                        if (confirm(`Bu rezervasyonu (${resData.username}) iptal etmek istiyor musunuz?`)) {
+                                            const form = document.createElement('form');
+                                            form.method = 'POST';
+                                            form.action = `/reservation/${resData.id}/delete`;
+                                            document.body.appendChild(form);
+                                            form.submit();
+                                        }
+                                    });
+                                }
+                            } else {
+                                div.textContent = 'Geçmiş';
+                                div.title = 'Bu saat geçmiş';
+                            }
+
+                            td.appendChild(div);
+                        } else {
+                            // Boş
+                            const a = document.createElement('a');
+                            a.className = 'cell-slot';
+                            a.textContent = 'Boş';
+                            a.title = "Rezervasyon Yap";
+                            a.href = `/rooms/${roomId}/book?date=${date}&time=${hour}`;
+                            td.appendChild(a);
+                        }
+                        row.appendChild(td);
+                    });
+                });
+
+                // Auto update
+                pollingInterval = setInterval(() => {
+                    updateRealTimeOverview(date);
+                }, 5000);
+            })
+            .catch(err => {
+                loading.style.display = 'none';
+                console.error(err);
+            });
+    }
+
+    function updateRealTimeOverview(date) {
+        fetch(`/api/overview/${date}`)
+            .then(res => res.json())
+            .then(data => {
+                const rows = matrixBody.querySelectorAll('tr');
+                rows.forEach(row => {
+                    const roomId = row.dataset.roomId;
+                    const bookedSlots = data[roomId] || {};
+
+                    const cells = row.querySelectorAll('td');
+                    // cells[0] is the room name
+                    workHours.forEach((hour, index) => {
+                        const cellIndex = index + 1;
+                        const td = cells[cellIndex];
+                        const child = td.firstChild;
+
+                        let isPast = false;
+                        if (date < serverToday || (date === serverToday && hour < serverCurrentHour)) {
+                            isPast = true;
+                        }
+
+                        if (hour in bookedSlots || isPast) {
+                            if (!child.classList.contains('booked')) {
+                                const div = document.createElement('div');
+                                div.className = 'cell-slot booked';
+                                
+                                if (hour in bookedSlots) {
+                                    const resData = bookedSlots[hour];
+                                    div.textContent = 'Dolu';
+                                    div.title = `Rezerve eden: ${resData.username}`;
+
+                                    if (isAdmin) {
+                                        div.style.cursor = 'pointer';
+                                        div.addEventListener('click', () => {
+                                            if (confirm(`Bu rezervasyonu (${resData.username}) iptal etmek istiyor musunuz?`)) {
+                                                const form = document.createElement('form');
+                                                form.method = 'POST';
+                                                form.action = `/reservation/${resData.id}/delete`;
+                                                document.body.appendChild(form);
+                                                form.submit();
+                                            }
+                                        });
+                                    }
+                                } else {
+                                    div.textContent = 'Geçmiş';
+                                    div.title = 'Bu saat geçmiş';
+                                }
+
+                                td.innerHTML = '';
+                                td.appendChild(div);
+                            } else {
+                                if (hour in bookedSlots) {
+                                    if (child.textContent !== 'Dolu') {
+                                        const resData = bookedSlots[hour];
+                                        child.textContent = 'Dolu';
+                                        child.title = `Rezerve eden: ${resData.username}`;
+                                        
+                                        if (isAdmin) {
+                                            child.style.cursor = 'pointer';
+                                            const div = document.createElement('div');
+                                            div.className = 'cell-slot booked';
+                                            div.textContent = 'Dolu';
+                                            div.title = `Rezerve eden: ${resData.username}`;
+                                            div.style.cursor = 'pointer';
+                                            div.addEventListener('click', () => {
+                                                if (confirm(`Bu rezervasyonu (${resData.username}) iptal etmek istiyor musunuz?`)) {
+                                                    const form = document.createElement('form');
+                                                    form.method = 'POST';
+                                                    form.action = `/reservation/${resData.id}/delete`;
+                                                    document.body.appendChild(form);
+                                                    form.submit();
+                                                }
+                                            });
+                                            td.innerHTML = '';
+                                            td.appendChild(div);
+                                        }
+                                    }
+                                } else if (isPast) {
+                                    if (child.textContent !== 'Geçmiş') {
+                                        child.textContent = 'Geçmiş';
+                                        child.title = 'Bu saat geçmiş';
+                                        child.style.cursor = 'not-allowed';
+                                        const newChild = child.cloneNode(true);
+                                        td.innerHTML = '';
+                                        td.appendChild(newChild);
+                                    }
+                                }
+                            }
+                        } else {
+                            if (child.classList.contains('booked')) {
+                                // Boşa çıkar
+                                const a = document.createElement('a');
+                                a.className = 'cell-slot';
+                                a.textContent = 'Boş';
+                                a.href = `/rooms/${roomId}/book?date=${date}&time=${hour}`;
+                                td.innerHTML = '';
+                                td.appendChild(a);
+                            }
+                        }
+                    });
+                });
+            });
+    }
+
+    dateInput.addEventListener('change', (e) => {
+        fetchOverview(e.target.value);
+    });
+
+    // İlk yüklemede çalıştır
+    loadCalendar(currentCalYear, currentCalMonth);
+    fetchOverview(dateInput.value);
+</script>
+{% endblock %}

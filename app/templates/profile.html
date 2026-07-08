@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    .profile-card {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 1rem;
+        padding: 2.5rem;
+        max-width: 600px;
+        margin: 2rem auto;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+    }
+    
+    .profile-img-lg {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 4px solid var(--primary);
+        margin-bottom: 1.5rem;
+        box-shadow: 0 4px 15px rgba(79, 70, 229, 0.4);
+    }
+
+    .profile-avatar-lg {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--primary) 0%, #312e81 100%);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 3rem;
+        margin: 0 auto 1.5rem auto;
+        border: 4px solid var(--primary);
+        box-shadow: 0 4px 15px rgba(79, 70, 229, 0.4);
+        text-transform: uppercase;
+    }
+</style>
+
+<div class="profile-card">
+    <div style="text-align: center;">
+        {% if image_file %}
+            <img class="profile-img-lg" src="{{ image_file }}" alt="Profil Fotoğrafı">
+        {% else %}
+            <div class="profile-avatar-lg">{{ current_user.username[0] }}</div>
+        {% endif %}
+        <h2 style="font-size: 1.8rem; margin: 0; color: #f8fafc;">{{ current_user.username }}</h2>
+        <p style="color: #94a3b8; margin-top: 0.25rem;">{{ current_user.email }}</p>
+    </div>
+
+    <hr style="border-color: rgba(255,255,255,0.1); margin: 2rem 0;">
+
+    <form method="POST" action="" enctype="multipart/form-data">
+        {{ form.hidden_tag() }}
+        
+        <div class="form-group" style="margin-bottom: 1.5rem;">
+            {{ form.username.label(class="form-label", style="color: #cbd5e1;") }}
+            {% if form.username.errors %}
+                {{ form.username(class="form-control", style="border-color: #ef4444;") }}
+                <div style="color: #ef4444; font-size: 0.875rem; margin-top: 0.25rem;">
+                    {% for error in form.username.errors %}
+                        <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+            {% else %}
+                {{ form.username(class="form-control") }}
+            {% endif %}
+        </div>
+
+        <div class="form-group" style="margin-bottom: 1.5rem;">
+            {{ form.email.label(class="form-label", style="color: #cbd5e1;") }}
+            {% if form.email.errors %}
+                {{ form.email(class="form-control", style="border-color: #ef4444;") }}
+                <div style="color: #ef4444; font-size: 0.875rem; margin-top: 0.25rem;">
+                    {% for error in form.email.errors %}
+                        <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+            {% else %}
+                {{ form.email(class="form-control") }}
+            {% endif %}
+        </div>
+
+        <div class="form-group" style="margin-bottom: 2rem;">
+            {{ form.picture.label(class="form-label", style="color: #cbd5e1;") }}
+            <br>
+            {{ form.picture(class="form-control", style="padding: 0.5rem; background: rgba(0,0,0,0.2);") }}
+            {% if form.picture.errors %}
+                <div style="color: #ef4444; font-size: 0.875rem; margin-top: 0.25rem;">
+                    {% for error in form.picture.errors %}
+                        <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="form-group" style="text-align: center;">
+            {{ form.submit(class="btn") }}
+        </div>
+    </form>
+</div>
+{% endblock %}

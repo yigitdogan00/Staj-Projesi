@@ -1,0 +1,437 @@
+# Translations template for PROJECT.
+# Copyright (C) 2026 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-07-01 15:02+0300\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: app/main.py:362 app/main.py:382
+msgid "Bu işlemi yapmaya yetkiniz yok."
+msgstr ""
+
+#: app/main.py:370 app/main.py:372
+msgid "Daveti kabul ettiniz."
+msgstr ""
+
+#: app/main.py:402 app/main.py:404
+msgid "Daveti reddettiniz."
+msgstr ""
+
+#: app/templates/admin_panel.html:67
+msgid "Kapsamlı Admin Paneli"
+msgstr ""
+
+#: app/templates/admin_panel.html:73
+msgid "Toplam Kullanıcı"
+msgstr ""
+
+#: app/templates/admin_panel.html:77
+msgid "Toplam Oda"
+msgstr ""
+
+#: app/templates/admin_panel.html:81 app/templates/admin_panel.html:91
+msgid "Tüm Rezervasyonlar"
+msgstr ""
+
+#: app/templates/admin_panel.html:85
+msgid "Bugünkü Rezervasyonlar"
+msgstr ""
+
+#: app/templates/admin_panel.html:96 app/templates/admin_panel.html:207
+msgid "Kullanıcı"
+msgstr ""
+
+#: app/templates/admin_panel.html:97
+msgid "Oda"
+msgstr ""
+
+#: app/templates/admin_panel.html:98
+msgid "Tarih"
+msgstr ""
+
+#: app/templates/admin_panel.html:99
+msgid "Saat"
+msgstr ""
+
+#: app/templates/admin_panel.html:100
+msgid "Oluşturulma"
+msgstr ""
+
+#: app/templates/admin_panel.html:101 app/templates/admin_panel.html:134
+#: app/templates/admin_panel.html:173
+msgid "İşlem"
+msgstr ""
+
+#: app/templates/admin_panel.html:114 app/templates/dashboard.html:38
+msgid "İptal Et"
+msgstr ""
+
+#: app/templates/admin_panel.html:122
+msgid "Sistemde henüz hiçbir rezervasyon bulunmuyor."
+msgstr ""
+
+#: app/templates/admin_panel.html:125 app/templates/admin_panel.html:126
+msgid "Kullanıcı Yönetimi"
+msgstr ""
+
+#: app/templates/admin_panel.html:131
+msgid "Kullanıcı Adı"
+msgstr ""
+
+#: app/templates/admin_panel.html:132
+msgid "E-Posta"
+msgstr ""
+
+#: app/templates/admin_panel.html:133
+msgid "Rol"
+msgstr ""
+
+#: app/templates/admin_panel.html:145
+msgid "Admin"
+msgstr ""
+
+#: app/templates/admin_panel.html:147
+msgid "User"
+msgstr ""
+
+#: app/templates/admin_panel.html:153
+msgid "Kullanıcıyı Sil"
+msgstr ""
+
+#: app/templates/admin_panel.html:156
+msgid "Kendiniz"
+msgstr ""
+
+#: app/templates/admin_panel.html:165
+msgid "Oda Yönetimi"
+msgstr ""
+
+#: app/templates/admin_panel.html:170
+msgid "Oda Adı"
+msgstr ""
+
+#: app/templates/admin_panel.html:171 app/templates/rooms/book.html:71
+#: app/templates/rooms/list.html:13
+msgid "Kapasite"
+msgstr ""
+
+#: app/templates/admin_panel.html:172
+msgid "Açıklama"
+msgstr ""
+
+#: app/templates/admin_panel.html:181 app/templates/rooms/book.html:71
+#: app/templates/rooms/list.html:13
+msgid "Kişi"
+msgstr ""
+
+#: app/templates/admin_panel.html:185
+msgid "Odayı Sil"
+msgstr ""
+
+#: app/templates/admin_panel.html:195
+msgid "Sistem Logları (Son 50 İşlem)"
+msgstr ""
+
+#: app/templates/admin_panel.html:198
+msgid "Logları Temizle"
+msgstr ""
+
+#: app/templates/admin_panel.html:205
+msgid "Tarih / Saat"
+msgstr ""
+
+#: app/templates/admin_panel.html:206
+msgid "İşlem Türü"
+msgstr ""
+
+#: app/templates/admin_panel.html:208
+msgid "Detaylar"
+msgstr ""
+
+#: app/templates/admin_panel.html:217
+msgid "GİRİŞ"
+msgstr ""
+
+#: app/templates/admin_panel.html:219
+msgid "REZERVASYON"
+msgstr ""
+
+#: app/templates/admin_panel.html:221
+msgid "İPTAL/SİLME"
+msgstr ""
+
+#: app/templates/admin_panel.html:231
+msgid "Henüz log kaydı yok."
+msgstr ""
+
+#: app/templates/admin_panel.html:237
+msgid ""
+"Not: Hızlı iptal işlemleri için \"Günlük Durum\" sekmesine gidip kırmızı "
+"kutulara tıklayabilirsiniz."
+msgstr ""
+
+#: app/templates/base.html:231
+msgid "Günlük Durum"
+msgstr ""
+
+#: app/templates/base.html:232 app/templates/index.html:15
+msgid "Odalar"
+msgstr ""
+
+#: app/templates/base.html:233 app/templates/index.html:16
+msgid "Dashboard"
+msgstr ""
+
+#: app/templates/base.html:234
+msgid "Sanal Kapı (Test)"
+msgstr ""
+
+#: app/templates/base.html:236
+msgid "Admin Panel"
+msgstr ""
+
+#: app/templates/base.html:248
+msgid "Bildirimler"
+msgstr ""
+
+#: app/templates/base.html:258
+msgid "Onayla"
+msgstr ""
+
+#: app/templates/base.html:259
+msgid "Reddet"
+msgstr ""
+
+#: app/templates/base.html:262
+msgid "Okundu İşaretle"
+msgstr ""
+
+#: app/templates/base.html:267 app/templates/base.html:386
+msgid "Yeni bildiriminiz yok."
+msgstr ""
+
+#: app/templates/base.html:276
+msgid "Kabul Edilen Toplantılar"
+msgstr ""
+
+#: app/templates/base.html:279
+msgid "Yaklaşan Toplantılar"
+msgstr ""
+
+#: app/templates/base.html:282 app/templates/base.html:420
+#: app/templates/dashboard.html:14 app/templates/dashboard.html:58
+msgid "Odası"
+msgstr ""
+
+#: app/templates/base.html:292 app/templates/dashboard.html:34
+#: app/templates/dashboard.html:71
+msgid "Takvime Ekle"
+msgstr ""
+
+#: app/templates/base.html:310
+msgid "Çıkış Yap"
+msgstr ""
+
+#: app/templates/auth/login.html:5 app/templates/base.html:312
+#: app/templates/index.html:10
+msgid "Giriş Yap"
+msgstr ""
+
+#: app/templates/auth/register.html:5 app/templates/base.html:313
+#: app/templates/index.html:11
+msgid "Kayıt Ol"
+msgstr ""
+
+#: app/templates/base.html:419
+msgid "Şu an Toplantıdasınız"
+msgstr ""
+
+#: app/templates/dashboard.html:5
+msgid "Rezervasyonlarım"
+msgstr ""
+
+#: app/templates/dashboard.html:6
+msgid "Yeni Rezervasyon"
+msgstr ""
+
+#: app/templates/dashboard.html:24
+msgid "Davetliler"
+msgstr ""
+
+#: app/templates/dashboard.html:36 app/templates/dashboard.html:72
+msgid "QR Göster"
+msgstr ""
+
+#: app/templates/dashboard.html:38
+msgid "Bu rezervasyonu iptal etmek istediğinize emin misiniz?"
+msgstr ""
+
+#: app/templates/dashboard.html:47
+msgid "Henüz bir rezervasyonunuz bulunmuyor."
+msgstr ""
+
+#: app/templates/dashboard.html:48
+msgid "Hemen Oda Rezervasyonu Yap"
+msgstr ""
+
+#: app/templates/dashboard.html:52
+msgid "Davet Edildiğim Toplantılar"
+msgstr ""
+
+#: app/templates/dashboard.html:67
+msgid "Oluşturan"
+msgstr ""
+
+#: app/templates/dashboard.html:80
+msgid "Şu an için davet edildiğiniz bir toplantı bulunmuyor."
+msgstr ""
+
+#: app/templates/dashboard.html:88
+msgid "Oda Giriş QR Kodu"
+msgstr ""
+
+#: app/templates/dashboard.html:89
+msgid "Kapıdaki okuyucuya bu QR kodu okutarak odaya giriş yapabilirsiniz."
+msgstr ""
+
+#: app/templates/dashboard.html:94
+msgid "Kapat"
+msgstr ""
+
+#: app/templates/door_scanner.html:5
+msgid "Sanal Kapı Okuyucu"
+msgstr ""
+
+#: app/templates/door_scanner.html:6
+msgid "Kameraya QR kodu göstererek kapı girişini simüle edin."
+msgstr ""
+
+#: app/templates/door_scanner.html:15
+msgid "Yeniden Okut"
+msgstr ""
+
+#: app/templates/door_scanner.html:38
+msgid "Doğrulanıyor..."
+msgstr ""
+
+#: app/templates/door_scanner.html:39
+msgid "QR Kod sunucuya iletiliyor..."
+msgstr ""
+
+#: app/templates/door_scanner.html:54
+msgid "KAPI AÇILDI"
+msgstr ""
+
+#: app/templates/door_scanner.html:62
+msgid "ERİŞİM REDDEDİLDİ"
+msgstr ""
+
+#: app/templates/door_scanner.html:68
+msgid "HATA"
+msgstr ""
+
+#: app/templates/door_scanner.html:69
+msgid "Sunucuyla bağlantı kurulamadı."
+msgstr ""
+
+#: app/templates/index.html:5
+msgid "Toplantı Odası Rezervasyon Sistemine Hoş Geldiniz"
+msgstr ""
+
+#: app/templates/index.html:6
+msgid ""
+"Lütfen rezervasyon yapmak veya mevcut odaları görüntülemek için giriş "
+"yapın."
+msgstr ""
+
+#: app/templates/auth/login.html:36
+msgid "Beni Hatırla"
+msgstr ""
+
+#: app/templates/auth/login.html:44
+msgid "Şifremi Unuttum"
+msgstr ""
+
+#: app/templates/auth/login.html:48
+msgid "Hesabınız yok mu?"
+msgstr ""
+
+#: app/templates/auth/login.html:48
+msgid "Hemen Kayıt Olun"
+msgstr ""
+
+#: app/templates/auth/register.html:65
+msgid "Zaten hesabınız var mı?"
+msgstr ""
+
+#: app/templates/auth/register.html:65
+msgid "Giriş Yapın"
+msgstr ""
+
+#: app/templates/rooms/book.html:76
+msgid "Rezervasyon Tarihi"
+msgstr ""
+
+#: app/templates/rooms/book.html:83
+msgid "Kişileri Davet Et (Opsiyonel)"
+msgstr ""
+
+#: app/templates/rooms/book.html:89
+msgid "Birden fazla kişi seçmek için isimlerin üzerine tıklamanız yeterlidir."
+msgstr ""
+
+#: app/templates/rooms/book.html:109 app/templates/rooms/book.html:149
+#: app/templates/rooms/book.html:223
+msgid "Lütfen Saat Seçin"
+msgstr ""
+
+#: app/templates/rooms/book.html:115
+msgid "Uygun Saatler"
+msgstr ""
+
+#: app/templates/rooms/book.html:116
+msgid "Yeşil renkli boş saatlere tıklayarak seçiminizi yapabilirsiniz."
+msgstr ""
+
+#: app/templates/rooms/book.html:118
+msgid "Saatler yükleniyor..."
+msgstr ""
+
+#: app/templates/rooms/book.html:171
+msgid "Bu saat dolu"
+msgstr ""
+
+#: app/templates/rooms/book.html:186
+msgid "Seçimi Onayla"
+msgstr ""
+
+#: app/templates/rooms/book.html:224
+msgid ""
+"Üzgünüz, az önce seçtiğiniz saat dilimi başka bir kullanıcı tarafından "
+"rezerve edildi."
+msgstr ""
+
+#: app/templates/rooms/list.html:5
+msgid "Toplantı Odaları"
+msgstr ""
+
+#: app/templates/rooms/list.html:6
+msgid "Lütfen rezervasyon yapmak istediğiniz odayı seçin."
+msgstr ""
+
+#: app/templates/rooms/list.html:15
+msgid "Takvimi Görüntüle"
+msgstr ""
+

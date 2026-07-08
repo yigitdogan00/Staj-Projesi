@@ -1,0 +1,615 @@
+# English translations for PROJECT.
+# Copyright (C) 2026 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-07-01 15:02+0300\n"
+"PO-Revision-Date: 2026-07-01 11:45+0300\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: en <LL@li.org>\n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: app/main.py:362 app/main.py:382
+msgid "Bu işlemi yapmaya yetkiniz yok."
+msgstr "You are not authorized to perform this action."
+
+#: app/main.py:370 app/main.py:372
+msgid "Daveti kabul ettiniz."
+msgstr "You have accepted the invitation."
+
+#: app/main.py:402 app/main.py:404
+msgid "Daveti reddettiniz."
+msgstr "You have rejected the invitation."
+
+#: app/templates/admin_panel.html:67
+msgid "Kapsamlı Admin Paneli"
+msgstr "Comprehensive Admin Panel"
+
+#: app/templates/admin_panel.html:73
+msgid "Toplam Kullanıcı"
+msgstr "Total Users"
+
+#: app/templates/admin_panel.html:77
+msgid "Toplam Oda"
+msgstr "Total Rooms"
+
+#: app/templates/admin_panel.html:81 app/templates/admin_panel.html:91
+msgid "Tüm Rezervasyonlar"
+msgstr "All Reservations"
+
+#: app/templates/admin_panel.html:85
+msgid "Bugünkü Rezervasyonlar"
+msgstr "Today's Reservations"
+
+#: app/templates/admin_panel.html:96 app/templates/admin_panel.html:207
+msgid "Kullanıcı"
+msgstr "User"
+
+#: app/templates/admin_panel.html:97
+msgid "Oda"
+msgstr "Room"
+
+#: app/templates/admin_panel.html:98
+msgid "Tarih"
+msgstr "Date"
+
+#: app/templates/admin_panel.html:99
+msgid "Saat"
+msgstr "Time"
+
+#: app/templates/admin_panel.html:100
+msgid "Oluşturulma"
+msgstr "Created At"
+
+#: app/templates/admin_panel.html:101 app/templates/admin_panel.html:134
+#: app/templates/admin_panel.html:173
+msgid "İşlem"
+msgstr "Action"
+
+#: app/templates/admin_panel.html:114 app/templates/dashboard.html:38
+msgid "İptal Et"
+msgstr "Cancel"
+
+#: app/templates/admin_panel.html:122
+msgid "Sistemde henüz hiçbir rezervasyon bulunmuyor."
+msgstr "No reservations exist in the system yet."
+
+#: app/templates/admin_panel.html:125 app/templates/admin_panel.html:126
+msgid "Kullanıcı Yönetimi"
+msgstr "User Management"
+
+#: app/templates/admin_panel.html:131
+msgid "Kullanıcı Adı"
+msgstr "Username"
+
+#: app/templates/admin_panel.html:132
+msgid "E-Posta"
+msgstr "Email"
+
+#: app/templates/admin_panel.html:133
+msgid "Rol"
+msgstr "Role"
+
+#: app/templates/admin_panel.html:145
+msgid "Admin"
+msgstr "Admin"
+
+#: app/templates/admin_panel.html:147
+msgid "User"
+msgstr "User"
+
+#: app/templates/admin_panel.html:153
+msgid "Kullanıcıyı Sil"
+msgstr "Delete User"
+
+#: app/templates/admin_panel.html:156
+msgid "Kendiniz"
+msgstr "Yourself"
+
+#: app/templates/admin_panel.html:165
+msgid "Oda Yönetimi"
+msgstr "Room Management"
+
+#: app/templates/admin_panel.html:170
+msgid "Oda Adı"
+msgstr "Room Name"
+
+#: app/templates/admin_panel.html:171 app/templates/rooms/book.html:71
+#: app/templates/rooms/list.html:13
+msgid "Kapasite"
+msgstr "Capacity"
+
+#: app/templates/admin_panel.html:172
+msgid "Açıklama"
+msgstr "Description"
+
+#: app/templates/admin_panel.html:181 app/templates/rooms/book.html:71
+#: app/templates/rooms/list.html:13
+msgid "Kişi"
+msgstr "People"
+
+#: app/templates/admin_panel.html:185
+msgid "Odayı Sil"
+msgstr "Delete Room"
+
+#: app/templates/admin_panel.html:195
+msgid "Sistem Logları (Son 50 İşlem)"
+msgstr "System Logs (Last 50 Actions)"
+
+#: app/templates/admin_panel.html:198
+msgid "Logları Temizle"
+msgstr "Clear Logs"
+
+#: app/templates/admin_panel.html:205
+msgid "Tarih / Saat"
+msgstr "Date / Time"
+
+#: app/templates/admin_panel.html:206
+msgid "İşlem Türü"
+msgstr "Action Type"
+
+#: app/templates/admin_panel.html:208
+msgid "Detaylar"
+msgstr "Details"
+
+#: app/templates/admin_panel.html:217
+msgid "GİRİŞ"
+msgstr "LOGIN"
+
+#: app/templates/admin_panel.html:219
+msgid "REZERVASYON"
+msgstr "RESERVATION"
+
+#: app/templates/admin_panel.html:221
+msgid "İPTAL/SİLME"
+msgstr "CANCEL/DELETE"
+
+#: app/templates/admin_panel.html:231
+msgid "Henüz log kaydı yok."
+msgstr "No log records yet."
+
+#: app/templates/admin_panel.html:237
+msgid ""
+"Not: Hızlı iptal işlemleri için \"Günlük Durum\" sekmesine gidip kırmızı "
+"kutulara tıklayabilirsiniz."
+msgstr ""
+"Note: For quick cancellations, you can go to the \"Daily Overview\" tab and "
+"click on the red boxes."
+
+#: app/templates/base.html:231
+msgid "Günlük Durum"
+msgstr "Daily Overview"
+
+#: app/templates/base.html:232 app/templates/index.html:15
+msgid "Odalar"
+msgstr "Rooms"
+
+#: app/templates/base.html:233 app/templates/index.html:16
+msgid "Dashboard"
+msgstr "Dashboard"
+
+#: app/templates/base.html:234
+msgid "Sanal Kapı (Test)"
+msgstr "Virtual Door (Test)"
+
+#: app/templates/base.html:236
+msgid "Admin Panel"
+msgstr "Admin Panel"
+
+#: app/templates/base.html:248
+msgid "Bildirimler"
+msgstr "Notifications"
+
+#: app/templates/base.html:258
+msgid "Onayla"
+msgstr "Accept"
+
+#: app/templates/base.html:259
+msgid "Reddet"
+msgstr "Reject"
+
+#: app/templates/base.html:262
+msgid "Okundu İşaretle"
+msgstr "Mark as Read"
+
+#: app/templates/base.html:267 app/templates/base.html:386
+msgid "Yeni bildiriminiz yok."
+msgstr "You have no new notifications."
+
+#: app/templates/base.html:276
+msgid "Kabul Edilen Toplantılar"
+msgstr "Accepted Meetings"
+
+#: app/templates/base.html:279
+msgid "Yaklaşan Toplantılar"
+msgstr "Upcoming Meetings"
+
+#: app/templates/base.html:282 app/templates/base.html:420
+#: app/templates/dashboard.html:14 app/templates/dashboard.html:58
+msgid "Odası"
+msgstr "Room"
+
+#: app/templates/base.html:292 app/templates/dashboard.html:34
+#: app/templates/dashboard.html:71
+msgid "Takvime Ekle"
+msgstr "Add to Calendar"
+
+#: app/templates/base.html:310
+msgid "Çıkış Yap"
+msgstr "Logout"
+
+#: app/templates/auth/login.html:5 app/templates/base.html:312
+#: app/templates/index.html:10
+msgid "Giriş Yap"
+msgstr "Login"
+
+#: app/templates/auth/register.html:5 app/templates/base.html:313
+#: app/templates/index.html:11
+msgid "Kayıt Ol"
+msgstr "Sign Up"
+
+#: app/templates/base.html:419
+msgid "Şu an Toplantıdasınız"
+msgstr "You are currently in a meeting"
+
+#: app/templates/dashboard.html:5
+msgid "Rezervasyonlarım"
+msgstr "My Reservations"
+
+#: app/templates/dashboard.html:6
+msgid "Yeni Rezervasyon"
+msgstr "New Reservation"
+
+#: app/templates/dashboard.html:24
+msgid "Davetliler"
+msgstr "Attendees"
+
+#: app/templates/dashboard.html:36 app/templates/dashboard.html:72
+msgid "QR Göster"
+msgstr "Show QR"
+
+#: app/templates/dashboard.html:38
+msgid "Bu rezervasyonu iptal etmek istediğinize emin misiniz?"
+msgstr "Are you sure you want to cancel this reservation?"
+
+#: app/templates/dashboard.html:47
+msgid "Henüz bir rezervasyonunuz bulunmuyor."
+msgstr "You have no reservations yet."
+
+#: app/templates/dashboard.html:48
+msgid "Hemen Oda Rezervasyonu Yap"
+msgstr "Book a Room Now"
+
+#: app/templates/dashboard.html:52
+msgid "Davet Edildiğim Toplantılar"
+msgstr "Meetings I Am Invited To"
+
+#: app/templates/dashboard.html:67
+msgid "Oluşturan"
+msgstr "Created By"
+
+#: app/templates/dashboard.html:80
+msgid "Şu an için davet edildiğiniz bir toplantı bulunmuyor."
+msgstr "You are currently not invited to any meetings."
+
+#: app/templates/dashboard.html:88
+msgid "Oda Giriş QR Kodu"
+msgstr "Room Entry QR Code"
+
+#: app/templates/dashboard.html:89
+msgid "Kapıdaki okuyucuya bu QR kodu okutarak odaya giriş yapabilirsiniz."
+msgstr "You can enter the room by scanning this QR code at the door reader."
+
+#: app/templates/dashboard.html:94
+#, fuzzy
+msgid "Kapat"
+msgstr "Close"
+
+#: app/templates/door_scanner.html:5
+msgid "Sanal Kapı Okuyucu"
+msgstr "Virtual Door Scanner"
+
+#: app/templates/door_scanner.html:6
+msgid "Kameraya QR kodu göstererek kapı girişini simüle edin."
+msgstr "Simulate door entry by showing a QR code to the camera."
+
+#: app/templates/door_scanner.html:15
+msgid "Yeniden Okut"
+msgstr "Scan Again"
+
+#: app/templates/door_scanner.html:38
+msgid "Doğrulanıyor..."
+msgstr "Verifying..."
+
+#: app/templates/door_scanner.html:39
+msgid "QR Kod sunucuya iletiliyor..."
+msgstr "Sending QR code to the server..."
+
+#: app/templates/door_scanner.html:54
+msgid "KAPI AÇILDI"
+msgstr "DOOR OPENED"
+
+#: app/templates/door_scanner.html:62
+msgid "ERİŞİM REDDEDİLDİ"
+msgstr "ACCESS DENIED"
+
+#: app/templates/door_scanner.html:68
+msgid "HATA"
+msgstr "ERROR"
+
+#: app/templates/door_scanner.html:69
+msgid "Sunucuyla bağlantı kurulamadı."
+msgstr "Could not connect to server."
+
+#: app/templates/index.html:5
+msgid "Toplantı Odası Rezervasyon Sistemine Hoş Geldiniz"
+msgstr "Welcome to the Meeting Room Reservation System"
+
+#: app/templates/index.html:6
+msgid ""
+"Lütfen rezervasyon yapmak veya mevcut odaları görüntülemek için giriş yapın."
+msgstr "Please log in to make a reservation or view available rooms."
+
+#: app/templates/auth/login.html:36
+msgid "Beni Hatırla"
+msgstr "Remember Me"
+
+#: app/templates/auth/login.html:44
+msgid "Şifremi Unuttum"
+msgstr "Forgot Password"
+
+#: app/templates/auth/login.html:48
+msgid "Hesabınız yok mu?"
+msgstr "Don't have an account?"
+
+#: app/templates/auth/login.html:48
+msgid "Hemen Kayıt Olun"
+msgstr "Sign Up Now"
+
+#: app/templates/auth/register.html:65
+msgid "Zaten hesabınız var mı?"
+msgstr "Already have an account?"
+
+#: app/templates/auth/register.html:65
+msgid "Giriş Yapın"
+msgstr "Log In"
+
+#: app/templates/rooms/book.html:76
+msgid "Rezervasyon Tarihi"
+msgstr "Reservation Date"
+
+#: app/templates/rooms/book.html:83
+msgid "Kişileri Davet Et (Opsiyonel)"
+msgstr "Invite People (Optional)"
+
+#: app/templates/rooms/book.html:89
+msgid "Birden fazla kişi seçmek için isimlerin üzerine tıklamanız yeterlidir."
+msgstr "Simply click on names to select multiple people."
+
+#: app/templates/rooms/book.html:109 app/templates/rooms/book.html:149
+#: app/templates/rooms/book.html:223
+msgid "Lütfen Saat Seçin"
+msgstr "Please Select Time"
+
+#: app/templates/rooms/book.html:115
+msgid "Uygun Saatler"
+msgstr "Available Times"
+
+#: app/templates/rooms/book.html:116
+msgid "Yeşil renkli boş saatlere tıklayarak seçiminizi yapabilirsiniz."
+msgstr "You can make your selection by clicking on the green empty times."
+
+#: app/templates/rooms/book.html:118
+msgid "Saatler yükleniyor..."
+msgstr "Loading times..."
+
+#: app/templates/rooms/book.html:171
+msgid "Bu saat dolu"
+msgstr "This time is booked"
+
+#: app/templates/rooms/book.html:186
+msgid "Seçimi Onayla"
+msgstr "Confirm Selection"
+
+#: app/templates/rooms/book.html:224
+msgid ""
+"Üzgünüz, az önce seçtiğiniz saat dilimi başka bir kullanıcı tarafından "
+"rezerve edildi."
+msgstr "Sorry, the time slot you just selected was reserved by another user."
+
+#: app/templates/rooms/list.html:5
+msgid "Toplantı Odaları"
+msgstr "Meeting Rooms"
+
+#: app/templates/rooms/list.html:6
+msgid "Lütfen rezervasyon yapmak istediğiniz odayı seçin."
+msgstr "Please select the room you want to book."
+
+#: app/templates/rooms/list.html:15
+msgid "Takvimi Görüntüle"
+msgstr "View Calendar"
+
+#~ msgid "overview"
+#~ msgstr ""
+
+#~ msgid "admin"
+#~ msgstr ""
+
+#~ msgid "logout"
+#~ msgstr ""
+
+#~ msgid "login"
+#~ msgstr ""
+
+#~ msgid "register"
+#~ msgstr ""
+
+#~ msgid "rooms"
+#~ msgstr ""
+
+#~ msgid "dashboard"
+#~ msgstr ""
+
+#~ msgid "Günlük Durum"
+#~ msgstr "Daily Overview"
+
+#~ msgid "Odalar"
+#~ msgstr "Rooms"
+
+#~ msgid "Dashboard"
+#~ msgstr "Dashboard"
+
+#~ msgid "Admin Panel"
+#~ msgstr "Admin Panel"
+
+#~ msgid "Bildirimler"
+#~ msgstr "Notifications"
+
+#~ msgid "Onayla"
+#~ msgstr "Accept"
+
+#~ msgid "Reddet"
+#~ msgstr "Reject"
+
+#~ msgid "Okundu İşaretle"
+#~ msgstr "Mark as Read"
+
+#~ msgid "Yeni bildiriminiz yok."
+#~ msgstr "You have no new notifications."
+
+#~ msgid "Kabul Edilen Toplantılar"
+#~ msgstr "Accepted Meetings"
+
+#~ msgid "Yaklaşan Toplantılar"
+#~ msgstr "Upcoming Meetings"
+
+#~ msgid "Odası"
+#~ msgstr "Room"
+
+#~ msgid "Takvime Ekle"
+#~ msgstr "Add to Calendar"
+
+#~ msgid "Çıkış Yap"
+#~ msgstr "Logout"
+
+#~ msgid "Giriş Yap"
+#~ msgstr "Login"
+
+#~ msgid "Kayıt Ol"
+#~ msgstr "Sign Up"
+
+#~ msgid "Şu an Toplantıdasınız"
+#~ msgstr "You are currently in a meeting"
+
+#~ msgid "Rezervasyonlarım"
+#~ msgstr "My Reservations"
+
+#~ msgid "Yeni Rezervasyon"
+#~ msgstr "New Reservation"
+
+#~ msgid "Davetliler"
+#~ msgstr "Attendees"
+
+#~ msgid "Bu rezervasyonu iptal etmek istediğinize emin misiniz?"
+#~ msgstr "Are you sure you want to cancel this reservation?"
+
+#~ msgid "İptal Et"
+#~ msgstr "Cancel"
+
+#~ msgid "Henüz bir rezervasyonunuz bulunmuyor."
+#~ msgstr "You have no reservations yet."
+
+#~ msgid "Hemen Oda Rezervasyonu Yap"
+#~ msgstr "Book a Room Now"
+
+#~ msgid "Davet Edildiğim Toplantılar"
+#~ msgstr "Meetings I Am Invited To"
+
+#~ msgid "Oluşturan"
+#~ msgstr "Created By"
+
+#~ msgid "Şu an için davet edildiğiniz bir toplantı bulunmuyor."
+#~ msgstr "You are currently not invited to any meetings."
+
+#~ msgid "Toplantı Odası Rezervasyon Sistemine Hoş Geldiniz"
+#~ msgstr "Welcome to the Meeting Room Reservation System"
+
+#~ msgid ""
+#~ "Lütfen rezervasyon yapmak veya mevcut odaları görüntülemek için giriş yapın."
+#~ msgstr "Please log in to make a reservation or view available rooms."
+
+#~ msgid "Beni Hatırla"
+#~ msgstr "Remember Me"
+
+#~ msgid "Şifremi Unuttum"
+#~ msgstr "Forgot Password"
+
+#~ msgid "Hesabınız yok mu?"
+#~ msgstr "Don't have an account?"
+
+#~ msgid "Hemen Kayıt Olun"
+#~ msgstr "Sign Up Now"
+
+#~ msgid "Zaten hesabınız var mı?"
+#~ msgstr "Already have an account?"
+
+#~ msgid "Giriş Yapın"
+#~ msgstr "Log In"
+
+#~ msgid "Kapasite"
+#~ msgstr "Capacity"
+
+#~ msgid "Kişi"
+#~ msgstr "People"
+
+#~ msgid "Rezervasyon Tarihi"
+#~ msgstr "Reservation Date"
+
+#~ msgid "Kişileri Davet Et (Opsiyonel)"
+#~ msgstr "Invite People (Optional)"
+
+#~ msgid ""
+#~ "Birden fazla kişi seçmek için Ctrl (veya Cmd) tuşuna basılı tutarak "
+#~ "tıklayın."
+#~ msgstr "Hold Ctrl (or Cmd) to select multiple people."
+
+#~ msgid "Lütfen Saat Seçin"
+#~ msgstr "Please Select Time"
+
+#~ msgid "Uygun Saatler"
+#~ msgstr "Available Times"
+
+#~ msgid "Yeşil renkli boş saatlere tıklayarak seçiminizi yapabilirsiniz."
+#~ msgstr "You can make your selection by clicking on the green empty times."
+
+#~ msgid "Saatler yükleniyor..."
+#~ msgstr "Loading times..."
+
+#~ msgid "Bu saat dolu"
+#~ msgstr "This time is booked"
+
+#~ msgid "Seçimi Onayla"
+#~ msgstr "Confirm Selection"
+
+#~ msgid ""
+#~ "Üzgünüz, az önce seçtiğiniz saat dilimi başka bir kullanıcı tarafından "
+#~ "rezerve edildi."
+#~ msgstr "Sorry, the time slot you just selected was reserved by another user."
+
+#~ msgid "Toplantı Odaları"
+#~ msgstr "Meeting Rooms"
+
+#~ msgid "Lütfen rezervasyon yapmak istediğiniz odayı seçin."
+#~ msgstr "Please select the room you want to book."
+
+#~ msgid "Takvimi Görüntüle"
+#~ msgstr "View Calendar"

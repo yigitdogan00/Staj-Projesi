@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div style="margin-bottom: 2rem;">
+    <h2 style="font-size: 2rem; margin-bottom: 0.5rem;">{{ gettext('Toplantı Odaları') }}</h2>
+    <p style="color: #cbd5e1;">{{ gettext('Lütfen rezervasyon yapmak istediğiniz odayı seçin.') }}</p>
+</div>
+
+<style>
+    .rooms-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 1.5rem;
+    }
+    @media (max-width: 600px) {
+        .rooms-grid {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+        .room-card-header {
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+    }
+</style>
+
+<div class="rooms-grid">
+    {% for stat in room_stats %}
+    {% set room = stat.room %}
+    <div class="glass-card" style="margin: 0; padding: 1.5rem; text-align: left; display: flex; flex-direction: column;">
+        <div class="room-card-header" style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
+            <h3 style="margin-top: 0; color: var(--primary); font-size: 1.5rem; margin-bottom: 0; word-break: break-word;">{{ room.name }}</h3>
+            <span style="background-color: {{ stat.color }}; color: white; padding: 0.25rem 0.75rem; border-radius: 999px; font-size: 0.75rem; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.2); white-space: nowrap;">
+                {{ stat.label }}
+            </span>
+        </div>
+        
+        <p style="font-size: 0.875rem; color: #94a3b8; margin-bottom: 0.5rem;">
+            <strong style="color: white;">Bugünün Durumu:</strong> 
+            {% if stat.booked_minutes == 0 %}
+                Hiç rezervasyon yok
+            {% else %}
+                Toplam {{ stat.booked_minutes // 60 }}s {{ stat.booked_minutes % 60 }}dk dolu
+            {% endif %}
+        </p>
+        
+        <p style="font-size: 0.875rem; color: #94a3b8; margin-bottom: 1rem;"><strong style="color: white;">{{ gettext('Kapasite') }}:</strong> {{ room.capacity }} {{ gettext('Kişi') }}</p>
+        <p style="font-size: 0.875rem; color: #cbd5e1; margin-bottom: 1.5rem; flex-grow: 1;">{{ room.description }}</p>
+        <a href="{{ url_for('main.book_room', room_id=room.id) }}" class="btn" style="text-align: center;">{{ gettext('Takvimi Görüntüle') }}</a>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

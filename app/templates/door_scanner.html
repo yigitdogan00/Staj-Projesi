@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container" style="max-width: 600px; margin: 0 auto; text-align: center; padding: 2rem 0;">
+    <h2 style="margin-bottom: 1rem; color: #f8fafc;">{{ gettext('Sanal Kapı Okuyucu') }}</h2>
+    <p style="color: #cbd5e1; margin-bottom: 2rem;">{{ gettext('Kameraya QR kodu göstererek veya aşağıdan rezervasyon seçerek kapı girişini simüle edin.') }}</p>
+
+    <!-- Scanner Container -->
+    <div id="reader" style="width: 100%; max-width: 500px; margin: 0 auto; border-radius: 1rem; overflow: hidden; border: 2px solid var(--border-color); background: #1e293b;"></div>
+    
+    <!-- Result Container -->
+    <div id="result-container" style="display: none; margin-top: 2rem; margin-bottom: 2rem; padding: 2rem; border-radius: 1rem; text-align: center; color: white;">
+        <h1 id="result-title" style="margin: 0; font-size: 2.5rem; font-weight: bold; margin-bottom: 1rem;"></h1>
+        <p id="result-message" style="font-size: 1.2rem; margin: 0;"></p>
+        <button onclick="resetScanner()" class="btn" style="margin-top: 2rem; background: rgba(255,255,255,0.2);">{{ gettext('Yeniden Okut') }}</button>
+    </div>
+    
+    <!-- Manual Simulation Fallback -->
+    <div style="margin-top: 3rem; background: var(--card-bg); padding: 2rem; border-radius: 1rem; border: 1px solid var(--border-color);">
+        <h3 style="margin-top: 0; color: #f8fafc;">Kamera Çalışmıyor Mu?</h3>
+        <p style="font-size: 0.875rem; color: #cbd5e1; margin-bottom: 0;">Güvenlik nedeniyle kameranız engellendiyse, Dashboard'dan aldığınız QR kodun ekran görüntüsünü alıp yukarıdaki okuyucu alanından <strong>"Scan an Image File"</strong> yazısına tıklayarak o ekran görüntüsünü yükleyebilir ve test edebilirsiniz.</p>
+    </div>
+</div>
+
+<script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+<script>
+    let html5QrcodeScanner = null;
+
+    function onScanSuccess(decodedText, decodedResult) {
+        // Stop scanning to prevent multiple requests
+        if (html5QrcodeScanner) {
+            html5QrcodeScanner.clear();
+        }
+        
+        document.getElementById('reader').style.display = 'none';
+        
+        // Show scanning feedback
+        const resultContainer = document.getElementById('result-container');
+        const resultTitle = document.getElementById('result-title');
+        const resultMessage = document.getElementById('result-message');
+        
+        resultContainer.style.display = 'block';
+        resultContainer.style.background = '#334155';
+        resultTitle.innerText = "{{ gettext('Doğrulanıyor...') }}";
+        resultMessage.innerText = "{{ gettext('QR Kod sunucuya iletiliyor...') }}";
+
+        // Send to API
+        fetch('/api/door/scan', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ token: decodedText })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                // Door Opened or Exited
+                resultContainer.style.background = '#10b981'; // Green
+                
+                if (data.message.includes('Çıkış yapıldı') || data.message.includes('boşa çıkarıldı')) {
+                    resultTitle.innerText = "{{ gettext('ÇIKIŞ YAPILDI') }}";
+                } else {
+                    resultTitle.innerText = "{{ gettext('KAPI AÇILDI') }}";
+                }
+                
+                resultMessage.innerText = data.message;
+                
+                // Eğer çıkış yapıldıysa aktif toplantı banner'ını gizle
+                if (data.message.includes('Çıkış yapıldı') || data.message.includes('boşa çıkarıldı')) {
+                    const activeBanner = document.getElementById('activeMeetingBanner');
+                    if (activeBanner) {
+                        activeBanner.style.display = 'none';
+                    }
+                }
+            } else {
+                // Error / Invalid
+                resultContainer.style.background = '#ef4444'; // Red
+                resultTitle.innerText = "{{ gettext('ERİŞİM REDDEDİLDİ') }}";
+                resultMessage.innerText = data.message;
+            }
+        })
+        .catch((error) => {
+            resultContainer.style.background = '#ef4444';
+            resultTitle.innerText = "{{ gettext('HATA') }}";
+            resultMessage.innerText = "{{ gettext('Sunucuyla bağlantı kurulamadı.') }}";
+        });
+    }
+
+    function onScanFailure(error) {
+        // Handle scan failure, usually better to ignore and keep scanning.
+    }
+    
+    function resetScanner() {
+        document.getElementById('result-container').style.display = 'none';
+        document.getElementById('reader').style.display = 'block';
+        startScanner();
+    }
+
+    function startScanner() {
+        html5QrcodeScanner = new Html5QrcodeScanner(
+            "reader",
+            { fps: 10, qrbox: {width: 250, height: 250} },
+            /* verbose= */ false);
+        html5QrcodeScanner.render(onScanSuccess, onScanFailure);
+    }
+    
+    function simulateManualScan() {
+        const token = document.getElementById('testToken').value;
+        if (!token) return alert('Lütfen listeden bir rezervasyon seçin.');
+        onScanSuccess(token, null);
+    }
+    
+    // Start scanner on load
+    document.addEventListener("DOMContentLoaded", () => {
+        startScanner();
+    });
+</script>
+{% endblock %}

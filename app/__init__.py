@@ -1,0 +1,67 @@
+from flask import Flask, request, session
+from app.config import Config
+from app.extensions import db, login_manager, bcrypt, babel, scheduler
+
+def get_locale():
+    if 'lang' in session:
+        return session['lang']
+    return request.accept_languages.best_match(['tr', 'en']) or 'tr'
+
+def create_app(config_class=Config):
+    app = Flask(__name__)
+    app.config.from_object(config_class)
+    
+    app.config['BABEL_DEFAULT_LOCALE'] = 'tr'
+    app.config['BABEL_TRANSLATION_DIRECTORIES'] = 'translations'
+
+    # Initialize Extensions
+    db.init_app(app)
+    login_manager.init_app(app)
+    bcrypt.init_app(app)
+    babel.init_app(app, locale_selector=get_locale)
+    
+    scheduler.init_app(app)
+    
+    from app.extensions import oauth
+    oauth.init_app(app)
+    oauth.register(
+        name='google',
+        client_id=app.config.get('GOOGLE_CLIENT_ID'),
+        client_secret=app.config.get('GOOGLE_CLIENT_SECRET'),
+        server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',
+        client_kwargs={
+            'scope': 'openid email profile'
+        }
+    )    
+    from app.jobs import check_upcoming_reservations, check_short_term_reminders
+    # Schedule the job to run daily at 08:00 AM
+    scheduler.add_job(id='Daily Reservation Check', func=check_upcoming_reservations, args=[app], trigger='cron', hour=8, minute=0)
+    
+    # Schedule short-term reminders to run exactly at the 0th second of every minute
+    scheduler.add_job(id='Short Term Reminder Check', func=check_short_term_reminders, args=[app], trigger='cron', second=0)
+    
+    # Start scheduler
+    scheduler.start()
+
+    # Register Blueprints
+    from app.auth import bp as auth_bp
+    app.register_blueprint(auth_bp, url_prefix='/auth')
+
+    from app.main import bp as main_bp
+    app.register_blueprint(main_bp)
+
+    @app.route('/health')
+    def health_check():
+        return {'status': 'healthy'}
+
+    with app.app_context():
+        from sqlalchemy import text
+        db.create_all()
+        # Add is_admin column if missing
+        try:
+            db.session.execute(text('ALTER TABLE "user" ADD COLUMN is_admin BOOLEAN DEFAULT FALSE;'))
+            db.session.commit()
+        except Exception:
+            db.session.rollback()
+
+    return app

@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="glass-card animation" style="--i:1">
+    <h2>{{ gettext('Kayıt Ol') }}</h2>
+    <form method="POST" action="">
+        {{ form.hidden_tag() }}
+        <div class="form-group">
+            {{ form.username.label }}
+            {% if form.username.errors %}
+                {{ form.username(class="form-control is-invalid") }}
+                <div class="invalid-feedback">
+                    {% for error in form.username.errors %}
+                        <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+            {% else %}
+                {{ form.username(class="form-control") }}
+            {% endif %}
+        </div>
+        <div class="form-group">
+            {{ form.email.label }}
+            {% if form.email.errors %}
+                {{ form.email(class="form-control is-invalid") }}
+                <div class="invalid-feedback">
+                    {% for error in form.email.errors %}
+                        <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+            {% else %}
+                {{ form.email(class="form-control") }}
+            {% endif %}
+        </div>
+        <div class="form-group">
+            {{ form.password.label }}
+            {% if form.password.errors %}
+                {{ form.password(class="form-control is-invalid") }}
+                <div class="invalid-feedback">
+                    {% for error in form.password.errors %}
+                        <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+            {% else %}
+                {{ form.password(class="form-control") }}
+            {% endif %}
+        </div>
+        <div class="form-group">
+            {{ form.confirm_password.label }}
+            {% if form.confirm_password.errors %}
+                {{ form.confirm_password(class="form-control is-invalid") }}
+                <div class="invalid-feedback">
+                    {% for error in form.confirm_password.errors %}
+                        <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+            {% else %}
+                {{ form.confirm_password(class="form-control") }}
+            {% endif %}
+        </div>
+        <div class="form-group">
+            {{ form.submit(class="btn") }}
+        </div>
+    </form>
+    
+    <!-- Google Login Divider -->
+    <div style="display: flex; align-items: center; margin: 2rem 0;">
+        <div style="flex-grow: 1; border-bottom: 1px solid rgba(255, 255, 255, 0.1);"></div>
+        <span style="padding: 0 1rem; color: #94a3b8; font-size: 0.875rem;">VEYA</span>
+        <div style="flex-grow: 1; border-bottom: 1px solid rgba(255, 255, 255, 0.1);"></div>
+    </div>
+    
+    <!-- Google Login Button -->
+    <div style="text-align: center; margin-bottom: 2rem;">
+        <a href="{{ url_for('auth.login_google') }}" class="btn" style="display: inline-flex; align-items: center; justify-content: center; background-color: white; color: #333; border: 1px solid #ddd; padding: 0.5rem 1.5rem; border-radius: 8px; font-weight: 500; font-size: 0.9rem; text-decoration: none; box-shadow: 0 2px 4px rgba(0,0,0,0.1); transition: all 0.3s ease; width: 100%;">
+            <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google Logo" style="width: 20px; height: 20px; margin-right: 12px;">
+            Google ile Kayıt Ol
+        </a>
+    </div>
+
+    <div style="text-align: center; margin-top: 1rem; font-size: 0.875rem;">
+        <small>{{ gettext('Zaten hesabınız var mı?') }} <a href="{{ url_for('auth.login') }}" style="color: var(--primary); text-decoration: none;">{{ gettext('Giriş Yapın') }}</a></small>
+    </div>
+</div>
+{% endblock %}
