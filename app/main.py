@@ -340,6 +340,25 @@ def rooms():
     return render_template('rooms/list.html', title='Odalar', room_stats=room_stats, today_date=today_str)
 
 
+@bp.route('/rooms/add', methods=['GET', 'POST'])
+@admin_required
+def add_room():
+    from app.forms import RoomForm
+    from app.models import Room
+    form = RoomForm()
+    if form.validate_on_submit():
+        new_room = Room(
+            name=form.name.data,
+            capacity=form.capacity.data,
+            description=form.description.data
+        )
+        db.session.add(new_room)
+        db.session.commit()
+        log_action(current_user.id, "ODA_EKLENDİ", f"{form.name.data} odası eklendi.")
+        flash(gettext('Yeni oda başarıyla eklendi!'), 'success')
+        return redirect(url_for('main.rooms'))
+    return render_template('rooms/add.html', title='Oda Ekle', form=form)
+
 @bp.route('/api/reservations/<int:room_id>/<date_str>')
 @login_required
 def api_reservations(room_id, date_str):

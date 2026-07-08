@@ -14,10 +14,15 @@ def register():
     if form.validate_on_submit():
         hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
         user = User(username=form.username.data, email=form.email.data, password_hash=hashed_password)
-        db.session.add(user)
-        db.session.commit()
-        flash('Hesabınız başarıyla oluşturuldu! Şimdi giriş yapabilirsiniz.', 'success')
-        return redirect(url_for('auth.login'))
+        try:
+            db.session.add(user)
+            db.session.commit()
+            flash('Hesabınız başarıyla oluşturuldu! Şimdi giriş yapabilirsiniz.', 'success')
+            return redirect(url_for('auth.login'))
+        except Exception as e:
+            db.session.rollback()
+            flash('Kayıt işlemi sırasında bir hata oluştu. Bu e-posta zaten kayıtlı olabilir veya butona çift tıklamış olabilirsiniz.', 'danger')
+            return render_template('auth/register.html', title='Kayıt Ol', form=form)
     return render_template('auth/register.html', title='Kayıt Ol', form=form)
 
 @bp.route('/login', methods=['GET', 'POST'])
@@ -35,9 +40,6 @@ def login():
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
         if user and bcrypt.check_password_hash(user.password_hash, form.password.data):
-            if user.email == 'yigit@rnd.com.tr' and not user.is_admin:
-                user.is_admin = True
-                db.session.commit()
             login_user(user, remember=form.remember.data)
             
             from app.utils import log_action
@@ -95,10 +97,6 @@ def authorize_google():
     if not user:
         flash('Sistemimizde bu Google e-posta adresiyle eşleşen bir kayıt bulunamadı. Lütfen sisteme giriş yapabilmek için önce Kayıt Ol sayfasından kayıt işleminizi tamamlayın.', 'warning')
         return redirect(url_for('auth.register'))
-    if user.email == 'yigit@rnd.com.tr' and not user.is_admin:
-        user.is_admin = True
-        db.session.commit()
-        
     login_user(user, remember=True)
     log_action(user.id, "SİSTEME_GİRİŞ", f"{user.username} Google Login ile sisteme giriş yaptı.")
     

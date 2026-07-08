@@ -52,3 +52,10 @@ class ResetPasswordForm(FlaskForm):
     password = PasswordField('Yeni Şifre', validators=[DataRequired(), Length(min=6)])
     confirm_password = PasswordField('Yeni Şifreyi Onayla', validators=[DataRequired(), EqualTo('password')])
     submit = SubmitField('Şifreyi Güncelle')
+
+class RoomForm(FlaskForm):
+    name = StringField('Oda İsmi', validators=[DataRequired(), Length(min=2, max=50)])
+    capacity = StringField('Kişi Sayısı (Kapasite)', validators=[DataRequired()])
+    description = StringField('Özellikler / Açıklama', validators=[Length(max=200)])
+    submit = SubmitField('Oda Ekle')
+

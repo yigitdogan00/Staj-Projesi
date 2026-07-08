@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    .form-card {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 1rem;
+        padding: 2.5rem;
+        max-width: 600px;
+        margin: 2rem auto;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+    }
+</style>
+
+<div class="form-card">
+    <div style="text-align: center; margin-bottom: 2rem;">
+        <h2 style="font-size: 1.8rem; margin: 0; color: #f8fafc;">{{ gettext('Yeni Toplantı Odası Ekle') }}</h2>
+        <p style="color: #94a3b8; margin-top: 0.5rem;">{{ gettext('Lütfen oda özelliklerini girin.') }}</p>
+    </div>
+
+    <form method="POST" action="">
+        {{ form.hidden_tag() }}
+        
+        <div class="form-group" style="margin-bottom: 1.5rem;">
+            {{ form.name.label(class="form-label", style="color: #cbd5e1;") }}
+            {% if form.name.errors %}
+                {{ form.name(class="form-control", style="border-color: #ef4444;") }}
+                <div style="color: #ef4444; font-size: 0.875rem; margin-top: 0.25rem;">
+                    {% for error in form.name.errors %}
+                        <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+            {% else %}
+                {{ form.name(class="form-control") }}
+            {% endif %}
+        </div>
+
+        <div class="form-group" style="margin-bottom: 1.5rem;">
+            {{ form.capacity.label(class="form-label", style="color: #cbd5e1;") }}
+            {% if form.capacity.errors %}
+                {{ form.capacity(class="form-control", style="border-color: #ef4444;") }}
+                <div style="color: #ef4444; font-size: 0.875rem; margin-top: 0.25rem;">
+                    {% for error in form.capacity.errors %}
+                        <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+            {% else %}
+                {{ form.capacity(class="form-control", type="number") }}
+            {% endif %}
+        </div>
+        
+        <div class="form-group" style="margin-bottom: 2rem;">
+            {{ form.description.label(class="form-label", style="color: #cbd5e1;") }}
+            {% if form.description.errors %}
+                {{ form.description(class="form-control", style="border-color: #ef4444;") }}
+                <div style="color: #ef4444; font-size: 0.875rem; margin-top: 0.25rem;">
+                    {% for error in form.description.errors %}
+                        <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+            {% else %}
+                {{ form.description(class="form-control") }}
+            {% endif %}
+        </div>
+
+        <div class="form-group" style="text-align: center;">
+            {{ form.submit(class="btn") }}
+            <a href="{{ url_for('main.rooms') }}" class="btn" style="background-color: transparent; border: 1px solid var(--primary); color: var(--primary); margin-left: 1rem;">{{ gettext('İptal') }}</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

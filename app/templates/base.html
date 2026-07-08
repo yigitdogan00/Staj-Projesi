@@ -29,26 +29,9 @@
         body {
             font-family: 'Inter', sans-serif;
 
-                {
-                % if request.endpoint=='main.index' %
-            }
-
-            /* Premium Dark Orange / Copper Glow (Göz yormayan, şık turuncu) */
-            background: radial-gradient(circle at center, #5c2605 0%, #291002 50%, #0a0401 100%);
-            background-size: 400% 400%;
-            animation: gradientBG 20s ease infinite;
-
-                {
-                % else %
-            }
-
             background: linear-gradient(145deg, #0f172a 0%, #1e1b4b 100%);
             background-size: cover;
             background-repeat: no-repeat;
-
-                {
-                % endif %
-            }
 
             color: var(--text-color);
             margin: 0;
@@ -60,9 +43,7 @@
             position: relative;
         }
 
-            {
-            % if request.endpoint=='main.index' %
-        }
+            {% if request.endpoint in ('main.index', 'auth.login', 'auth.register') %}
 
         @keyframes gradientBG {
             0% {
@@ -78,9 +59,7 @@
             }
         }
 
-            {
-            % endif %
-        }
+            {% endif %}
 
         /* Base Tech Pattern */
         .base-pattern {
@@ -105,9 +84,9 @@
             width: 100vw;
             height: 100vh;
             z-index: -2;
-            /* Extremely intense RND Orange & White blend */
+            /* Extremely intense RND Purple & White blend */
             background:
-                radial-gradient(circle at 50% 100%, #ea580c 0%, #9a3412 50%, transparent 80%),
+                radial-gradient(circle at 50% 100%, #6366f1 0%, #4338ca 50%, transparent 80%),
                 radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.6), transparent 50%),
                 radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.6), transparent 50%);
             opacity: var(--scroll-ratio, 0);
@@ -116,9 +95,7 @@
             transition: opacity 0.1s ease-out;
         }
 
-            {
-            % if request.endpoint=='main.index' %
-        }
+            {% if request.endpoint in ('main.index', 'auth.login', 'auth.register') %}
 
         /* Faint RND Text Watermark - Index Page Only */
         .rnd-watermark {
@@ -126,9 +103,9 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            font-size: 38vw;
+            font-size: 32vw;
             font-weight: 900;
-            
+
             /* Shimmer Effect Background */
             background: linear-gradient(120deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.05) 40%, rgba(255, 255, 255, 0.6) 50%, rgba(255, 255, 255, 0.05) 60%, rgba(255, 255, 255, 0.05) 100%);
             background-size: 200% auto;
@@ -206,9 +183,7 @@
             }
         }
 
-            {
-            % endif %
-        }
+            {% endif %}
 
 
 
@@ -351,7 +326,7 @@
                 right: -20vw;
                 width: 140vw;
                 height: 50vh;
-                background: radial-gradient(circle, rgba(245, 158, 11, 0.1) 0%, transparent 70%);
+                background: radial-gradient(circle, rgba(168, 85, 247, 0.1) 0%, transparent 70%);
                 z-index: -4;
                 pointer-events: none;
                 animation: floatOrb 12s infinite alternate-reverse;
@@ -617,7 +592,7 @@
     <div class="base-pattern"></div>
     <div class="rnd-scroll-bg"></div>
 
-    {% if request.endpoint == 'main.index' %}
+    {% if request.endpoint in ('main.index', 'auth.login', 'auth.register') %}
     <div class="watermark-spotlight-container">
         <div class="watermark-spotlight"></div>
     </div>

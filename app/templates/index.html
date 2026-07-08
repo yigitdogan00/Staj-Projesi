@@ -1,20 +1,219 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="glass-card" style="max-width: 800px; text-align: center; background: transparent; backdrop-filter: none; border: none; box-shadow: none;">
-    <h2 style="font-size: 2.5rem; text-shadow: 0 2px 10px rgba(0,0,0,0.5);">{{ gettext('Toplantı Odası Rezervasyon Sistemine Hoş Geldiniz') }}</h2>
-    <p style="margin-bottom: 2.5rem; color: #e2e8f0; font-size: 1.1rem; text-shadow: 0 2px 5px rgba(0,0,0,0.5);">{{ gettext('Lütfen rezervasyon yapmak veya mevcut odaları görüntülemek için giriş yapın.') }}</p>
+<style>
+    /* Premium Page Transition */
+    .slide-out-left {
+        animation: slideOutLeft 1.2s cubic-bezier(0.65, 0, 0.35, 1) forwards !important;
+    }
+
+    @keyframes slideOutLeft {
+        to {
+            transform: translateX(-100vw) scale(0.95);
+            opacity: 0;
+            filter: blur(10px);
+        }
+    }
+
+    .index-container {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        max-width: 1200px;
+        width: 100%;
+        margin: 0 auto;
+        padding: 2rem;
+        gap: 4rem;
+        min-height: 70vh;
+    }
+
+    .index-left {
+        flex: 1;
+        text-align: left;
+    }
+
+    .index-left h1 {
+        font-size: 3.5rem;
+        line-height: 1.2;
+        margin-bottom: 1.5rem;
+        background: linear-gradient(180deg, #ffffff 0%, #a5b4fc 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .index-left p {
+        font-size: 1.15rem;
+        color: #cbd5e1;
+        line-height: 1.7;
+        margin-bottom: 0;
+    }
+
+    .index-right {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+    }
+
+    /* macOS Style White Box */
+    .macos-window {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 16px;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.1);
+        width: 100%;
+        max-width: 450px;
+        overflow: hidden;
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        display: flex;
+        flex-direction: column;
+    }
+
+    .macos-header {
+        background: #f1f5f9;
+        padding: 12px 16px;
+        display: flex;
+        gap: 8px;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .macos-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+    }
+    .dot-red { background: #ff5f56; }
+    .dot-yellow { background: #ffbd2e; }
+    .dot-green { background: #27c93f; }
+
+    .macos-body {
+        padding: 3rem 2rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 1.5rem;
+        text-align: center;
+    }
+
+    .macos-body h3 {
+        color: #1e293b;
+        margin-top: 0;
+        margin-bottom: 1rem;
+        font-size: 1.5rem;
+    }
+
+    .premium-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        padding: 1rem;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 1.1rem;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+    }
+
+    .btn-login {
+        background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(79, 70, 229, 0.4);
+    }
+    .btn-login:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(79, 70, 229, 0.5);
+        color: white;
+    }
+
+    .btn-register {
+        background: transparent;
+        color: #4f46e5;
+        border: 2px solid #4f46e5;
+    }
+    .btn-register:hover {
+        background: rgba(79, 70, 229, 0.05);
+        transform: translateY(-2px);
+    }
+
+    @media (max-width: 900px) {
+        .index-container {
+            flex-direction: column;
+            text-align: center;
+            gap: 3rem;
+        }
+        .index-left {
+            text-align: center;
+        }
+        .index-left h1 {
+            font-size: 2.5rem;
+        }
+    }
+</style>
+
+<div class="index-container">
+    <div class="index-left">
+        <h1>{{ gettext('Toplantı Odası Rezervasyon Sistemine Hoş Geldiniz') }}</h1>
+        <p>{{ gettext('Modern, hızlı ve akıllı rezervasyon yönetimi. İhtiyacınız olan toplantı odasını anında bulun, saniyeler içinde ayırtın ve ekibinizi kolayca davet edin.') }}</p>
+    </div>
     
-    {% if not current_user.is_authenticated %}
-        <div style="display: flex; gap: 1rem; justify-content: center;">
-            <a href="{{ url_for('auth.login') }}" class="btn" style="width: auto;">{{ gettext('Giriş Yap') }}</a>
-            <a href="{{ url_for('auth.register') }}" class="btn" style="width: auto; background: rgba(79, 70, 229, 0.2); border: 1px solid var(--primary);">{{ gettext('Kayıt Ol') }}</a>
+    <div class="index-right">
+        {% if not current_user.is_authenticated %}
+        <div class="macos-window">
+            <div class="macos-header">
+                <div class="macos-dot dot-red"></div>
+                <div class="macos-dot dot-yellow"></div>
+                <div class="macos-dot dot-green"></div>
+            </div>
+            <div class="macos-body">
+                <h3>{{ gettext('Hemen Başlayın') }}</h3>
+                <a href="{{ url_for('auth.login') }}" class="premium-btn btn-login transition-link">{{ gettext('Giriş Yap') }}</a>
+                <a href="{{ url_for('auth.register') }}" class="premium-btn btn-register transition-link">{{ gettext('Kayıt Ol') }}</a>
+            </div>
         </div>
-    {% else %}
-        <div style="display: flex; gap: 1rem; justify-content: center;">
-            <a href="{{ url_for('main.rooms') }}" class="btn" style="width: auto;">{{ gettext('Odalar') }}</a>
-            <a href="{{ url_for('main.dashboard') }}" class="btn" style="width: auto; background: rgba(79, 70, 229, 0.2); border: 1px solid var(--primary);">{{ gettext('Dashboard') }}</a>
+        {% else %}
+        <div class="macos-window">
+            <div class="macos-header">
+                <div class="macos-dot dot-red"></div>
+                <div class="macos-dot dot-yellow"></div>
+                <div class="macos-dot dot-green"></div>
+            </div>
+            <div class="macos-body">
+                <h3>{{ gettext('Hoş Geldiniz') }}, {{ current_user.username }}!</h3>
+                <a href="{{ url_for('main.rooms') }}" class="premium-btn btn-login">{{ gettext('Odalar') }}</a>
+                <a href="{{ url_for('main.dashboard') }}" class="premium-btn btn-register">{{ gettext('Dashboard') }}</a>
+            </div>
         </div>
-    {% endif %}
+        {% endif %}
+    </div>
 </div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const transitionLinks = document.querySelectorAll('.transition-link');
+        
+        transitionLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetUrl = this.href;
+                
+                // Add slide out animation to body
+                document.body.classList.add('slide-out-left');
+                
+                // Wait for animation to complete before navigating
+                setTimeout(() => {
+                    window.location.href = targetUrl;
+                }, 1150); // Biraz önce geçiş yapsın diye süreden 50ms az tutuldu
+            });
+        });
+
+        // Kullanıcı "Geri" tuşuna bastığında bfcache (önbellek) nedeniyle sayfanın görünmez kalmasını engeller
+        window.addEventListener('pageshow', function(event) {
+            document.body.classList.remove('slide-out-left');
+        });
+    });
+</script>
 {% endblock %}

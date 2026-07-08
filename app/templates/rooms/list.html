@@ -1,9 +1,16 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div style="margin-bottom: 2rem;">
-    <h2 style="font-size: 2rem; margin-bottom: 0.5rem;">{{ gettext('Toplantı Odaları') }}</h2>
-    <p style="color: #cbd5e1;">{{ gettext('Lütfen rezervasyon yapmak istediğiniz odayı seçin.') }}</p>
+<div style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+    <div>
+        <h2 style="font-size: 2rem; margin-bottom: 0.5rem;">{{ gettext('Toplantı Odaları') }}</h2>
+        <p style="color: #cbd5e1;">{{ gettext('Lütfen rezervasyon yapmak istediğiniz odayı seçin.') }}</p>
+    </div>
+    <div>
+        {% if current_user.is_admin %}
+        <a href="{{ url_for('main.add_room') }}" class="btn" style="background-color: var(--primary);"><i class="fas fa-plus"></i> {{ gettext('Yeni Oda Ekle') }}</a>
+        {% endif %}
+    </div>
 </div>
 
 <style>
@@ -46,7 +53,14 @@
         
         <p style="font-size: 0.875rem; color: #94a3b8; margin-bottom: 1rem;"><strong style="color: white;">{{ gettext('Kapasite') }}:</strong> {{ room.capacity }} {{ gettext('Kişi') }}</p>
         <p style="font-size: 0.875rem; color: #cbd5e1; margin-bottom: 1.5rem; flex-grow: 1;">{{ room.description }}</p>
-        <a href="{{ url_for('main.book_room', room_id=room.id) }}" class="btn" style="text-align: center;">{{ gettext('Takvimi Görüntüle') }}</a>
+        <div style="display: flex; gap: 0.5rem; justify-content: center; flex-wrap: wrap;">
+            <a href="{{ url_for('main.book_room', room_id=room.id) }}" class="btn" style="text-align: center; flex: 1;">{{ gettext('Takvimi Görüntüle') }}</a>
+            {% if current_user.is_admin %}
+            <form action="{{ url_for('main.delete_room', room_id=room.id) }}" method="POST" style="margin: 0; display: inline-block;" onsubmit="return confirm('Bu odayı ve tüm rezervasyonlarını silmek istediğinize emin misiniz?');">
+                <button type="submit" class="btn" style="background-color: #ef4444; border: none; padding: 0.5rem 1rem;"><i class="fas fa-trash"></i> {{ gettext('Sil') }}</button>
+            </form>
+            {% endif %}
+        </div>
     </div>
     {% endfor %}
 </div>

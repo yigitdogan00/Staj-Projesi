@@ -54,16 +54,11 @@ def check_short_term_reminders(app):
         
         def notify_users(res, title, body):
             from app.models import User
-            from app.utils import send_email
             
             users_to_notify = [res.user_id] + [a.id for a in res.attendees if a.id != res.user_id]
             for uid in users_to_notify:
                 notif = Notification(user_id=uid, type='info', message=body)
                 db.session.add(notif)
-                
-                user = User.query.get(uid)
-                if user and user.email:
-                    send_email(user.email, title, body)
                     
             send_push_to_reservation_users(app, res, title, body)
             
