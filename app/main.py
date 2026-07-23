@@ -49,12 +49,12 @@ def profile():
         flash(gettext('Hesabınız başarıyla güncellendi!'), 'success')
         return redirect(url_for('main.profile'))
     elif request.method == 'GET':
-        if not current_user.first_name or not current_user.last_name:
-            from app.utils import parse_name_from_email
-            fn, ln = parse_name_from_email(current_user.email)
-            if not current_user.first_name and fn:
+        from app.utils import parse_name_from_email
+        fn, ln = parse_name_from_email(current_user.email)
+        if not current_user.last_name or not current_user.first_name or current_user.first_name.lower() in ['yigitdogan', 'testuser', 'admin']:
+            if fn:
                 current_user.first_name = fn
-            if not current_user.last_name and ln:
+            if ln:
                 current_user.last_name = ln
             db.session.commit()
 
