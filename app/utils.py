@@ -136,13 +136,13 @@ def send_reset_email(user):
 
     try:
         token = user.get_reset_token()
-        reset_url = url_for('auth.reset_token', token=token, _external=True, _scheme='https')
+        reset_url = url_for('auth.reset_token', token=token, _external=True)
 
-        mail_server = current_app.config.get('MAIL_SERVER', 'smtp.gmail.com')
-        mail_port = current_app.config.get('MAIL_PORT', 587)
-        mail_username = current_app.config.get('MAIL_USERNAME')
-        mail_password = current_app.config.get('MAIL_PASSWORD')
-        sender = current_app.config.get('MAIL_DEFAULT_SENDER') or mail_username
+        mail_server = str(current_app.config.get('MAIL_SERVER') or 'smtp.gmail.com').strip()
+        mail_port = int(current_app.config.get('MAIL_PORT') or 587)
+        mail_username = str(current_app.config.get('MAIL_USERNAME') or '').strip()
+        mail_password = str(current_app.config.get('MAIL_PASSWORD') or '').strip()
+        sender = str(current_app.config.get('MAIL_DEFAULT_SENDER') or mail_username).strip()
 
         if not mail_username or not mail_password:
             current_app.logger.warning("Mail credentials (MAIL_USERNAME/MAIL_PASSWORD) missing in config.")
@@ -180,7 +180,7 @@ Bu talebi siz yapmadıysanız lütfen bu e-postayı dikkate almayın.
         msg.attach(MIMEText(text_body, 'plain', 'utf-8'))
         msg.attach(MIMEText(html_body, 'html', 'utf-8'))
 
-        server = smtplib.SMTP(mail_server, mail_port)
+        server = smtplib.SMTP(mail_server, mail_port, timeout=10)
         server.starttls()
         server.login(mail_username, mail_password)
         server.sendmail(sender, [user.email], msg.as_string())

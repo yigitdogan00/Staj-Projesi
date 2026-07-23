@@ -135,41 +135,15 @@ def reset_request():
     if current_user.is_authenticated:
         return redirect(url_for('main.index'))
     from app.forms import RequestResetForm
-    from app.utils import log_action
+    from app.utils import log_action, send_reset_email
     form = RequestResetForm()
     if form.validate_on_submit():
         try:
             user = User.query.filter_by(email=form.email.data).first()
             if user:
-                try:
-                    from datetime import datetime, timedelta
-                    from app.models import AuditLog
-                    one_hour_ago = datetime.utcnow() - timedelta(hours=1)
-                    recent_requests = AuditLog.query.filter(
-                        AuditLog.user_id == user.id,
-                        AuditLog.action == "ŞİFRE_SIFIRLAMA_TALEBİ",
-                        AuditLog.timestamp >= one_hour_ago
-                    ).count()
-
-                    if recent_requests >= 3 and not user.is_admin:
-                        flash(gettext('Güvenlik uyarısı: Son 1 saat içinde çok fazla şifre sıfırlama talebinde bulundunuz. Lütfen hesabınızın güvenliği için daha sonra tekrar deneyin.'), 'danger')
-                        return redirect(url_for('auth.login'))
-                except Exception as ex:
-                    current_app.logger.error(f"Audit log check error: {ex}")
-                    
-                try:
-                    from app.utils import send_reset_email
-                    send_reset_email(user)
-                except Exception as ex:
-                    current_app.logger.error(f"Error sending reset email: {ex}")
-
+                send_reset_email(user)
                 try:
                     log_action(user.id, "ŞİFRE_SIFIRLAMA_TALEBİ", f"{form.email.data} için sıfırlama linki e-posta ile gönderildi.")
-                except Exception:
-                    pass
-            else:
-                try:
-                    log_action(None, "ŞİFRE_SIFIRLAMA_TALEBİ_BAŞARISIZ", f"{form.email.data} mail adresi sistemde bulunamadı.")
                 except Exception:
                     pass
         except Exception as e:

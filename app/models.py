@@ -33,15 +33,15 @@ class User(UserMixin, db.Model):
     reservations = db.relationship('Reservation', backref='user', lazy=True)
 
     def get_reset_token(self):
-        s = Serializer(current_app.config['SECRET_KEY'])
+        s = Serializer(current_app.config['SECRET_KEY'], salt='password-reset-salt')
         return s.dumps({'user_id': self.id})
 
     @staticmethod
     def verify_reset_token(token, expires_sec=1800):
-        s = Serializer(current_app.config['SECRET_KEY'])
+        s = Serializer(current_app.config['SECRET_KEY'], salt='password-reset-salt')
         try:
             user_id = s.loads(token, max_age=expires_sec)['user_id']
-        except:
+        except Exception:
             return None
         return User.query.get(user_id)
 
