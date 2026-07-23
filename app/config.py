@@ -3,6 +3,8 @@ from dotenv import load_dotenv
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 load_dotenv(os.path.join(basedir, '..', '.env'), override=True)
+if os.path.exists('/etc/secrets/.env'):
+    load_dotenv('/etc/secrets/.env', override=True)
 
 class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'super-secret-key-for-booking-system'
