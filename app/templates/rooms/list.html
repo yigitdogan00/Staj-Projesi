@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 
+{% block meta_description %}{{ gettext('Tüm toplantı odalarını ve doluluk durumlarını listeleyin. İhtiyacınıza uygun teknoloji ve kapasitedeki odayı seçip ayırtın.') }}{% endblock %}
+
 {% block content %}
 <div style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
     <div>
@@ -36,27 +38,28 @@
     {% set room = stat.room %}
     <div class="glass-card" style="margin: 0; padding: 1.5rem; text-align: left; display: flex; flex-direction: column;">
         <div class="room-card-header" style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
-            <h3 style="margin-top: 0; color: var(--primary); font-size: 1.5rem; margin-bottom: 0; word-break: break-word;">{{ room.name }}</h3>
+            <h3 style="margin-top: 0; color: var(--primary); font-size: 1.5rem; margin-bottom: 0; word-break: break-word;">{{ room.display_name }}</h3>
             <span style="background-color: {{ stat.color }}; color: white; padding: 0.25rem 0.75rem; border-radius: 999px; font-size: 0.75rem; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.2); white-space: nowrap;">
                 {{ stat.label }}
             </span>
         </div>
         
         <p style="font-size: 0.875rem; color: #94a3b8; margin-bottom: 0.5rem;">
-            <strong style="color: white;">Bugünün Durumu:</strong> 
+            <strong style="color: white;">{{ gettext('Bugünün Durumu') }}:</strong> 
             {% if stat.booked_minutes == 0 %}
-                Hiç rezervasyon yok
+                {{ gettext('Hiç rezervasyon yok') }}
             {% else %}
-                Toplam {{ stat.booked_minutes // 60 }}s {{ stat.booked_minutes % 60 }}dk dolu
+                {{ gettext('Toplam') }} {{ stat.booked_minutes // 60 }}{{ gettext('sa') }} {{ stat.booked_minutes % 60 }}{{ gettext('dk') }} {{ gettext('dolu') }}
             {% endif %}
         </p>
         
         <p style="font-size: 0.875rem; color: #94a3b8; margin-bottom: 1rem;"><strong style="color: white;">{{ gettext('Kapasite') }}:</strong> {{ room.capacity }} {{ gettext('Kişi') }}</p>
-        <p style="font-size: 0.875rem; color: #cbd5e1; margin-bottom: 1.5rem; flex-grow: 1;">{{ room.description }}</p>
+        <p style="font-size: 0.875rem; color: #cbd5e1; margin-bottom: 1.5rem; flex-grow: 1;">{{ gettext(room.description) }}</p>
         <div style="display: flex; gap: 0.5rem; justify-content: center; flex-wrap: wrap;">
             <a href="{{ url_for('main.book_room', room_id=room.id) }}" class="btn" style="text-align: center; flex: 1;">{{ gettext('Takvimi Görüntüle') }}</a>
             {% if current_user.is_admin %}
-            <form action="{{ url_for('main.delete_room', room_id=room.id) }}" method="POST" style="margin: 0; display: inline-block;" onsubmit="return confirm('Bu odayı ve tüm rezervasyonlarını silmek istediğinize emin misiniz?');">
+            <a href="{{ url_for('main.edit_room', room_id=room.id) }}" class="btn" style="background-color: #3b82f6; border: none; padding: 0.5rem 1rem;"><i class="fas fa-edit"></i> {{ gettext('Düzenle') }}</a>
+            <form action="{{ url_for('main.delete_room', room_id=room.id) }}" method="POST" style="margin: 0; display: inline-block;" onsubmit="return confirm('{{ gettext('Bu odayı ve tüm rezervasyonlarını silmek istediğinize emin misiniz?') }}');">
                 <button type="submit" class="btn" style="background-color: #ef4444; border: none; padding: 0.5rem 1rem;"><i class="fas fa-trash"></i> {{ gettext('Sil') }}</button>
             </form>
             {% endif %}

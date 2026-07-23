@@ -1,0 +1,192 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    .admin-table {
+        width: 100%;
+        border-collapse: collapse;
+        background: var(--card-bg);
+        border-radius: 0.5rem;
+        overflow: hidden;
+        margin-bottom: 2rem;
+    }
+
+    .admin-table th,
+    .admin-table td {
+        padding: 1rem;
+        text-align: left;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .admin-table th {
+        background: rgba(0, 0, 0, 0.2);
+        color: #94a3b8;
+        font-weight: 600;
+        font-size: 0.875rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .section-title {
+        color: white;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid var(--primary);
+        display: inline-block;
+    }
+</style>
+
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+    <h2 style="margin: 0;">{{ gettext('Gelişmiş Log Yönetimi') }}</h2>
+    <a href="{{ url_for('main.admin_panel') }}" class="btn" style="background: #334155; color: white; padding: 0.5rem 1rem; border-radius: 0.25rem; text-decoration: none;">
+        {{ gettext('Admin Paneline Dön') }}
+    </a>
+</div>
+
+<!-- Filtreleme ve Silme Formları -->
+<div style="background: var(--card-bg); padding: 1.5rem; border-radius: 0.5rem; margin-bottom: 2rem; border: 1px solid var(--border-color); display: flex; flex-wrap: wrap; gap: 2rem; justify-content: space-between; align-items: flex-end;">
+    
+    <form style="display: flex; flex-wrap: wrap; gap: 2rem; width: 100%; justify-content: space-between;">
+        
+        <div style="display: flex; gap: 1rem; align-items: flex-end;">
+            <div>
+                <label style="display: block; color: #94a3b8; font-size: 0.875rem; margin-bottom: 0.5rem;">{{ gettext('Tarih Seçin') }}</label>
+                <input type="date" id="log-date-input" name="date" value="{{ date_filter }}" class="form-control" style="background: var(--bg-color); color: white; border: 1px solid var(--border-color); padding: 0.5rem; border-radius: 0.25rem;">
+            </div>
+            <button type="submit" formaction="{{ url_for('main.admin_logs') }}" formmethod="GET" class="btn btn-primary" style="padding: 0.5rem 1.5rem;">{{ gettext('Getir') }}</button>
+            {% if date_filter %}
+            <a href="{{ url_for('main.admin_logs') }}" class="btn" style="background: #334155; color: white; padding: 0.5rem 1rem; border-radius: 0.25rem; text-decoration: none;">{{ gettext('Temizle') }}</a>
+            {% endif %}
+        </div>
+
+        <div>
+            <label style="display: block; color: #ef4444; font-size: 0.875rem; margin-bottom: 0.5rem; font-weight: bold;">{{ gettext('Tarihe Göre Sil') }}</label>
+            <div style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem;">
+                <button type="submit" formaction="{{ url_for('main.delete_logs_by_date') }}" formmethod="POST" class="btn" style="background: #ef4444; color: white; padding: 0.5rem 1.5rem; font-weight: bold;" onclick='
+                    var dateVal = document.getElementById("log-date-input").value;
+                    if(!dateVal) { alert("{{ gettext("Lütfen silinecek tarihi seçin.") }}"); return false; }
+                    return confirm("{{ gettext("Dikkat: ") }}" + dateVal + "{{ gettext(" tarihindeki TÜM log kayıtları kalıcı olarak silinecektir. Emin misiniz?") }}");
+                '>{{ gettext('Sil') }}</button>
+            </div>
+            <small style="display: block; color: #fbbf24; font-size: 0.75rem; max-width: 250px;">
+                ⚠️ {{ gettext('Dikkat: Seçilen tarihe ait TÜM log kayıtları kalıcı olarak silinecektir.') }}
+            </small>
+        </div>
+    </form>
+
+</div>
+
+<!-- Seçili Logları Silme Formu -->
+<form action="{{ url_for('main.delete_selected_logs') }}?page={{ logs.page }}&date={{ date_filter }}" method="POST" id="delete-selected-form">
+    
+    <div style="margin-bottom: 1rem; display: flex; justify-content: flex-end;">
+        <button type="submit" id="delete-selected-btn" class="btn btn-danger" style="background: #ef4444; color: white; padding: 0.5rem 1rem; border-radius: 0.25rem; font-weight: bold; border: none; cursor: pointer;">{{ gettext('Seçili Logları Temizle') }}</button>
+    </div>
+
+    <!-- Sistem Logları (Audit Logs) -->
+    <table class="admin-table">
+        <thead>
+            <tr>
+                <th style="width: 120px;">
+                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; margin: 0; padding: 0;">
+                        <input type="checkbox" id="select-all" style="cursor: pointer;"> {{ gettext('Tümünü Seç') }}
+                    </label>
+                </th>
+                <th>{{ gettext('Tarih') }}</th>
+            <th>{{ gettext('İşlem Türü') }}</th>
+            <th>{{ gettext('Kullanıcı') }}</th>
+            <th>{{ gettext('Detaylar') }}</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for log in logs.items %}
+        <tr>
+            <td><input type="checkbox" name="log_ids" value="{{ log.id }}" class="log-checkbox" style="cursor: pointer;"></td>
+            <td style="color: #cbd5e1; font-size: 0.875rem; white-space: nowrap;">{{ format_tr_datetime(log.timestamp) }}</td>
+            <td>
+                {% if log.action in ["SİSTEME_GİRİŞ", "LOGIN"] %}
+                <span style="color: #3b82f6; font-weight: 600;">{{ gettext('GİRİŞ') }}</span>
+                {% elif log.action == "REZERVASYON_OLUŞTURULDU" %}
+                <span style="color: #10b981; font-weight: 600;">{{ gettext('REZERVASYON') }}</span>
+                {% elif log.action == "REZERVASYON_İPTALİ" or "SİLİNDİ" in log.action %}
+                <span style="color: #ef4444; font-weight: 600;">{{ gettext('İPTAL/SİLME') }}</span>
+                {% else %}
+                <span style="color: #f59e0b; font-weight: 600;">{{ translate_log_action(log.action) }}</span>
+                {% endif %}
+            </td>
+            <td style="font-weight: 500;">
+                {% if log.user %}
+                    {{ log.user.full_name }} <span style="color: #94a3b8; font-size: 0.8em;">(@{{ log.user.username }})</span>
+                {% else %}
+                    {{ gettext('Sistem') }}
+                {% endif %}
+            </td>
+            <td style="font-size: 0.875rem;">{{ translate_log_details(log.details) }}</td>
+        </tr>
+        {% endfor %}
+        {% if not logs.items %}
+        <tr>
+            <td colspan="5" style="text-align: center; color: #64748b;">{{ gettext('Belirtilen kriterlere uygun log kaydı bulunamadı.') }}</td>
+        </tr>
+        {% endif %}
+    </tbody>
+</table>
+</form>
+
+<script>
+    document.getElementById('select-all').addEventListener('change', function(e) {
+        var checkboxes = document.getElementsByClassName('log-checkbox');
+        for (var i = 0; i < checkboxes.length; i++) {
+            checkboxes[i].checked = e.target.checked;
+        }
+    });
+
+    document.getElementById('delete-selected-form').addEventListener('submit', function(e) {
+        var checkboxes = document.getElementsByClassName('log-checkbox');
+        var checkedCount = 0;
+        for (var i = 0; i < checkboxes.length; i++) {
+            if (checkboxes[i].checked) {
+                checkedCount++;
+            }
+        }
+        
+        if (checkedCount === 0) {
+            e.preventDefault();
+            alert('Lütfen silmek için en az bir log seçin.');
+            return false;
+        }
+        
+        var confirmMsg = 'Seçilen ' + checkedCount + ' adet log kalıcı olarak silinecektir, emin misiniz?';
+        if (!confirm(confirmMsg)) {
+            e.preventDefault();
+            return false;
+        }
+    });
+</script>
+
+<!-- Pagination Controls and Export Button -->
+<div style="margin-top: 1.5rem; display: flex; justify-content: space-between; align-items: center;">
+    <div style="flex: 1;"></div>
+    
+    <div style="display: flex; justify-content: center; align-items: center; gap: 1rem; flex: 1;">
+        {% if logs.has_prev %}
+        <a href="{{ url_for('main.admin_logs', page=logs.prev_num, date=date_filter) }}" style="background: #334155; color: white; padding: 0.5rem 1rem; border-radius: 0.25rem; text-decoration: none; font-size: 0.875rem;">&laquo; {{ gettext('Önceki') }}</a>
+        {% endif %}
+        
+        {% if logs.pages > 0 %}
+        <span style="color: #94a3b8; font-size: 0.875rem; white-space: nowrap;">{{ gettext('Sayfa') }} {{ logs.page }} / {{ logs.pages }}</span>
+        {% endif %}
+
+        {% if logs.has_next %}
+        <a href="{{ url_for('main.admin_logs', page=logs.next_num, date=date_filter) }}" style="background: #334155; color: white; padding: 0.5rem 1rem; border-radius: 0.25rem; text-decoration: none; font-size: 0.875rem;">{{ gettext('Sonraki') }} &raquo;</a>
+        {% endif %}
+    </div>
+
+    <div style="flex: 1; display: flex; justify-content: flex-end;">
+        <a href="{{ url_for('main.export_admin_logs', date=date_filter) }}" class="btn" style="background: #10b981; color: white; padding: 0.5rem 1.5rem; border-radius: 0.25rem; text-decoration: none; font-weight: bold; box-shadow: 0 4px 6px rgba(16, 185, 129, 0.2);">
+            ⬇️ {{ gettext('CSV Olarak İndir') }}
+        </a>
+    </div>
+</div>
+
+{% endblock %}

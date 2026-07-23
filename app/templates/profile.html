@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 
+{% block meta_description %}{{ gettext('Kullanıcı profil bilgilerinizi, profil fotoğrafınızı ve hesap tercihlerinizi güncelleyin.') }}{% endblock %}
+
 {% block content %}
 <style>
     .profile-card {
@@ -43,7 +45,7 @@
 <div class="profile-card">
     <div style="text-align: center;">
         {% if image_file %}
-            <img class="profile-img-lg" src="{{ image_file }}" alt="Profil Fotoğrafı">
+            <img class="profile-img-lg" src="{{ image_file }}" alt="{{ gettext('Profil Fotoğrafı') }}">
         {% else %}
             <div class="profile-avatar-lg">{{ current_user.username[0] }}</div>
         {% endif %}
@@ -55,6 +57,35 @@
 
     <form method="POST" action="" enctype="multipart/form-data">
         {{ form.hidden_tag() }}
+        
+        <div class="form-group" style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
+            <div style="flex: 1;">
+                {{ form.first_name.label(class="form-label", style="color: #cbd5e1;") }}
+                {% if form.first_name.errors %}
+                    {{ form.first_name(class="form-control", style="border-color: #ef4444;") }}
+                    <div style="color: #ef4444; font-size: 0.875rem; margin-top: 0.25rem;">
+                        {% for error in form.first_name.errors %}
+                            <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    {{ form.first_name(class="form-control") }}
+                {% endif %}
+            </div>
+            <div style="flex: 1;">
+                {{ form.last_name.label(class="form-label", style="color: #cbd5e1;") }}
+                {% if form.last_name.errors %}
+                    {{ form.last_name(class="form-control", style="border-color: #ef4444;") }}
+                    <div style="color: #ef4444; font-size: 0.875rem; margin-top: 0.25rem;">
+                        {% for error in form.last_name.errors %}
+                            <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    {{ form.last_name(class="form-control") }}
+                {% endif %}
+            </div>
+        </div>
         
         <div class="form-group" style="margin-bottom: 1.5rem;">
             {{ form.username.label(class="form-label", style="color: #cbd5e1;") }}

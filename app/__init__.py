@@ -7,12 +7,29 @@ def get_locale():
         return session['lang']
     return request.accept_languages.best_match(['tr', 'en']) or 'tr'
 
+def compile_translations(app):
+    import os
+    import polib
+    try:
+        po_path = os.path.join(app.root_path, 'translations', 'en', 'LC_MESSAGES', 'messages.po')
+        mo_path = os.path.join(app.root_path, 'translations', 'en', 'LC_MESSAGES', 'messages.mo')
+        if os.path.exists(po_path):
+            po = polib.pofile(po_path)
+            po.save_as_mofile(mo_path)
+            app.logger.info("Translations successfully compiled programmatically.")
+    except Exception as e:
+        app.logger.error(f"Error compiling translations: {e}")
+
 def create_app(config_class=Config):
     app = Flask(__name__)
     app.config.from_object(config_class)
     
+    # Compile translations on startup
+    compile_translations(app)
+    
     app.config['BABEL_DEFAULT_LOCALE'] = 'tr'
     app.config['BABEL_TRANSLATION_DIRECTORIES'] = 'translations'
+    app.config['TEMPLATES_AUTO_RELOAD'] = True
 
     # Initialize Extensions
     db.init_app(app)

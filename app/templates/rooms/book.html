@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 
+{% block meta_description %}{{ gettext('Toplantı odası için hızlıca rezervasyon oluşturun, katılımcıları davet edin ve takviminize ekleyin.') }}{% endblock %}
+
 {% block content %}
 <style>
     .booking-container {
@@ -199,33 +201,33 @@
 <!-- Aylık Takvim -->
 <div class="calendar-container">
     <div class="calendar-header">
-        <button id="prevMonth" class="btn" style="width: auto; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1);">&laquo; Önceki Ay</button>
+        <button id="prevMonth" class="btn" style="width: auto; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1);">&laquo; {{ gettext('Önceki Ay') }}</button>
         <div id="calendarTitle" class="calendar-title">AY YIL</div>
-        <button id="nextMonth" class="btn" style="width: auto; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1);">Sonraki Ay &raquo;</button>
+        <button id="nextMonth" class="btn" style="width: auto; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1);">{{ gettext('Sonraki Ay') }} &raquo;</button>
     </div>
     <div class="calendar-grid" id="calendarGrid">
-        <div class="calendar-day-header">Pzt</div>
-        <div class="calendar-day-header">Sal</div>
-        <div class="calendar-day-header">Çar</div>
-        <div class="calendar-day-header">Per</div>
-        <div class="calendar-day-header">Cum</div>
-        <div class="calendar-day-header">Cmt</div>
-        <div class="calendar-day-header">Paz</div>
+        <div class="calendar-day-header">{{ gettext('Pzt') }}</div>
+        <div class="calendar-day-header">{{ gettext('Sal') }}</div>
+        <div class="calendar-day-header">{{ gettext('Çar') }}</div>
+        <div class="calendar-day-header">{{ gettext('Per') }}</div>
+        <div class="calendar-day-header">{{ gettext('Cum') }}</div>
+        <div class="calendar-day-header">{{ gettext('Cmt') }}</div>
+        <div class="calendar-day-header">{{ gettext('Paz') }}</div>
         <!-- JS Dolduracak -->
     </div>
     <div class="legend-container">
-        <div style="display: flex; align-items: center; gap: 0.5rem;"><span class="legend-dot" style="background:#10b981; box-shadow: 0 0 10px rgba(16,185,129,0.5);"></span> Tamamen Boş</div>
-        <div style="display: flex; align-items: center; gap: 0.5rem;"><span class="legend-dot" style="background:#f59e0b; box-shadow: 0 0 10px rgba(245,158,11,0.5);"></span> Kısmen Dolu</div>
-        <div style="display: flex; align-items: center; gap: 0.5rem;"><span class="legend-dot" style="background:#ef4444; box-shadow: 0 0 10px rgba(239,68,68,0.5);"></span> Tamamen Dolu</div>
+        <div style="display: flex; align-items: center; gap: 0.5rem;"><span class="legend-dot" style="background:#10b981; box-shadow: 0 0 10px rgba(16,185,129,0.5);"></span> {{ gettext('Tamamen Boş') }}</div>
+        <div style="display: flex; align-items: center; gap: 0.5rem;"><span class="legend-dot" style="background:#f59e0b; box-shadow: 0 0 10px rgba(245,158,11,0.5);"></span> {{ gettext('Kısmen Dolu') }}</div>
+        <div style="display: flex; align-items: center; gap: 0.5rem;"><span class="legend-dot" style="background:#ef4444; box-shadow: 0 0 10px rgba(239,68,68,0.5);"></span> {{ gettext('Tamamen Dolu') }}</div>
     </div>
 </div>
 
 <div class="booking-container">
     <!-- Sol Panel: Oda Bilgisi ve Tarih Seçimi -->
     <div class="info-card">
-        <h2 style="margin-top: 0; color: var(--primary);">{{ room.name }}</h2>
+        <h2 style="margin-top: 0; color: var(--primary);">{{ room.display_name }}</h2>
         <p><strong>{{ gettext('Kapasite') }}:</strong> {{ room.capacity }} {{ gettext('Kişi') }}</p>
-        <p style="color: #cbd5e1; font-size: 0.875rem; margin-bottom: 2rem;">{{ room.description }}</p>
+        <p style="color: #cbd5e1; font-size: 0.875rem; margin-bottom: 2rem;">{{ gettext(room.description) }}</p>
         
         <form id="booking-form" method="POST" action="{{ url_for('main.book_room', room_id=room.id) }}">
             <div class="form-group" style="display: none;">
@@ -239,10 +241,10 @@
                 <label style="display: block; color: #cbd5e1; margin-bottom: 0.5rem; font-weight: 500;">{{ gettext('Süre (Dakika)') }}</label>
                 <div style="display: flex; gap: 1rem;">
                     <label style="flex: 1; display: flex; align-items: center; justify-content: center; padding: 0.75rem; background: rgba(0,0,0,0.2); border: 1px solid var(--border-color); border-radius: 0.5rem; cursor: pointer; color: #cbd5e1;">
-                        <input type="radio" name="duration" value="30" style="margin-right: 0.5rem;" required> 30 Dakika
+                        <input type="radio" name="duration" value="30" style="margin-right: 0.5rem;" required> {{ gettext('30 Dakika') }}
                     </label>
                     <label style="flex: 1; display: flex; align-items: center; justify-content: center; padding: 0.75rem; background: rgba(0,0,0,0.2); border: 1px solid var(--border-color); border-radius: 0.5rem; cursor: pointer; color: #cbd5e1;">
-                        <input type="radio" name="duration" value="60" style="margin-right: 0.5rem;" checked required> 60 Dakika
+                        <input type="radio" name="duration" value="60" style="margin-right: 0.5rem;" checked required> {{ gettext('60 Dakika') }}
                     </label>
                 </div>
             </div>
@@ -496,7 +498,9 @@
     const prevMonthBtn = document.getElementById('prevMonth');
     const nextMonthBtn = document.getElementById('nextMonth');
 
-    const months = ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'];
+    const months = "{{ current_lang }}" === "en"
+        ? ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+        : ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'];
     
     let currentYear = parseInt(serverToday.split('-')[0]);
     let currentMonthIndex = parseInt(serverToday.split('-')[1]) - 1; // 0-based

@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 
+{% block meta_description %}{{ gettext('Sistem yöneticisi paneli. Kullanıcıları, toplantı odalarını ve tüm sistem rezervasyonlarını yönetin.') }}{% endblock %}
+
 {% block content %}
 <style>
     .admin-grid {
@@ -94,27 +96,27 @@
     {% for meeting in active_meetings %}
     <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid #10b981; border-radius: 1rem; padding: 1.5rem; position: relative;">
         <div style="position: absolute; top: 1rem; right: 1rem; width: 12px; height: 12px; background: #10b981; border-radius: 50%; box-shadow: 0 0 10px #10b981; animation: pulse 1.5s infinite;"></div>
-        <h4 style="margin: 0 0 0.5rem 0; color: #10b981; font-size: 1.25rem;">{{ meeting.room.name }}</h4>
-        <p style="margin: 0.25rem 0; color: #f8fafc;"><strong>Düzenleyen:</strong> {{ meeting.user.username }}</p>
-        <p style="margin: 0.25rem 0; color: #cbd5e1; font-size: 0.875rem;"><strong>Süre:</strong> {{ meeting.start_time }} - {{ meeting.end_time }}</p>
+        <h4 style="margin: 0 0 0.5rem 0; color: #10b981; font-size: 1.25rem;">{{ meeting.room.display_name }}</h4>
+        <p style="margin: 0.25rem 0; color: #f8fafc;"><strong>{{ gettext('Düzenleyen') }}:</strong> {{ meeting.user.username }}</p>
+        <p style="margin: 0.25rem 0; color: #cbd5e1; font-size: 0.875rem;"><strong>{{ gettext('Süre') }}:</strong> {{ meeting.start_time }} - {{ meeting.end_time }}</p>
         {% if meeting.attendees %}
-        <p style="margin: 0.5rem 0 0 0; color: #94a3b8; font-size: 0.875rem;"><strong>Davetliler:</strong> 
+        <p style="margin: 0.5rem 0 0 0; color: #94a3b8; font-size: 0.875rem;"><strong>{{ gettext('Davetliler') }}:</strong> 
             {{ meeting.attendees|map(attribute='username')|join(', ') }}
         </p>
         {% else %}
-        <p style="margin: 0.5rem 0 0 0; color: #64748b; font-size: 0.875rem; font-style: italic;">Ek katılımcı yok</p>
+        <p style="margin: 0.5rem 0 0 0; color: #64748b; font-size: 0.875rem; font-style: italic;">{{ gettext('Ek katılımcı yok') }}</p>
         {% endif %}
     </div>
     {% endfor %}
 </div>
 {% else %}
-<p style="color: #94a3b8; font-style: italic;">Şu anda devam eden herhangi bir toplantı bulunmuyor.</p>
+<p style="color: #94a3b8; font-style: italic;">{{ gettext('Şu anda devam eden herhangi bir toplantı bulunmuyor.') }}</p>
 {% endif %}
 
 <!-- Rezervasyon Yönetimi -->
 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
     <h3 class="section-title" style="margin: 0;">{{ gettext('Tüm Rezervasyonlar') }}</h3>
-    <form action="{{ url_for('main.clear_old_reservations') }}" method="POST" onsubmit="return confirm('Tüm eski rezervasyonları kalıcı olarak silmek istediğinize emin misiniz? Bu işlem geri alınamaz.');">
+    <form action="{{ url_for('main.clear_old_reservations') }}" method="POST" onsubmit="return confirm('{{ gettext('Tüm eski rezervasyonları kalıcı olarak silmek istediğinize emin misiniz? Bu işlem geri alınamaz.') }}');">
         <button type="submit" class="btn" style="background: #ef4444; padding: 0.5rem 1rem; font-size: 0.875rem;">
             <i class="fas fa-trash"></i> {{ gettext('Geçmiş Rezervasyonları Temizle') }}
         </button>
@@ -144,17 +146,16 @@
                     <span style="font-style: italic; color: #64748b;">Yok</span>
                 {% endif %}
             </td>
-            <td style="font-weight: 500; color: var(--primary);">{{ res.room.name }}</td>
+            <td style="font-weight: 500; color: var(--primary);">{{ res.room.display_name }}</td>
             <td>{{ res.date }}</td>
             <td>{{ res.start_time }} - {{ res.end_time }}</td>
             <td>{{ res.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
             <td>
                 <form action="{{ url_for('main.delete_reservation', res_id=res.id) }}" method="POST"
                     style="display:inline;"
-                    onsubmit="return confirm('Bu rezervasyonu silmek istediğinize emin misiniz?');">
+                    onsubmit="return confirm('{{ gettext('Bu rezervasyonu silmek istediğinize emin misiniz?') }}');">
                     <button type="submit" class="btn"
-                        style="background: #ef4444; padding: 0.5rem 1rem; font-size: 0.875rem;">{{ gettext('İptal Et')
-                        }}</button>
+                        style="background: #ef4444; padding: 0.5rem 1rem; font-size: 0.875rem;">{{ gettext('İptal Et') }}</button>
                 </form>
             </td>
         </tr>
@@ -178,7 +179,7 @@
         </tr>
     </thead>
     <tbody>
-        {% for user in users %}
+        {% for user in users.items %}
         <tr>
             <td>{{ user.id }}</td>
             <td>{{ user.username }}</td>
@@ -186,21 +187,27 @@
             <td>
                 {% if user.is_admin %}
                 <span
-                    style="background: #f59e0b; color: #fff; padding: 0.25rem 0.5rem; border-radius: 0.25rem; font-size: 0.75rem;">{{
-                    gettext('Admin') }}</span>
+                    style="background: #f59e0b; color: #fff; padding: 0.25rem 0.5rem; border-radius: 0.25rem; font-size: 0.75rem;">{{ gettext('Yönetici') }}</span>
                 {% else %}
                 <span
-                    style="background: #64748b; color: #fff; padding: 0.25rem 0.5rem; border-radius: 0.25rem; font-size: 0.75rem;">{{
-                    gettext('User') }}</span>
+                    style="background: #64748b; color: #fff; padding: 0.25rem 0.5rem; border-radius: 0.25rem; font-size: 0.75rem;">{{ gettext('Kullanıcı') }}</span>
                 {% endif %}
             </td>
             <td>
                 {% if user.id != current_user.id %}
-                <form action="{{ url_for('main.delete_user', user_id=user.id) }}" method="POST" style="display:inline;"
-                    onsubmit="return confirm('Bu kullanıcıyı ve tüm rezervasyonlarını tamamen silmek istediğinize emin misiniz?');">
+                <form action="{{ url_for('main.toggle_admin', user_id=user.id) }}" method="POST" style="display:inline;">
+                    {% if user.is_admin %}
                     <button type="submit" class="btn"
-                        style="background: #ef4444; padding: 0.5rem 1rem; font-size: 0.875rem;">{{ gettext('Kullanıcıyı
-                        Sil') }}</button>
+                        style="background: #f59e0b; padding: 0.25rem 0.5rem; font-size: 0.75rem; border-radius: 4px; margin-right: 0.25rem; width: auto; min-width: 0;">{{ gettext('Yetkiyi Al') }}</button>
+                    {% else %}
+                    <button type="submit" class="btn"
+                        style="background: #10b981; padding: 0.25rem 0.5rem; font-size: 0.75rem; border-radius: 4px; margin-right: 0.25rem; width: auto; min-width: 0;">{{ gettext('Yönetici Yap') }}</button>
+                    {% endif %}
+                </form>
+                <form action="{{ url_for('main.delete_user', user_id=user.id) }}" method="POST" style="display:inline;"
+                    onsubmit="return confirm('{{ gettext('Bu kullanıcıyı ve tüm rezervasyonlarını tamamen silmek istediğinize emin misiniz?') }}');">
+                    <button type="submit" class="btn"
+                        style="background: #ef4444; padding: 0.25rem 0.5rem; font-size: 0.75rem; border-radius: 4px; width: auto; min-width: 0;">{{ gettext('Kullanıcıyı Sil') }}</button>
                 </form>
                 {% else %}
                 <span style="color: #94a3b8; font-size: 0.875rem;">{{ gettext('Kendiniz') }}</span>
@@ -210,6 +217,21 @@
         {% endfor %}
     </tbody>
 </table>
+
+<!-- Users Pagination Controls -->
+<div style="margin-top: 1rem; display: flex; justify-content: center; align-items: center; gap: 1rem;">
+    {% if users.has_prev %}
+    <a href="{{ url_for('main.admin_panel', user_page=users.prev_num) }}" style="background: #334155; color: white; padding: 0.5rem 1rem; border-radius: 0.25rem; text-decoration: none; font-size: 0.875rem;">&laquo; {{ gettext('Önceki') }}</a>
+    {% endif %}
+    
+    {% if users.pages > 0 %}
+    <span style="color: #94a3b8; font-size: 0.875rem;">{{ gettext('Sayfa') }} {{ users.page }} / {{ users.pages }}</span>
+    {% endif %}
+
+    {% if users.has_next %}
+    <a href="{{ url_for('main.admin_panel', user_page=users.next_num) }}" style="background: #334155; color: white; padding: 0.5rem 1rem; border-radius: 0.25rem; text-decoration: none; font-size: 0.875rem;">{{ gettext('Sonraki') }} &raquo;</a>
+    {% endif %}
+</div>
 
 <!-- Oda Yönetimi -->
 <h3 class="section-title">{{ gettext('Oda Yönetimi') }}</h3>
@@ -227,15 +249,14 @@
         {% for room in rooms %}
         <tr>
             <td>{{ room.id }}</td>
-            <td style="color: var(--primary); font-weight: bold;">{{ room.name }}</td>
+            <td style="color: var(--primary); font-weight: bold;">{{ room.display_name }}</td>
             <td>{{ room.capacity }} {{ gettext('Kişi') }}</td>
-            <td style="font-size: 0.875rem; color: #cbd5e1;">{{ room.description }}</td>
+            <td style="font-size: 0.875rem; color: #cbd5e1;">{{ gettext(room.description) }}</td>
             <td>
                 <form action="{{ url_for('main.delete_room', room_id=room.id) }}" method="POST" style="display:inline;"
-                    onsubmit="return confirm('Bu odayı ve bu odaya ait tüm geçmiş/gelecek rezervasyonları silmek istediğinize emin misiniz?');">
+                    onsubmit="return confirm('{{ gettext('Bu odayı ve bu odaya ait tüm geçmiş/gelecek rezervasyonları silmek istediğinize emin misiniz?') }}');">
                     <button type="submit" class="btn"
-                        style="background: #ef4444; padding: 0.5rem 1rem; font-size: 0.875rem;">{{ gettext('Odayı Sil')
-                        }}</button>
+                        style="background: #ef4444; padding: 0.5rem 1rem; font-size: 0.875rem;">{{ gettext('Odayı Sil') }}</button>
                 </form>
             </td>
         </tr>
@@ -243,57 +264,18 @@
     </tbody>
 </table>
 
-<!-- Sistem Logları (Audit Logs) -->
-<div
-    style="display: flex; justify-content: space-between; align-items: baseline; margin-top: 2rem; border-bottom: 1px solid var(--border-color); margin-bottom: 1rem; padding-bottom: 0.5rem;">
-    <h3 class="section-title" style="margin: 0; border: none; padding: 0;">{{ gettext('Sistem Logları (Son 50 İşlem)')
-        }}</h3>
-    {% if logs %}
-    <form action="{{ url_for('main.clear_logs') }}" method="POST" style="margin: 0;"
-        onsubmit="return confirm('Son 50 log kaydını tamamen silmek istediğinize emin misiniz?');">
-        <button type="submit" class="btn" style="background: #ef4444; padding: 0.4rem 1rem; font-size: 0.875rem;">{{
-            gettext('Logları Temizle') }}</button>
-    </form>
-    {% endif %}
+<!-- Sistem Logları Yönlendirme -->
+<div style="margin-top: 2rem; border-top: 1px solid var(--border-color); padding-top: 1.5rem; text-align: center;">
+    <h3 class="section-title" style="margin-bottom: 1rem;">{{ gettext('Sistem Logları (Gelişmiş Yönetim)') }}</h3>
+    <p style="color: #94a3b8; font-size: 0.9rem; margin-bottom: 1.5rem;">
+        {{ gettext('Kullanıcı işlemlerini takip etmek, tarihe göre logları listelemek ve veritabanı loglarını site üzerinden güvenli bir şekilde silmek için Gelişmiş Log Yönetimi sayfasını kullanın.') }}
+    </p>
+    <a href="{{ url_for('main.admin_logs') }}" class="btn btn-primary" style="padding: 0.75rem 2rem; font-size: 1rem; text-decoration: none; display: inline-block;">
+        {{ gettext('Gelişmiş Log Yönetimine Git') }}
+    </a>
 </div>
-<table class="admin-table">
-    <thead>
-        <tr>
-            <th>{{ gettext('Tarih / Saat') }}</th>
-            <th>{{ gettext('İşlem Türü') }}</th>
-            <th>{{ gettext('Kullanıcı') }}</th>
-            <th>{{ gettext('Detaylar') }}</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for log in logs %}
-        <tr>
-            <td style="color: #cbd5e1; font-size: 0.875rem;">{{ log.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
-            <td>
-                {% if log.action == "SİSTEME_GİRİŞ" %}
-                <span style="color: #3b82f6; font-weight: 600;">{{ gettext('GİRİŞ') }}</span>
-                {% elif log.action == "REZERVASYON_OLUŞTURULDU" %}
-                <span style="color: #10b981; font-weight: 600;">{{ gettext('REZERVASYON') }}</span>
-                {% elif log.action == "REZERVASYON_İPTALİ" or "SİLİNDİ" in log.action %}
-                <span style="color: #ef4444; font-weight: 600;">{{ gettext('İPTAL/SİLME') }}</span>
-                {% else %}
-                <span style="color: #f59e0b; font-weight: 600;">{{ log.action }}</span>
-                {% endif %}
-            </td>
-            <td style="font-weight: 500;">{{ log.user.username if log.user else 'Sistem' }}</td>
-            <td style="font-size: 0.875rem;">{{ log.details }}</td>
-        </tr>
-        {% endfor %}
-        {% if not logs %}
-        <tr>
-            <td colspan="4" style="text-align: center; color: #64748b;">{{ gettext('Henüz log kaydı yok.') }}</td>
-        </tr>
-        {% endif %}
-    </tbody>
-</table>
 
 <div style="margin-top: 3rem; text-align: center;">
-    <p style="color: #94a3b8; font-size: 0.875rem;">{{ gettext('Not: Hızlı iptal işlemleri için "Günlük Durum" sekmesine
-        gidip kırmızı kutulara tıklayabilirsiniz.') }}</p>
+    <p style="color: #94a3b8; font-size: 0.875rem;">{{ gettext('Not: Hızlı iptal işlemleri için "Günlük Durum" sekmesine gidip kırmızı kutulara tıklayabilirsiniz.') }}</p>
 </div>
 {% endblock %}

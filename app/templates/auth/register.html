@@ -1,10 +1,40 @@
 {% extends "base.html" %}
 
+{% block meta_description %}{{ gettext('Toplantı odası rezervasyon sistemine kayıt olun. Yeni hesap oluşturarak oda rezervasyonları yapmaya hemen başlayın.') }}{% endblock %}
+
 {% block content %}
 <div class="glass-card animation" style="--i:1">
     <h2>{{ gettext('Kayıt Ol') }}</h2>
     <form method="POST" action="">
         {{ form.hidden_tag() }}
+        <div class="form-group" style="display: flex; gap: 1rem;">
+            <div style="flex: 1;">
+                {{ form.first_name.label }}
+                {% if form.first_name.errors %}
+                    {{ form.first_name(class="form-control is-invalid") }}
+                    <div class="invalid-feedback">
+                        {% for error in form.first_name.errors %}
+                            <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    {{ form.first_name(class="form-control") }}
+                {% endif %}
+            </div>
+            <div style="flex: 1;">
+                {{ form.last_name.label }}
+                {% if form.last_name.errors %}
+                    {{ form.last_name(class="form-control is-invalid") }}
+                    <div class="invalid-feedback">
+                        {% for error in form.last_name.errors %}
+                            <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    {{ form.last_name(class="form-control") }}
+                {% endif %}
+            </div>
+        </div>
         <div class="form-group">
             {{ form.username.label }}
             {% if form.username.errors %}

@@ -4,12 +4,15 @@ from wtforms import StringField, PasswordField, SubmitField, BooleanField
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
 from app.models import User
 from flask_login import current_user
+from flask_babel import lazy_gettext as _l
 
 class UpdateAccountForm(FlaskForm):
-    username = StringField('Kullanıcı Adı', validators=[DataRequired(), Length(min=2, max=20)])
-    email = StringField('E-Posta', validators=[DataRequired(), Email()])
-    picture = FileField('Profil Fotoğrafını Güncelle', validators=[FileAllowed(['jpg', 'png', 'jpeg'])])
-    submit = SubmitField('Güncelle')
+    first_name = StringField(_l('Ad'), validators=[DataRequired(), Length(min=2, max=50)])
+    last_name = StringField(_l('Soyad'), validators=[DataRequired(), Length(min=2, max=50)])
+    username = StringField(_l('Kullanıcı Adı'), validators=[DataRequired(), Length(min=2, max=20)])
+    email = StringField(_l('E-Posta'), validators=[DataRequired(), Email()])
+    picture = FileField(_l('Profil Fotoğrafını Güncelle'), validators=[FileAllowed(['jpg', 'png', 'jpeg'])])
+    submit = SubmitField(_l('Güncelle'))
     
 
 
@@ -20,11 +23,13 @@ class UpdateAccountForm(FlaskForm):
                 raise ValidationError('Bu e-posta adresi zaten kullanımda.')
 
 class RegistrationForm(FlaskForm):
-    username = StringField('Kullanıcı Adı', validators=[DataRequired(), Length(min=2, max=20)])
-    email = StringField('E-posta', validators=[DataRequired(), Email()])
-    password = PasswordField('Şifre', validators=[DataRequired()])
-    confirm_password = PasswordField('Şifreyi Onayla', validators=[DataRequired(), EqualTo('password')])
-    submit = SubmitField('Kayıt Ol')
+    first_name = StringField(_l('Ad'), validators=[DataRequired(), Length(min=2, max=50)])
+    last_name = StringField(_l('Soyad'), validators=[DataRequired(), Length(min=2, max=50)])
+    username = StringField(_l('Kullanıcı Adı'), validators=[DataRequired(), Length(min=2, max=20)])
+    email = StringField(_l('E-posta'), validators=[DataRequired(), Email()])
+    password = PasswordField(_l('Şifre'), validators=[DataRequired()])
+    confirm_password = PasswordField(_l('Şifreyi Onayla'), validators=[DataRequired(), EqualTo('password')])
+    submit = SubmitField(_l('Kayıt Ol'))
 
 
 
@@ -34,10 +39,10 @@ class RegistrationForm(FlaskForm):
             raise ValidationError('Bu e-posta adresi zaten kullanımda.')
 
 class LoginForm(FlaskForm):
-    email = StringField('E-posta', validators=[DataRequired(), Email()])
-    password = PasswordField('Şifre', validators=[DataRequired()])
-    remember = BooleanField('Beni Hatırla')
-    submit = SubmitField('Giriş Yap')
+    email = StringField(_l('E-posta'), validators=[DataRequired(), Email()])
+    password = PasswordField(_l('Şifre'), validators=[DataRequired()])
+    remember = BooleanField(_l('Beni Hatırla'))
+    submit = SubmitField(_l('Giriş Yap'))
 
 class RequestResetForm(FlaskForm):
     email = StringField('E-Posta', validators=[DataRequired(), Email()])
@@ -53,9 +58,18 @@ class ResetPasswordForm(FlaskForm):
     confirm_password = PasswordField('Yeni Şifreyi Onayla', validators=[DataRequired(), EqualTo('password')])
     submit = SubmitField('Şifreyi Güncelle')
 
-class RoomForm(FlaskForm):
-    name = StringField('Oda İsmi', validators=[DataRequired(), Length(min=2, max=50)])
-    capacity = StringField('Kişi Sayısı (Kapasite)', validators=[DataRequired()])
-    description = StringField('Özellikler / Açıklama', validators=[Length(max=200)])
-    submit = SubmitField('Oda Ekle')
+from flask_babel import lazy_gettext as _l
 
+class RoomForm(FlaskForm):
+    name = StringField(_l('Oda İsmi'), validators=[DataRequired(), Length(min=2, max=50)])
+    english_name = StringField(_l('İngilizce Oda İsmi'), validators=[Length(max=50)])
+    capacity = StringField(_l('Kişi Sayısı (Kapasite)'), validators=[DataRequired()])
+    description = StringField(_l('Özellikler / Açıklama'), validators=[Length(max=200)])
+    submit = SubmitField(_l('Oda Ekle'))
+
+class EditRoomForm(FlaskForm):
+    name = StringField(_l('Oda İsmi'), validators=[DataRequired(), Length(min=2, max=50)])
+    english_name = StringField(_l('İngilizce Oda İsmi'), validators=[Length(max=50)])
+    capacity = StringField(_l('Kişi Sayısı (Kapasite)'), validators=[DataRequired()])
+    description = StringField(_l('Özellikler / Açıklama'), validators=[Length(max=200)])
+    submit = SubmitField(_l('Değişiklikleri Kaydet'))

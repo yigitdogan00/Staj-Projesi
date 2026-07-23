@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 
+{% block meta_description %}{{ gettext('Toplantı odası rezervasyon sistemine giriş yapın. Hesabınızla oturum açarak toplantılarınızı ve oda rezervasyonlarınızı yönetin.') }}{% endblock %}
+
 {% block content %}
 <div class="glass-card animation" style="--i:1">
     <h2>{{ gettext('Giriş Yap') }}</h2>
@@ -48,7 +50,7 @@
         <!-- Google Login Divider -->
         <div style="display: flex; align-items: center; margin: 2rem 0;">
             <div style="flex-grow: 1; border-bottom: 1px solid rgba(255, 255, 255, 0.1);"></div>
-            <span style="padding: 0 1rem; color: #94a3b8; font-size: 0.875rem;">VEYA</span>
+            <span style="padding: 0 1rem; color: #94a3b8; font-size: 0.875rem;">{{ gettext('VEYA') }}</span>
             <div style="flex-grow: 1; border-bottom: 1px solid rgba(255, 255, 255, 0.1);"></div>
         </div>
         
@@ -56,7 +58,7 @@
         <div style="text-align: center; margin-bottom: 2rem;">
             <a href="{{ url_for('auth.login_google') }}" class="btn" style="display: inline-flex; align-items: center; justify-content: center; background-color: white; color: #333; border: 1px solid #ddd; padding: 0.5rem 1.5rem; border-radius: 8px; font-weight: 500; font-size: 0.9rem; text-decoration: none; box-shadow: 0 2px 4px rgba(0,0,0,0.1); transition: all 0.3s ease; width: 100%;">
                 <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google Logo" style="width: 20px; height: 20px; margin-right: 12px;">
-                Google ile Giriş Yap
+                {{ gettext('Google ile Giriş Yap') }}
             </a>
         </div>
         

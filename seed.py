@@ -16,7 +16,16 @@ def seed_data():
             hashed_password = bcrypt.generate_password_hash('admin123').decode('utf-8')
             admin = User(username='Admin', email=admin_email, password_hash=hashed_password, is_admin=True)
             db.session.add(admin)
-            print("Admin user created (admin@sirket.com / admin123)")
+            print("Admin user created.")
+
+        # Create Test User
+        test_email = "test@sirket.com"
+        test_user = User.query.filter_by(email=test_email).first()
+        if not test_user:
+            hashed_password = bcrypt.generate_password_hash('test1234').decode('utf-8')
+            test_user = User(username='TestUser', email=test_email, password_hash=hashed_password, is_admin=False)
+            db.session.add(test_user)
+            print("Test user created (test@sirket.com / test1234)")
 
         # Create 5 distinct meeting rooms
         rooms_data = [

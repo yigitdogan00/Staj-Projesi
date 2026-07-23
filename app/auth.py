@@ -3,6 +3,7 @@ from flask_login import login_user, current_user, logout_user, login_required
 from app.extensions import db, bcrypt
 from app.models import User
 from app.forms import RegistrationForm, LoginForm
+from flask_babel import gettext
 
 bp = Blueprint('auth', __name__)
 
@@ -13,15 +14,15 @@ def register():
     form = RegistrationForm()
     if form.validate_on_submit():
         hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
-        user = User(username=form.username.data, email=form.email.data, password_hash=hashed_password)
+        user = User(username=form.username.data, email=form.email.data, password_hash=hashed_password, first_name=form.first_name.data, last_name=form.last_name.data)
         try:
             db.session.add(user)
             db.session.commit()
-            flash('Hesabınız başarıyla oluşturuldu! Şimdi giriş yapabilirsiniz.', 'success')
+            flash(gettext('Hesabınız başarıyla oluşturuldu! Şimdi giriş yapabilirsiniz.'), 'success')
             return redirect(url_for('auth.login'))
         except Exception as e:
             db.session.rollback()
-            flash('Kayıt işlemi sırasında bir hata oluştu. Bu e-posta zaten kayıtlı olabilir veya butona çift tıklamış olabilirsiniz.', 'danger')
+            flash(gettext('Kayıt işlemi sırasında bir hata oluştu. Bu e-posta zaten kayıtlı olabilir veya butona çift tıklamış olabilirsiniz.'), 'danger')
             return render_template('auth/register.html', title='Kayıt Ol', form=form)
     return render_template('auth/register.html', title='Kayıt Ol', form=form)
 
@@ -46,7 +47,7 @@ def login():
             log_action(user.id, "SİSTEME_GİRİŞ", f"{user.username} sisteme giriş yaptı.")
             
             next_page = request.args.get('next')
-            flash('Giriş başarılı!', 'success')
+            flash(gettext('Giriş başarılı!'), 'success')
             resp = redirect(next_page) if next_page else redirect(url_for('main.index'))
             
             if form.remember.data:
@@ -56,7 +57,7 @@ def login():
                 
             return resp
         else:
-            flash('Giriş başarısız. Lütfen e-posta ve şifrenizi kontrol edin.', 'danger')
+            flash(gettext('Giriş başarısız. Lütfen e-posta ve şifrenizi kontrol edin.'), 'danger')
     return render_template('auth/login.html', title='Giriş Yap', form=form)
 
 @bp.route('/login/google')
@@ -69,39 +70,67 @@ def login_google():
 def authorize_google():
     from app.extensions import oauth
     from app.utils import log_action
-    import string
-    import random
     
     try:
         token = oauth.google.authorize_access_token()
     except Exception as e:
-        flash(f'Google ile giriş başarısız oldu: {str(e)}', 'danger')
+        flash(gettext('Google ile giriş başarısız oldu: %(error)s', error=str(e)), 'danger')
         return redirect(url_for('auth.login'))
         
     user_info = token.get('userinfo')
     
     if not user_info:
-        flash('Kullanıcı bilgileri alınamadı.', 'danger')
+        flash(gettext('Kullanıcı bilgileri alınamadı.'), 'danger')
         return redirect(url_for('auth.login'))
         
     email = user_info.get('email')
     
     if not email:
-        flash('E-posta adresi alınamadı.', 'danger')
+        flash(gettext('E-posta adresi alınamadı.'), 'danger')
         return redirect(url_for('auth.login'))
         
-    username = user_info.get('name')
+    username = user_info.get('name') or user_info.get('given_name') or email.split('@')[0]
+    given_name = user_info.get('given_name')
+    family_name = user_info.get('family_name')
+    
+    # Ad veya Soyad ayrı alan olarak yoksa tam addan otomatik parçala
+    if not given_name or not family_name:
+        full_name = user_info.get('name', '').strip()
+        if full_name:
+            parts = full_name.split()
+            if not given_name and len(parts) > 0:
+                given_name = parts[0]
+            if not family_name and len(parts) > 1:
+                family_name = ' '.join(parts[1:])
     
     user = User.query.filter_by(email=email).first()
     
     if not user:
-        flash('Sistemimizde bu Google e-posta adresiyle eşleşen bir kayıt bulunamadı. Lütfen sisteme giriş yapabilmek için önce Kayıt Ol sayfasından kayıt işleminizi tamamlayın.', 'warning')
-        return redirect(url_for('auth.register'))
+        user = User(
+            username=username,
+            email=email,
+            first_name=given_name,
+            last_name=family_name
+        )
+        db.session.add(user)
+        db.session.commit()
+        log_action(user.id, "KULLANICI_KAYIT", f"{user.username} Google Login ile otomatik kayıt oldu.")
+    else:
+        updated = False
+        if given_name and not user.first_name:
+            user.first_name = given_name
+            updated = True
+        if family_name and not user.last_name:
+            user.last_name = family_name
+            updated = True
+        if updated:
+            db.session.commit()
+
     login_user(user, remember=True)
     log_action(user.id, "SİSTEME_GİRİŞ", f"{user.username} Google Login ile sisteme giriş yaptı.")
     
     next_page = request.args.get('next')
-    flash('Giriş başarılı!', 'success')
+    flash(gettext('Giriş başarılı!'), 'success')
     return redirect(next_page) if next_page else redirect(url_for('main.index'))
 
 @bp.route('/logout')
@@ -114,7 +143,7 @@ def reset_request():
     if current_user.is_authenticated:
         return redirect(url_for('main.index'))
     from app.forms import RequestResetForm
-    from app.utils import send_reset_email, log_action
+    from app.utils import log_action
     form = RequestResetForm()
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
@@ -129,35 +158,35 @@ def reset_request():
             ).count()
 
             if recent_requests >= 3 and not user.is_admin:
-                flash('Güvenlik uyarısı: Son 1 saat içinde çok fazla şifre sıfırlama talebinde bulundunuz. Lütfen hesabınızın güvenliği için daha sonra tekrar deneyin.', 'danger')
+                flash(gettext('Güvenlik uyarısı: Son 1 saat içinde çok fazla şifre sıfırlama talebinde bulundunuz. Lütfen hesabınızın güvenliği için daha sonra tekrar deneyin.'), 'danger')
                 return redirect(url_for('auth.login'))
                 
-            send_reset_email(user)
+            # Mail sending removed
             log_action(user.id, "ŞİFRE_SIFIRLAMA_TALEBİ", f"{form.email.data} için sıfırlama linki oluşturuldu.")
         else:
             log_action(None, "ŞİFRE_SIFIRLAMA_TALEBİ_BAŞARISIZ", f"{form.email.data} mail adresi sistemde bulunamadı.")
         
-        flash('Eğer sistemimizde böyle bir kayıt varsa, şifre sıfırlama bağlantısı e-posta adresinize gönderildi.', 'info')
+        flash(gettext('Eğer sistemimizde böyle bir kayıt varsa, şifre sıfırlama bağlantısı e-posta adresinize gönderildi.'), 'info')
         return redirect(url_for('auth.login'))
     return render_template('auth/reset_request.html', title='Şifreyi Sıfırla', form=form)
-
+ 
 @bp.route("/reset_password/<token>", methods=['GET', 'POST'])
 def reset_token(token):
     if current_user.is_authenticated:
         return redirect(url_for('main.index'))
     user = User.verify_reset_token(token)
     if user is None:
-        flash('Sıfırlama bağlantısı geçersiz veya süresi dolmuş.', 'danger')
+        flash(gettext('Sıfırlama bağlantısı geçersiz veya süresi dolmuş.'), 'danger')
         return redirect(url_for('auth.reset_request'))
     from app.forms import ResetPasswordForm
-    from app.utils import log_action, send_password_changed_email
+    from app.utils import log_action
     form = ResetPasswordForm()
     if form.validate_on_submit():
         hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
         user.password_hash = hashed_password
         db.session.commit()
         log_action(user.id, "ŞİFRE_GÜNCELLENDİ", f"{user.username} şifresini başarıyla sıfırladı.")
-        send_password_changed_email(user)
-        flash('Şifreniz başarıyla güncellendi! Artık yeni şifrenizle giriş yapabilirsiniz.', 'success')
+        # Mail sending removed
+        flash(gettext('Şifreniz başarıyla güncellendi! Artık yeni şifrenizle giriş yapabilirsiniz.'), 'success')
         return redirect(url_for('auth.login'))
     return render_template('auth/reset_token.html', title='Yeni Şifre Belirle', form=form)

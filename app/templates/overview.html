@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 
+{% block meta_description %}{{ gettext('Günün tüm toplantı ve oda kullanım durumlarını anlık ve canlı olarak takip edin.') }}{% endblock %}
+
 {% block content %}
 <style>
     .overview-container {
@@ -210,8 +212,8 @@
 
 <div style="display: flex; flex-direction: column; gap: 1rem; margin-bottom: 2rem; text-align: center;">
     <div>
-        <h2 style="font-size: 2rem; margin: 0; color: #10b981;">Aylık Doluluk & Günlük Genel Bakış</h2>
-        <p style="color: #cbd5e1; margin-top: 0.5rem;">Takvimden gün seçerek detayları aşağıdan inceleyebilir ve boş saatlere tıklayarak rezervasyon yapabilirsiniz.</p>
+        <h2 style="font-size: 2rem; margin: 0; color: #10b981;">{{ gettext('Aylık Doluluk & Günlük Genel Bakış') }}</h2>
+        <p style="color: #cbd5e1; margin-top: 0.5rem;">{{ gettext('Takvimden gün seçerek detayları aşağıdan inceleyebilir ve boş saatlere tıklayarak rezervasyon yapabilirsiniz.') }}</p>
     </div>
     <div style="display: none;">
         <label for="overview-date">Gizli Tarih:</label>
@@ -222,35 +224,38 @@
 <!-- Aylık Takvim -->
 <div class="calendar-container">
     <div class="calendar-header">
-        <button id="prevMonth" class="btn" style="width: auto; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1);">&laquo; Önceki Ay</button>
+        <button id="prevMonth" class="btn" style="width: auto; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1);">&laquo; {{ gettext('Önceki Ay') }}</button>
         <div id="calendarTitle" class="calendar-title">AY YIL</div>
-        <button id="nextMonth" class="btn" style="width: auto; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1);">Sonraki Ay &raquo;</button>
+        <button id="nextMonth" class="btn" style="width: auto; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1);">{{ gettext('Sonraki Ay') }} &raquo;</button>
     </div>
     <div class="calendar-grid" id="calendarGrid">
-        <div class="calendar-day-header">Pzt</div>
-        <div class="calendar-day-header">Sal</div>
-        <div class="calendar-day-header">Çar</div>
-        <div class="calendar-day-header">Per</div>
-        <div class="calendar-day-header">Cum</div>
-        <div class="calendar-day-header">Cmt</div>
-        <div class="calendar-day-header">Paz</div>
+        <div class="calendar-day-header">{{ gettext('Pzt') }}</div>
+        <div class="calendar-day-header">{{ gettext('Sal') }}</div>
+        <div class="calendar-day-header">{{ gettext('Çar') }}</div>
+        <div class="calendar-day-header">{{ gettext('Per') }}</div>
+        <div class="calendar-day-header">{{ gettext('Cum') }}</div>
+        <div class="calendar-day-header">{{ gettext('Cmt') }}</div>
+        <div class="calendar-day-header">{{ gettext('Paz') }}</div>
         <!-- JS Dolduracak -->
     </div>
     <div class="legend-container">
-        <div style="display: flex; align-items: center; gap: 0.5rem;"><span class="legend-dot" style="background:#10b981; box-shadow: 0 0 10px rgba(16,185,129,0.5);"></span> Tamamen Boş</div>
-        <div style="display: flex; align-items: center; gap: 0.5rem;"><span class="legend-dot" style="background:#f59e0b; box-shadow: 0 0 10px rgba(245,158,11,0.5);"></span> Kısmen Dolu</div>
-        <div style="display: flex; align-items: center; gap: 0.5rem;"><span class="legend-dot" style="background:#ef4444; box-shadow: 0 0 10px rgba(239,68,68,0.5);"></span> Tamamen Dolu</div>
+        <div style="display: flex; align-items: center; gap: 0.5rem;"><span class="legend-dot" style="background:#10b981; box-shadow: 0 0 10px rgba(16,185,129,0.5);"></span> {{ gettext('Tamamen Boş') }}</div>
+        <div style="display: flex; align-items: center; gap: 0.5rem;"><span class="legend-dot" style="background:#f59e0b; box-shadow: 0 0 10px rgba(245,158,11,0.5);"></span> {{ gettext('Kısmen Dolu') }}</div>
+        <div style="display: flex; align-items: center; gap: 0.5rem;"><span class="legend-dot" style="background:#ef4444; box-shadow: 0 0 10px rgba(239,68,68,0.5);"></span> {{ gettext('Tamamen Dolu') }}</div>
     </div>
 </div>
 
 <div class="overview-container" style="margin-top: 2rem;">
+    <h3 id="matrix-title" style="margin-bottom: 1rem; color: #f8fafc; font-size: 1.25rem; text-align: left;">
+        {{ gettext('Seçili Tarih:') }} <span id="matrix-date-text" style="color: #10b981;"></span>
+    </h3>
     <div id="loading" style="text-align: center; padding: 2rem; color: var(--primary); display: none;">Veriler
         yükleniyor...</div>
 
     <table class="matrix-table" id="matrix-table">
         <thead>
             <tr>
-                <th style="width: 200px;">Toplantı Odası</th>
+                <th style="width: 200px;">{{ gettext('Toplantı Odası') }}</th>
                 <th>09:00</th>
                 <th>10:00</th>
                 <th>11:00</th>
@@ -265,9 +270,8 @@
         <tbody id="matrix-body">
             {% for room in rooms %}
             <tr data-room-id="{{ room.id }}">
-                <td class="room-name">{{ room.name }} <br><span
-                        style="font-size: 0.75rem; color: #94a3b8; font-weight: normal;">Kapasite: {{ room.capacity
-                        }}</span></td>
+                <td class="room-name">{{ room.display_name }} <br><span
+                        style="font-size: 0.75rem; color: #94a3b8; font-weight: normal;">{{ gettext('Kapasite') }}: {{ room.capacity }}</span></td>
                 <!-- JS tarafından doldurulacak hücreler -->
             </tr>
             {% endfor %}
@@ -290,7 +294,9 @@
     let currentCalMonth = parseInt(serverToday.split('-')[1]);
     let selectedDate = serverToday;
     
-    const monthNames = ["OCAK", "ŞUBAT", "MART", "NİSAN", "MAYIS", "HAZİRAN", "TEMMUZ", "AĞUSTOS", "EYLÜL", "EKİM", "KASIM", "ARALIK"];
+    const monthNames = "{{ current_lang }}" === "en" 
+        ? ["JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"]
+        : ["OCAK", "ŞUBAT", "MART", "NİSAN", "MAYIS", "HAZİRAN", "TEMMUZ", "AĞUSTOS", "EYLÜL", "EKİM", "KASIM", "ARALIK"];
 
     function loadCalendar(year, month) {
         document.getElementById('calendarTitle').textContent = `${monthNames[month-1]} ${year}`;
@@ -367,6 +373,14 @@
 
         if (pollingInterval) clearInterval(pollingInterval);
 
+        // Tarihi formattan gün.ay.yıl şekline çevirip başlıkta gösterelim
+        const parts = date.split('-');
+        if(parts.length === 3) {
+            document.getElementById('matrix-date-text').textContent = `${parts[2]}.${parts[1]}.${parts[0]}`;
+        } else {
+            document.getElementById('matrix-date-text').textContent = date;
+        }
+
         fetch(`/api/overview/${date}`)
             .then(res => res.json())
             .then(data => {
@@ -399,13 +413,13 @@
 
                             if (hour in bookedSlots) {
                                 const resData = bookedSlots[hour];
-                                div.textContent = 'Dolu';
+                                div.textContent = "{{ gettext('Dolu') }}";
                                 div.title = `Rezerve eden: ${resData.username}`;
 
                                 if (isAdmin) {
                                     div.style.cursor = 'pointer';
                                     div.addEventListener('click', () => {
-                                        if (confirm(`Bu rezervasyonu (${resData.username}) iptal etmek istiyor musunuz?`)) {
+                                        if (confirm(`{{ gettext('Bu rezervasyonu') }} (${resData.username}) {{ gettext('iptal etmek istiyor musunuz?') }}`)) {
                                             const form = document.createElement('form');
                                             form.method = 'POST';
                                             form.action = `/reservation/${resData.id}/delete`;
@@ -415,8 +429,8 @@
                                     });
                                 }
                             } else {
-                                div.textContent = 'Geçmiş';
-                                div.title = 'Bu saat geçmiş';
+                                div.textContent = "{{ gettext('Geçmiş') }}";
+                                div.title = "{{ gettext('Bu saat geçmiş') }}";
                             }
 
                             td.appendChild(div);
@@ -424,7 +438,7 @@
                             // Boş
                             const a = document.createElement('a');
                             a.className = 'cell-slot';
-                            a.textContent = 'Boş';
+                            a.textContent = "{{ gettext('Boş') }}";
                             a.title = "Rezervasyon Yap";
                             a.href = `/rooms/${roomId}/book?date=${date}&time=${hour}`;
                             td.appendChild(a);
@@ -472,13 +486,13 @@
                                 
                                 if (hour in bookedSlots) {
                                     const resData = bookedSlots[hour];
-                                    div.textContent = 'Dolu';
+                                    div.textContent = "{{ gettext('Dolu') }}";
                                     div.title = `Rezerve eden: ${resData.username}`;
 
                                     if (isAdmin) {
                                         div.style.cursor = 'pointer';
                                         div.addEventListener('click', () => {
-                                            if (confirm(`Bu rezervasyonu (${resData.username}) iptal etmek istiyor musunuz?`)) {
+                                            if (confirm(`{{ gettext('Bu rezervasyonu') }} (${resData.username}) {{ gettext('iptal etmek istiyor musunuz?') }}`)) {
                                                 const form = document.createElement('form');
                                                 form.method = 'POST';
                                                 form.action = `/reservation/${resData.id}/delete`;
@@ -488,28 +502,28 @@
                                         });
                                     }
                                 } else {
-                                    div.textContent = 'Geçmiş';
-                                    div.title = 'Bu saat geçmiş';
+                                    div.textContent = "{{ gettext('Geçmiş') }}";
+                                    div.title = "{{ gettext('Bu saat geçmiş') }}";
                                 }
 
                                 td.innerHTML = '';
                                 td.appendChild(div);
                             } else {
                                 if (hour in bookedSlots) {
-                                    if (child.textContent !== 'Dolu') {
-                                        const resData = bookedSlots[hour];
-                                        child.textContent = 'Dolu';
+                                    if (child.textContent !== "{{ gettext('Dolu') }}") {
+                                        child.className = 'cell-slot booked';
+                                        child.textContent = "{{ gettext('Dolu') }}";
                                         child.title = `Rezerve eden: ${resData.username}`;
                                         
                                         if (isAdmin) {
                                             child.style.cursor = 'pointer';
                                             const div = document.createElement('div');
                                             div.className = 'cell-slot booked';
-                                            div.textContent = 'Dolu';
+                                            div.textContent = "{{ gettext('Dolu') }}";
                                             div.title = `Rezerve eden: ${resData.username}`;
                                             div.style.cursor = 'pointer';
                                             div.addEventListener('click', () => {
-                                                if (confirm(`Bu rezervasyonu (${resData.username}) iptal etmek istiyor musunuz?`)) {
+                                                if (confirm(`{{ gettext('Bu rezervasyonu') }} (${resData.username}) {{ gettext('iptal etmek istiyor musunuz?') }}`)) {
                                                     const form = document.createElement('form');
                                                     form.method = 'POST';
                                                     form.action = `/reservation/${resData.id}/delete`;
@@ -522,9 +536,9 @@
                                         }
                                     }
                                 } else if (isPast) {
-                                    if (child.textContent !== 'Geçmiş') {
-                                        child.textContent = 'Geçmiş';
-                                        child.title = 'Bu saat geçmiş';
+                                    if (child.textContent !== "{{ gettext('Geçmiş') }}") {
+                                        child.textContent = "{{ gettext('Geçmiş') }}";
+                                        child.title = "{{ gettext('Bu saat geçmiş') }}";
                                         child.style.cursor = 'not-allowed';
                                         const newChild = child.cloneNode(true);
                                         td.innerHTML = '';
@@ -537,7 +551,7 @@
                                 // Boşa çıkar
                                 const a = document.createElement('a');
                                 a.className = 'cell-slot';
-                                a.textContent = 'Boş';
+                                a.textContent = "{{ gettext('Boş') }}";
                                 a.href = `/rooms/${roomId}/book?date=${date}&time=${hour}`;
                                 td.innerHTML = '';
                                 td.appendChild(a);

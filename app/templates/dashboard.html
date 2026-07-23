@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 
+{% block meta_description %}{{ gettext('Yaklaşan ve geçmiş toplantılarınızı, davet edildiğiniz rezervasyonları kişisel kontrol panelinizden inceleyin ve yönetin.') }}{% endblock %}
+
 {% block content %}
 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
     <h2 style="font-size: 2rem; margin: 0;">{{ gettext('Rezervasyonlarım') }}</h2>
@@ -11,7 +13,7 @@
         {% for res in reservations %}
         <div class="res-card">
             <div class="res-header">
-                <h3>{{ res.room.name }} {{ gettext('Odası') }}</h3>
+                <h3>{{ res.room.display_name }} {{ gettext('Odası') }}</h3>
                 <span class="res-date">{{ res.date }}</span>
             </div>
             <div class="res-body">
@@ -52,9 +54,13 @@
                 {% endif %}
                 
                 <div style="margin-bottom: 1.5rem;">
-                    <form action="{{ url_for('main.upload_document', res_id=res.id) }}" method="POST" enctype="multipart/form-data" style="display: flex; gap: 0.5rem;">
-                        <input type="file" name="document" required style="font-size: 0.75rem; color: #cbd5e1; flex-grow: 1;">
-                        <button type="submit" class="btn btn-primary" style="padding: 0.25rem 0.5rem; font-size: 0.75rem; width: auto;">{{ gettext('Yükle') }}</button>
+                    <form action="{{ url_for('main.upload_document', res_id=res.id) }}" method="POST" enctype="multipart/form-data" style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+                        <label class="custom-file-upload" style="display: flex; align-items: center; max-width: 250px; border: 1px solid #334155; padding: 0.25rem 0.5rem; cursor: pointer; border-radius: 4px; font-size: 0.75rem; color: #cbd5e1; background: #1e293b; margin: 0;">
+                            <input type="file" name="document" required style="display: none;" onchange='this.parentElement.querySelector("span.file-name").innerText = this.files[0] ? this.files[0].name : "{{ gettext("Dosya seçilmedi") }}"'>
+                            <span class="file-btn" style="background: #334155; padding: 0.15rem 0.4rem; border-radius: 3px; margin-right: 0.5rem; color: #fff; white-space: nowrap; flex-shrink: 0;">{{ gettext('Dosya Seç') }}</span>
+                            <span class="file-name" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ gettext('Dosya seçilmedi') }}</span>
+                        </label>
+                        <button type="submit" class="btn btn-primary" style="padding: 0.25rem 0.5rem; font-size: 0.75rem; width: auto; margin: 0;">{{ gettext('Yükle') }}</button>
                     </form>
                 </div>
                 
@@ -93,7 +99,7 @@
         {% for res in invited_reservations %}
         <div class="res-card" style="border-left: 4px solid #10b981;">
             <div class="res-header">
-                <h3>{{ res.room.name }} {{ gettext('Odası') }}</h3>
+                <h3>{{ res.room.display_name }} {{ gettext('Odası') }}</h3>
                 <span class="res-date">{{ res.date }}</span>
             </div>
             <div class="res-body">
@@ -127,9 +133,13 @@
                 {% endif %}
                 
                 <div style="margin-bottom: 1.5rem;">
-                    <form action="{{ url_for('main.upload_document', res_id=res.id) }}" method="POST" enctype="multipart/form-data" style="display: flex; gap: 0.5rem;">
-                        <input type="file" name="document" required style="font-size: 0.75rem; color: #cbd5e1; flex-grow: 1;">
-                        <button type="submit" class="btn btn-primary" style="padding: 0.25rem 0.5rem; font-size: 0.75rem; width: auto;">{{ gettext('Yükle') }}</button>
+                    <form action="{{ url_for('main.upload_document', res_id=res.id) }}" method="POST" enctype="multipart/form-data" style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+                        <label class="custom-file-upload" style="display: flex; align-items: center; max-width: 250px; border: 1px solid #334155; padding: 0.25rem 0.5rem; cursor: pointer; border-radius: 4px; font-size: 0.75rem; color: #cbd5e1; background: #1e293b; margin: 0;">
+                            <input type="file" name="document" required style="display: none;" onchange='this.parentElement.querySelector("span.file-name").innerText = this.files[0] ? this.files[0].name : "{{ gettext("Dosya seçilmedi") }}"'>
+                            <span class="file-btn" style="background: #334155; padding: 0.15rem 0.4rem; border-radius: 3px; margin-right: 0.5rem; color: #fff; white-space: nowrap; flex-shrink: 0;">{{ gettext('Dosya Seç') }}</span>
+                            <span class="file-name" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ gettext('Dosya seçilmedi') }}</span>
+                        </label>
+                        <button type="submit" class="btn btn-primary" style="padding: 0.25rem 0.5rem; font-size: 0.75rem; width: auto; margin: 0;">{{ gettext('Yükle') }}</button>
                     </form>
                 </div>
                 

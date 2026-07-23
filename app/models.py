@@ -18,8 +18,16 @@ class User(UserMixin, db.Model):
     username = db.Column(db.String(64), unique=False, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password_hash = db.Column(db.String(128))
+    first_name = db.Column(db.String(50), nullable=True)
+    last_name = db.Column(db.String(50), nullable=True)
     is_admin = db.Column(db.Boolean, default=False)
     profile_image = db.Column(db.String(120), nullable=False, default='default.jpg')
+    
+    @property
+    def full_name(self):
+        if self.first_name and self.last_name:
+            return f"{self.first_name} {self.last_name}"
+        return self.username
     
     # Relationship to reservations
     reservations = db.relationship('Reservation', backref='user', lazy=True)
@@ -43,9 +51,21 @@ class User(UserMixin, db.Model):
 class Room(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), unique=True, nullable=False)
+    english_name = db.Column(db.String(50), nullable=True)
     capacity = db.Column(db.Integer, nullable=False, default=10)
     description = db.Column(db.String(200), nullable=True)
     reservations = db.relationship('Reservation', backref='room', lazy=True)
+    
+    @property
+    def display_name(self):
+        from flask import session, has_request_context
+        lang = 'tr'
+        if has_request_context():
+            lang = session.get('lang', 'tr')
+        if lang == 'en' and self.english_name:
+            return self.english_name
+        from flask_babel import gettext
+        return gettext(self.name)
 
     def __repr__(self):
         return f"Room('{self.name}')"
@@ -81,13 +101,20 @@ class Reservation(db.Model):
         return f"Reservation('{self.room.name}', '{self.date}' '{self.start_time}-{self.end_time}')"
 
 class AuditLog(db.Model):
+    __bind_key__ = 'logs'
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True) # Null for system actions or anonymous
+    user_id = db.Column(db.Integer, index=True, nullable=True) # Null for system actions or anonymous
     action = db.Column(db.String(50), nullable=False) # e.g. LOGIN, BOOKING, DELETE_USER
     details = db.Column(db.Text, nullable=True)
-    timestamp = db.Column(db.DateTime, default=get_turkey_time)
+    timestamp = db.Column(db.DateTime, index=True, default=get_turkey_time)
+    is_hidden = db.Column(db.Boolean, default=False, index=True)
     
-    user = db.relationship('User', backref=db.backref('logs', lazy=True))
+    @property
+    def user(self):
+        from app.models import User
+        if self.user_id:
+            return User.query.get(self.user_id)
+        return None
 
 class Notification(db.Model):
     id = db.Column(db.Integer, primary_key=True)
