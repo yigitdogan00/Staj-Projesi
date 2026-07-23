@@ -63,7 +63,7 @@ def login():
 @bp.route('/login/google')
 def login_google():
     from app.extensions import oauth
-    redirect_uri = url_for('auth.authorize_google', _external=True)
+    redirect_uri = url_for('auth.authorize_google', _external=True, _scheme='https')
     return oauth.google.authorize_redirect(redirect_uri, prompt='select_account')
 
 @bp.route('/callback')
