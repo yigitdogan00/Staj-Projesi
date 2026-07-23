@@ -161,3 +161,5 @@ def create_app(config_class=Config):
             app.logger.error(f"Auto-seed error: {e}")
 
     return app
+
+app = create_app()
