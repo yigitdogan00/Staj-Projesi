@@ -126,6 +126,7 @@ def authorize_google():
         flash(gettext('Google ile giriş başarılı! Hoş geldiniz %(name)s', name=user.username), 'success')
         return redirect(next_page) if next_page else redirect(url_for('main.rooms'))
     except Exception as e:
+        db.session.rollback()
         current_app.logger.error(f"Google OAuth Callback Error: {e}", exc_info=True)
         flash(gettext('Google ile giriş yapılırken bir hata oluştu: %(error)s', error=str(e)), 'danger')
         return redirect(url_for('auth.login'))
