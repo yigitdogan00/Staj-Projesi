@@ -138,27 +138,43 @@ def reset_request():
     from app.utils import log_action
     form = RequestResetForm()
     if form.validate_on_submit():
-        user = User.query.filter_by(email=form.email.data).first()
-        if user:
-            from datetime import datetime, timedelta
-            from app.models import AuditLog
-            one_hour_ago = datetime.utcnow() - timedelta(hours=1)
-            recent_requests = AuditLog.query.filter(
-                AuditLog.user_id == user.id,
-                AuditLog.action == "ŞİFRE_SIFIRLAMA_TALEBİ",
-                AuditLog.timestamp >= one_hour_ago
-            ).count()
+        try:
+            user = User.query.filter_by(email=form.email.data).first()
+            if user:
+                try:
+                    from datetime import datetime, timedelta
+                    from app.models import AuditLog
+                    one_hour_ago = datetime.utcnow() - timedelta(hours=1)
+                    recent_requests = AuditLog.query.filter(
+                        AuditLog.user_id == user.id,
+                        AuditLog.action == "ŞİFRE_SIFIRLAMA_TALEBİ",
+                        AuditLog.timestamp >= one_hour_ago
+                    ).count()
 
-            if recent_requests >= 3 and not user.is_admin:
-                flash(gettext('Güvenlik uyarısı: Son 1 saat içinde çok fazla şifre sıfırlama talebinde bulundunuz. Lütfen hesabınızın güvenliği için daha sonra tekrar deneyin.'), 'danger')
-                return redirect(url_for('auth.login'))
-                
-            from app.utils import send_reset_email
-            send_reset_email(user)
-            log_action(user.id, "ŞİFRE_SIFIRLAMA_TALEBİ", f"{form.email.data} için sıfırlama linki e-posta ile gönderildi.")
-        else:
-            log_action(None, "ŞİFRE_SIFIRLAMA_TALEBİ_BAŞARISIZ", f"{form.email.data} mail adresi sistemde bulunamadı.")
-        
+                    if recent_requests >= 3 and not user.is_admin:
+                        flash(gettext('Güvenlik uyarısı: Son 1 saat içinde çok fazla şifre sıfırlama talebinde bulundunuz. Lütfen hesabınızın güvenliği için daha sonra tekrar deneyin.'), 'danger')
+                        return redirect(url_for('auth.login'))
+                except Exception as ex:
+                    current_app.logger.error(f"Audit log check error: {ex}")
+                    
+                try:
+                    from app.utils import send_reset_email
+                    send_reset_email(user)
+                except Exception as ex:
+                    current_app.logger.error(f"Error sending reset email: {ex}")
+
+                try:
+                    log_action(user.id, "ŞİFRE_SIFIRLAMA_TALEBİ", f"{form.email.data} için sıfırlama linki e-posta ile gönderildi.")
+                except Exception:
+                    pass
+            else:
+                try:
+                    log_action(None, "ŞİFRE_SIFIRLAMA_TALEBİ_BAŞARISIZ", f"{form.email.data} mail adresi sistemde bulunamadı.")
+                except Exception:
+                    pass
+        except Exception as e:
+            current_app.logger.error(f"Error in reset_request: {e}")
+
         flash(gettext('Eğer sistemimizde böyle bir kayıt varsa, şifre sıfırlama bağlantısı e-posta adresinize gönderildi.'), 'info')
         return redirect(url_for('auth.login'))
     return render_template('auth/reset_request.html', title='Şifreyi Sıfırla', form=form)
