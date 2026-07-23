@@ -51,12 +51,11 @@ def profile():
     elif request.method == 'GET':
         from app.utils import parse_name_from_email
         fn, ln = parse_name_from_email(current_user.email)
-        if not current_user.last_name or not current_user.first_name or current_user.first_name.lower() in ['yigitdogan', 'testuser', 'admin']:
-            if fn:
+        if fn and ln:
+            if not current_user.first_name or not current_user.last_name or 'dogan' in current_user.first_name.lower() or current_user.first_name.lower() == 'yigitdogan':
                 current_user.first_name = fn
-            if ln:
                 current_user.last_name = ln
-            db.session.commit()
+                db.session.commit()
 
         form.first_name.data = current_user.first_name
         form.last_name.data = current_user.last_name
