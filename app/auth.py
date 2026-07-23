@@ -70,68 +70,65 @@ def login_google():
 def authorize_google():
     from app.extensions import oauth
     from app.utils import log_action
+    from flask import current_app
     
     try:
         token = oauth.google.authorize_access_token()
-    except Exception as e:
-        flash(gettext('Google ile giriş başarısız oldu: %(error)s', error=str(e)), 'danger')
-        return redirect(url_for('auth.login'))
+        user_info = token.get('userinfo')
+        if not user_info:
+            user_info = oauth.google.userinfo()
+            
+        if not user_info or not user_info.get('email'):
+            flash(gettext('Google ile giriş başarısız oldu: Kullanıcı bilgileri veya e-posta adresi alınamadı.'), 'danger')
+            return redirect(url_for('auth.login'))
+            
+        email = user_info.get('email')
+        username = user_info.get('name') or user_info.get('given_name') or email.split('@')[0]
+        given_name = user_info.get('given_name')
+        family_name = user_info.get('family_name')
         
-    user_info = token.get('userinfo')
-    
-    if not user_info:
-        flash(gettext('Kullanıcı bilgileri alınamadı.'), 'danger')
-        return redirect(url_for('auth.login'))
+        if not given_name or not family_name:
+            full_name = user_info.get('name', '').strip()
+            if full_name:
+                parts = full_name.split()
+                if not given_name and len(parts) > 0:
+                    given_name = parts[0]
+                if not family_name and len(parts) > 1:
+                    family_name = ' '.join(parts[1:])
         
-    email = user_info.get('email')
-    
-    if not email:
-        flash(gettext('E-posta adresi alınamadı.'), 'danger')
-        return redirect(url_for('auth.login'))
+        user = User.query.filter_by(email=email).first()
         
-    username = user_info.get('name') or user_info.get('given_name') or email.split('@')[0]
-    given_name = user_info.get('given_name')
-    family_name = user_info.get('family_name')
-    
-    # Ad veya Soyad ayrı alan olarak yoksa tam addan otomatik parçala
-    if not given_name or not family_name:
-        full_name = user_info.get('name', '').strip()
-        if full_name:
-            parts = full_name.split()
-            if not given_name and len(parts) > 0:
-                given_name = parts[0]
-            if not family_name and len(parts) > 1:
-                family_name = ' '.join(parts[1:])
-    
-    user = User.query.filter_by(email=email).first()
-    
-    if not user:
-        user = User(
-            username=username,
-            email=email,
-            first_name=given_name,
-            last_name=family_name
-        )
-        db.session.add(user)
-        db.session.commit()
-        log_action(user.id, "KULLANICI_KAYIT", f"{user.username} Google Login ile otomatik kayıt oldu.")
-    else:
-        updated = False
-        if given_name and not user.first_name:
-            user.first_name = given_name
-            updated = True
-        if family_name and not user.last_name:
-            user.last_name = family_name
-            updated = True
-        if updated:
+        if not user:
+            user = User(
+                username=username,
+                email=email,
+                first_name=given_name,
+                last_name=family_name
+            )
+            db.session.add(user)
             db.session.commit()
+            log_action(user.id, "KULLANICI_KAYIT", f"{user.username} Google Login ile otomatik kayıt oldu.")
+        else:
+            updated = False
+            if given_name and not user.first_name:
+                user.first_name = given_name
+                updated = True
+            if family_name and not user.last_name:
+                user.last_name = family_name
+                updated = True
+            if updated:
+                db.session.commit()
 
-    login_user(user, remember=True)
-    log_action(user.id, "SİSTEME_GİRİŞ", f"{user.username} Google Login ile sisteme giriş yaptı.")
-    
-    next_page = request.args.get('next')
-    flash(gettext('Giriş başarılı!'), 'success')
-    return redirect(next_page) if next_page else redirect(url_for('main.index'))
+        login_user(user, remember=True)
+        log_action(user.id, "SİSTEME_GİRİŞ", f"{user.username} Google Login ile sisteme giriş yaptı.")
+        
+        next_page = request.args.get('next')
+        flash(gettext('Giriş başarılı!'), 'success')
+        return redirect(next_page) if next_page else redirect(url_for('main.index'))
+    except Exception as e:
+        current_app.logger.error(f"Google OAuth Callback Error: {e}", exc_info=True)
+        flash(gettext('Google ile giriş yapılırken bir hata oluştu: %(error)s', error=str(e)), 'danger')
+        return redirect(url_for('auth.login'))
 
 @bp.route('/logout')
 def logout():

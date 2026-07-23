@@ -20,8 +20,11 @@ def compile_translations(app):
     except Exception as e:
         app.logger.error(f"Error compiling translations: {e}")
 
+from werkzeug.middleware.proxy_fix import ProxyFix
+
 def create_app(config_class=Config):
     app = Flask(__name__)
+    app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1)
     app.config.from_object(config_class)
     
     # Compile translations on startup
