@@ -20,10 +20,6 @@ class Config:
     else:
         SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'app.db')
 
-    logs_db_url = os.environ.get('LOGS_DATABASE_URL') or SQLALCHEMY_DATABASE_URI
-    if logs_db_url.startswith("postgres://"):
-        logs_db_url = logs_db_url.replace("postgres://", "postgresql://", 1)
-    SQLALCHEMY_BINDS = {'logs': logs_db_url}
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     
     

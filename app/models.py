@@ -101,7 +101,6 @@ class Reservation(db.Model):
         return f"Reservation('{self.room.name}', '{self.date}' '{self.start_time}-{self.end_time}')"
 
 class AuditLog(db.Model):
-    __bind_key__ = 'logs'
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, index=True, nullable=True) # Null for system actions or anonymous
     action = db.Column(db.String(50), nullable=False) # e.g. LOGIN, BOOKING, DELETE_USER

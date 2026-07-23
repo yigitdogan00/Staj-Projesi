@@ -1314,20 +1314,23 @@ def admin_logs():
     page = request.args.get('page', 1, type=int)
     date_filter = request.args.get('date', '')
     
-    query = AuditLog.query
-    
-    if date_filter:
-        try:
-            # Parse YYYY-MM-DD
-            target_date = datetime.strptime(date_filter, '%Y-%m-%d').date()
-            start_datetime = datetime.combine(target_date, time.min)
-            end_datetime = datetime.combine(target_date, time.max)
-            query = query.filter(AuditLog.timestamp >= start_datetime, AuditLog.timestamp <= end_datetime)
-        except ValueError:
-            pass
-            
-    # Always sort descending
-    logs = query.order_by(AuditLog.timestamp.desc()).paginate(page=page, per_page=20, error_out=False)
+    try:
+        query = AuditLog.query
+        
+        if date_filter:
+            try:
+                target_date = datetime.strptime(date_filter, '%Y-%m-%d').date()
+                start_datetime = datetime.combine(target_date, time.min)
+                end_datetime = datetime.combine(target_date, time.max)
+                query = query.filter(AuditLog.timestamp >= start_datetime, AuditLog.timestamp <= end_datetime)
+            except ValueError:
+                pass
+                
+        logs = query.order_by(AuditLog.timestamp.desc()).paginate(page=page, per_page=20, error_out=False)
+    except Exception as e:
+        db.session.rollback()
+        current_app.logger.error(f"Error loading admin_logs: {e}")
+        logs = AuditLog.query.filter_by(id=-1).paginate(page=1, per_page=20, error_out=False)
     
     return render_template('admin_logs.html', title='Log Yönetimi', logs=logs, date_filter=date_filter)
 
