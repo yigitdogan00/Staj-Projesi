@@ -75,18 +75,20 @@ def create_app(config_class=Config):
         return {'status': 'healthy'}
 
     with app.app_context():
-        from sqlalchemy import text
+        from sqlalchemy import inspect, text
         db.create_all()
-        # Add missing columns if database schema was created earlier
-        for col_def in [
-            'ALTER TABLE "user" ADD COLUMN is_admin BOOLEAN DEFAULT FALSE;',
-            'ALTER TABLE "user" ADD COLUMN first_name VARCHAR(50);',
-            'ALTER TABLE "user" ADD COLUMN last_name VARCHAR(50);'
-        ]:
-            try:
-                db.session.execute(text(col_def))
-                db.session.commit()
-            except Exception:
-                db.session.rollback()
+        try:
+            inspector = inspect(db.engine)
+            if inspector.has_table('user'):
+                columns = [c['name'] for c in inspector.get_columns('user')]
+                with db.engine.begin() as conn:
+                    if 'is_admin' not in columns:
+                        conn.execute(text('ALTER TABLE user ADD COLUMN is_admin BOOLEAN DEFAULT FALSE'))
+                    if 'first_name' not in columns:
+                        conn.execute(text('ALTER TABLE user ADD COLUMN first_name VARCHAR(50)'))
+                    if 'last_name' not in columns:
+                        conn.execute(text('ALTER TABLE user ADD COLUMN last_name VARCHAR(50)'))
+        except Exception as e:
+            app.logger.error(f"Migration error: {e}")
 
     return app
