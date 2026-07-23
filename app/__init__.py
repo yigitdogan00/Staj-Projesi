@@ -77,11 +77,16 @@ def create_app(config_class=Config):
     with app.app_context():
         from sqlalchemy import text
         db.create_all()
-        # Add is_admin column if missing
-        try:
-            db.session.execute(text('ALTER TABLE "user" ADD COLUMN is_admin BOOLEAN DEFAULT FALSE;'))
-            db.session.commit()
-        except Exception:
-            db.session.rollback()
+        # Add missing columns if database schema was created earlier
+        for col_def in [
+            'ALTER TABLE "user" ADD COLUMN is_admin BOOLEAN DEFAULT FALSE;',
+            'ALTER TABLE "user" ADD COLUMN first_name VARCHAR(50);',
+            'ALTER TABLE "user" ADD COLUMN last_name VARCHAR(50);'
+        ]:
+            try:
+                db.session.execute(text(col_def))
+                db.session.commit()
+            except Exception:
+                db.session.rollback()
 
     return app
