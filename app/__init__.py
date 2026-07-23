@@ -114,7 +114,8 @@ def create_app(config_class=Config):
                 ('user', 'first_name', 'VARCHAR(50)'),
                 ('user', 'last_name', 'VARCHAR(50)'),
                 ('room', 'english_name', 'VARCHAR(50)'),
-                ('reservation', 'checked_in', 'BOOLEAN DEFAULT FALSE')
+                ('reservation', 'checked_in', 'BOOLEAN DEFAULT FALSE'),
+                ('audit_log', 'is_hidden', 'BOOLEAN DEFAULT FALSE')
             ]
             for tbl, col, col_type in migrations:
                 try:
