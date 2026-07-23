@@ -87,15 +87,25 @@ def create_app(config_class=Config):
         # 2. Safe schema column migrations if needed
         try:
             inspector = inspect(db.engine)
-            if inspector.has_table('user'):
-                columns = [c['name'] for c in inspector.get_columns('user')]
-                with db.engine.begin() as conn:
-                    if 'is_admin' not in columns:
+            with db.engine.begin() as conn:
+                if inspector.has_table('user'):
+                    user_cols = [c['name'] for c in inspector.get_columns('user')]
+                    if 'is_admin' not in user_cols:
                         conn.execute(text('ALTER TABLE user ADD COLUMN is_admin BOOLEAN DEFAULT FALSE'))
-                    if 'first_name' not in columns:
+                    if 'first_name' not in user_cols:
                         conn.execute(text('ALTER TABLE user ADD COLUMN first_name VARCHAR(50)'))
-                    if 'last_name' not in columns:
+                    if 'last_name' not in user_cols:
                         conn.execute(text('ALTER TABLE user ADD COLUMN last_name VARCHAR(50)'))
+
+                if inspector.has_table('room'):
+                    room_cols = [c['name'] for c in inspector.get_columns('room')]
+                    if 'english_name' not in room_cols:
+                        conn.execute(text('ALTER TABLE room ADD COLUMN english_name VARCHAR(50)'))
+
+                if inspector.has_table('reservation'):
+                    res_cols = [c['name'] for c in inspector.get_columns('reservation')]
+                    if 'checked_in' not in res_cols:
+                        conn.execute(text('ALTER TABLE reservation ADD COLUMN checked_in BOOLEAN DEFAULT FALSE'))
         except Exception as e:
             app.logger.error(f"Migration check error: {e}")
 
