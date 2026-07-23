@@ -28,6 +28,10 @@ def create_app(config_class=Config):
     app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1)
     app.config.from_object(config_class)
     
+    # 1. Non-blocking Asynchronous Logging (QueueHandler + QueueListener)
+    from app.async_logger import init_async_logging
+    init_async_logging(app)
+    
     # Compile translations on startup
     compile_translations(app)
     
@@ -41,11 +45,9 @@ def create_app(config_class=Config):
     bcrypt.init_app(app)
     babel.init_app(app, locale_selector=get_locale)
     
-    try:
-        if not scheduler.running:
-            scheduler.init_app(app)
-    except Exception as e:
-        app.logger.warning(f"Scheduler init_app warning: {e}")
+    # 2. Single-Worker Flask-APScheduler Initialization (Cross-process Lock)
+    from app.scheduler_utils import init_single_worker_scheduler
+    init_single_worker_scheduler(app, scheduler)
     
     from app.extensions import oauth
     oauth.init_app(app)
@@ -57,19 +59,7 @@ def create_app(config_class=Config):
         client_kwargs={
             'scope': 'openid email profile'
         }
-    )    
-    from app.jobs import check_upcoming_reservations, check_short_term_reminders
-    try:
-        # Schedule the job to run daily at 08:00 AM
-        scheduler.add_job(id='Daily Reservation Check', func=check_upcoming_reservations, args=[app], trigger='cron', hour=8, minute=0, replace_existing=True)
-        
-        # Schedule short-term reminders to run exactly at the 0th second of every minute
-        scheduler.add_job(id='Short Term Reminder Check', func=check_short_term_reminders, args=[app], trigger='cron', second=0, replace_existing=True)
-        
-        if not scheduler.running:
-            scheduler.start()
-    except Exception as e:
-        app.logger.error(f"APScheduler Startup Error: {e}")
+    )
 
     # Register Blueprints
     from app.auth import bp as auth_bp
@@ -85,6 +75,13 @@ def create_app(config_class=Config):
     # Ensure static directories exist
     os.makedirs(app.config.get('UPLOAD_FOLDER', os.path.join(app.root_path, 'static', 'uploads', 'documents')), exist_ok=True)
     os.makedirs(os.path.join(app.root_path, 'static', 'profile_pics'), exist_ok=True)
+
+    # 3. Teardown Database Session Cleanup After Every Request
+    @app.teardown_appcontext
+    def teardown_db_session(exception=None):
+        if exception:
+            db.session.rollback()
+        db.session.remove()
 
     @app.errorhandler(404)
     def not_found_error(error):
