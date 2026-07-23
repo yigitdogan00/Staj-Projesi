@@ -82,11 +82,10 @@ def create_app(config_class=Config):
         from app.models import User, Room
         
         # 1. Automatic table creation for main DB and logs DB
-        db.create_all()
         try:
-            db.create_all(bind_key='logs')
+            db.create_all()
         except Exception as e:
-            app.logger.error(f"Logs DB creation error: {e}")
+            app.logger.error(f"db.create_all error: {e}")
         
         # 2. Safe schema column migrations if needed
         try:
