@@ -153,8 +153,9 @@ def reset_request():
                 flash(gettext('Güvenlik uyarısı: Son 1 saat içinde çok fazla şifre sıfırlama talebinde bulundunuz. Lütfen hesabınızın güvenliği için daha sonra tekrar deneyin.'), 'danger')
                 return redirect(url_for('auth.login'))
                 
-            # Mail sending removed
-            log_action(user.id, "ŞİFRE_SIFIRLAMA_TALEBİ", f"{form.email.data} için sıfırlama linki oluşturuldu.")
+            from app.utils import send_reset_email
+            send_reset_email(user)
+            log_action(user.id, "ŞİFRE_SIFIRLAMA_TALEBİ", f"{form.email.data} için sıfırlama linki e-posta ile gönderildi.")
         else:
             log_action(None, "ŞİFRE_SIFIRLAMA_TALEBİ_BAŞARISIZ", f"{form.email.data} mail adresi sistemde bulunamadı.")
         

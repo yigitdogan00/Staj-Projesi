@@ -128,7 +128,67 @@ def log_action(user_id, action, details=None):
     # Artık kayıtlar logs.db'de sonsuza kadar kalacak, silinmeyecek.
 
 
-# email functions removed
+def send_reset_email(user):
+    import smtplib
+    from email.mime.text import MIMEText
+    from email.mime.multipart import MIMEMultipart
+    from flask import current_app, url_for
+
+    try:
+        token = user.get_reset_token()
+        reset_url = url_for('auth.reset_token', token=token, _external=True, _scheme='https')
+
+        mail_server = current_app.config.get('MAIL_SERVER', 'smtp.gmail.com')
+        mail_port = current_app.config.get('MAIL_PORT', 587)
+        mail_username = current_app.config.get('MAIL_USERNAME')
+        mail_password = current_app.config.get('MAIL_PASSWORD')
+        sender = current_app.config.get('MAIL_DEFAULT_SENDER') or mail_username
+
+        if not mail_username or not mail_password:
+            current_app.logger.warning("Mail credentials (MAIL_USERNAME/MAIL_PASSWORD) missing in config.")
+            return False
+
+        msg = MIMEMultipart('alternative')
+        msg['Subject'] = "Şifre Sıfırlama Talebi - Toplantı Odası Rezervasyon Sistemi"
+        msg['From'] = sender
+        msg['To'] = user.email
+
+        text_body = f"""Merhaba {user.username},
+
+Şifrenizi sıfırlamak için aşağıdaki bağlantıya tıklayın:
+{reset_url}
+
+Bu talebi siz yapmadıysanız lütfen bu e-postayı dikkate almayın.
+"""
+
+        html_body = f"""
+        <div style="font-family: Arial, sans-serif; background-color: #0f172a; padding: 30px; color: #ffffff;">
+            <div style="max-width: 600px; margin: 0 auto; background: #1e293b; border-radius: 12px; padding: 25px; border: 1px solid rgba(255,255,255,0.1);">
+                <h2 style="color: #4F46E5; margin-top: 0;">🔒 Şifre Sıfırlama Talebi</h2>
+                <p style="color: #cbd5e1; font-size: 16px;">Merhaba <strong>{user.username}</strong>,</p>
+                <p style="color: #cbd5e1; font-size: 15px; line-height: 1.6;">Toplantı Odası Rezervasyon Sisteminizdeki hesabınız için bir şifre sıfırlama talebinde bulunuldu. Yeni şifre belirlemek için aşağıdaki butona tıklayın:</p>
+                <div style="text-align: center; margin: 30px 0;">
+                    <a href="{reset_url}" style="background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%); color: white; padding: 12px 28px; border-radius: 8px; text-decoration: none; font-weight: bold; display: inline-block;">Şifremi Sıfırla</a>
+                </div>
+                <p style="color: #94a3b8; font-size: 13px;">Eğer buton çalışmıyorsa aşağıdaki bağlantıyı tarayıcınıza yapıştırabilirsiniz:<br><a href="{reset_url}" style="color: #818cf8;">{reset_url}</a></p>
+                <hr style="border: none; border-top: 1px solid rgba(255,255,255,0.1); margin: 25px 0;">
+                <p style="color: #64748b; font-size: 12px; margin-bottom: 0;">Bu talebi siz yapmadıysanız bu e-postayı güvenle göz ardı edebilirsiniz. Şifreniz değiştirilmeyecektir.</p>
+            </div>
+        </div>
+        """
+
+        msg.attach(MIMEText(text_body, 'plain', 'utf-8'))
+        msg.attach(MIMEText(html_body, 'html', 'utf-8'))
+
+        server = smtplib.SMTP(mail_server, mail_port)
+        server.starttls()
+        server.login(mail_username, mail_password)
+        server.sendmail(sender, [user.email], msg.as_string())
+        server.quit()
+        return True
+    except Exception as e:
+        current_app.logger.error(f"Failed to send reset email: {e}", exc_info=True)
+        return False
 
 
 def generate_qr_token(reservation_id, user_id):
