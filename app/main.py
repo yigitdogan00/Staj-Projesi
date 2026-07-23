@@ -743,76 +743,82 @@ def index():
 def rooms():
     from app.models import Room, Reservation, get_turkey_time
     from datetime import datetime
-    
-    rooms = Room.query.all()
-    now = get_turkey_time()
-    today_str = now.strftime('%Y-%m-%d')
-    current_minutes_since_midnight = now.hour * 60 + now.minute
-    
-    possible_slots = []
-    for h in range(9, 18):
-        possible_slots.extend([f"{h:02d}:00", f"{h:02d}:30"])
+    from flask_babel import gettext
     
     room_stats = []
-    for r in rooms:
-        reservations = Reservation.query.filter_by(room_id=r.id, date=today_str).all()
+    now = get_turkey_time()
+    today_str = now.strftime('%Y-%m-%d')
+    
+    try:
+        rooms_list = Room.query.all()
+        current_minutes_since_midnight = now.hour * 60 + now.minute
         
-        actual_booked_minutes = 0
-        for res in reservations:
-            fmt = '%H:%M'
-            res_start_dt = datetime.strptime(res.start_time, fmt)
-            res_end_dt = datetime.strptime(res.end_time, fmt)
-            actual_booked_minutes += (res_end_dt - res_start_dt).seconds // 60
+        possible_slots = []
+        for h in range(9, 18):
+            possible_slots.extend([f"{h:02d}:00", f"{h:02d}:30"])
+        
+        for r in rooms_list:
+            reservations = Reservation.query.filter_by(room_id=r.id, date=today_str).all()
             
-        available_slots = 0
-        for slot in possible_slots:
-            slot_h, slot_m = map(int, slot.split(':'))
-            slot_start_mins = slot_h * 60 + slot_m
-            slot_end_mins = slot_start_mins + 30
-            
-            # Geçmiş zaman kontrolü
-            if slot_start_mins < current_minutes_since_midnight:
-                continue
-                
-            conflict = False
+            actual_booked_minutes = 0
             for res in reservations:
-                res_s_h, res_s_m = map(int, res.start_time.split(':'))
-                res_e_h, res_e_m = map(int, res.end_time.split(':'))
-                res_start_mins = res_s_h * 60 + res_s_m
-                res_end_mins = res_e_h * 60 + res_e_m
+                fmt = '%H:%M'
+                res_start_dt = datetime.strptime(res.start_time, fmt)
+                res_end_dt = datetime.strptime(res.end_time, fmt)
+                actual_booked_minutes += (res_end_dt - res_start_dt).seconds // 60
                 
-                if not (slot_end_mins <= res_start_mins or slot_start_mins >= res_end_mins):
-                    conflict = True
-                    break
+            available_slots = 0
+            for slot in possible_slots:
+                slot_h, slot_m = map(int, slot.split(':'))
+                slot_start_mins = slot_h * 60 + slot_m
+                slot_end_mins = slot_start_mins + 30
+                
+                # Geçmiş zaman kontrolü
+                if slot_start_mins < current_minutes_since_midnight:
+                    continue
                     
-            if not conflict:
-                available_slots += 1
+                conflict = False
+                for res in reservations:
+                    res_s_h, res_s_m = map(int, res.start_time.split(':'))
+                    res_e_h, res_e_m = map(int, res.end_time.split(':'))
+                    res_start_mins = res_s_h * 60 + res_s_m
+                    res_end_mins = res_e_h * 60 + res_e_m
+                    
+                    if not (slot_end_mins <= res_start_mins or slot_start_mins >= res_end_mins):
+                        conflict = True
+                        break
+                        
+                if not conflict:
+                    available_slots += 1
+                    
+            if available_slots == 0:
+                status = 'full'
+                label = gettext('Dolu')
+                color = '#ef4444' # Red
+            elif available_slots == 18:
+                status = 'empty'
+                label = gettext('Boş')
+                color = '#10b981' # Green
+            elif available_slots < 6:
+                status = 'partial'
+                label = gettext('Çoğunluğu Dolu')
+                color = '#f59e0b' # Yellow
+            else:
+                status = 'partial'
+                label = gettext('Kısmen Dolu')
+                color = '#f59e0b' # Yellow
                 
-        from flask_babel import gettext
-        if available_slots == 0:
-            status = 'full'
-            label = gettext('Dolu')
-            color = '#ef4444' # Red
-        elif available_slots == 18:
-            status = 'empty'
-            label = gettext('Boş')
-            color = '#10b981' # Green
-        elif available_slots < 6:
-            status = 'partial'
-            label = gettext('Çoğunluğu Dolu')
-            color = '#f59e0b' # Yellow
-        else:
-            status = 'partial'
-            label = gettext('Kısmen Dolu')
-            color = '#f59e0b' # Yellow
-            
-        room_stats.append({
-            'room': r,
-            'status': status,
-            'label': label,
-            'color': color,
-            'booked_minutes': actual_booked_minutes
-        })
+            room_stats.append({
+                'room': r,
+                'status': status,
+                'label': label,
+                'color': color,
+                'booked_minutes': actual_booked_minutes
+            })
+    except Exception as e:
+        db.session.rollback()
+        current_app.logger.error(f"Error loading rooms in /rooms: {e}", exc_info=True)
+        flash(gettext('Oda verileri yüklenirken bir veritabanı hatası oluştu. Lütfen sayfayı yenileyin.'), 'warning')
         
     return render_template('rooms/list.html', title='Odalar', room_stats=room_stats, today_date=today_str)
 

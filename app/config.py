@@ -9,11 +9,22 @@ class Config:
     PREFERRED_URL_SCHEME = os.environ.get('PREFERRED_URL_SCHEME', 'https')
     SESSION_COOKIE_SAMESITE = 'Lax'
     REMEMBER_COOKIE_SAMESITE = 'Lax'
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
-        'sqlite:///' + os.path.join(basedir, 'app.db')
-    SQLALCHEMY_BINDS = {
-        'logs': 'sqlite:///' + os.path.join(basedir, 'logs.db')
-    }
+    # Database Configuration (PostgreSQL when DATABASE_URL is set, SQLite fallback)
+    db_url = os.environ.get('DATABASE_URL')
+    if db_url:
+        if db_url.startswith("postgres://"):
+            db_url = db_url.replace("postgres://", "postgresql://", 1)
+        SQLALCHEMY_DATABASE_URI = db_url
+    else:
+        SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'app.db')
+
+    logs_db_url = os.environ.get('LOGS_DATABASE_URL')
+    if logs_db_url:
+        if logs_db_url.startswith("postgres://"):
+            logs_db_url = logs_db_url.replace("postgres://", "postgresql://", 1)
+        SQLALCHEMY_BINDS = {'logs': logs_db_url}
+    else:
+        SQLALCHEMY_BINDS = {'logs': 'sqlite:///' + os.path.join(basedir, 'logs.db')}
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     
     

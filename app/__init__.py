@@ -79,7 +79,12 @@ def create_app(config_class=Config):
 
     with app.app_context():
         from sqlalchemy import inspect, text
+        from app.models import User, Room
+        
+        # 1. Automatic table creation
         db.create_all()
+        
+        # 2. Safe schema column migrations if needed
         try:
             inspector = inspect(db.engine)
             if inspector.has_table('user'):
@@ -92,6 +97,42 @@ def create_app(config_class=Config):
                     if 'last_name' not in columns:
                         conn.execute(text('ALTER TABLE user ADD COLUMN last_name VARCHAR(50)'))
         except Exception as e:
-            app.logger.error(f"Migration error: {e}")
+            app.logger.error(f"Migration check error: {e}")
+
+        # 3. Non-destructive Seed (Only adds data if missing)
+        try:
+            # Seed Admin User if missing
+            admin_email = "admin@sirket.com"
+            admin = User.query.filter_by(email=admin_email).first()
+            if not admin:
+                hashed_password = bcrypt.generate_password_hash('admin123').decode('utf-8')
+                admin = User(username='Admin', email=admin_email, password_hash=hashed_password, is_admin=True)
+                db.session.add(admin)
+
+            # Seed Test User if missing
+            test_email = "test@sirket.com"
+            test_user = User.query.filter_by(email=test_email).first()
+            if not test_user:
+                hashed_password = bcrypt.generate_password_hash('test1234').decode('utf-8')
+                test_user = User(username='TestUser', email=test_email, password_hash=hashed_password, is_admin=False)
+                db.session.add(test_user)
+
+            # Seed Default Meeting Rooms if no rooms exist
+            if Room.query.count() == 0:
+                rooms_data = [
+                    {"name": "İnovasyon", "capacity": 12, "description": "TV, Klima, Kablosuz Yansıtma Özelliği, Beyaz Tahta ve Video Konferans Sistemi."},
+                    {"name": "Sinerji", "capacity": 12, "description": "TV, Klima, HDMI Yansıtma, Toplantı Masası ve Ergonomik Koltuklar."},
+                    {"name": "Vizyon", "capacity": 12, "description": "Akıllı Tahta, Klima, Projeksiyon ile Yansıtma Özelliği ve Apple TV."},
+                    {"name": "Strateji", "capacity": 12, "description": "Çift TV Ekranı, Klima, Yansıtma Özelliği ve Ses Yalıtımı."},
+                    {"name": "Dinamik", "capacity": 12, "description": "Geniş Ekran TV, Klima, Yansıtma Özelliği ve Dinlenme Alanı."}
+                ]
+                for r_data in rooms_data:
+                    new_room = Room(name=r_data["name"], capacity=r_data["capacity"], description=r_data["description"])
+                    db.session.add(new_room)
+
+            db.session.commit()
+        except Exception as e:
+            db.session.rollback()
+            app.logger.error(f"Auto-seed error: {e}")
 
     return app
