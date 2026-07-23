@@ -12,6 +12,45 @@ def admin_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
+def parse_name_from_email(email, user_info=None):
+    import re
+    given_name = None
+    family_name = None
+
+    if user_info and isinstance(user_info, dict):
+        given_name = user_info.get('given_name')
+        family_name = user_info.get('family_name')
+        if not given_name or not family_name:
+            full_name = user_info.get('name', '').strip()
+            if full_name:
+                parts = full_name.split()
+                if not given_name and len(parts) > 0:
+                    given_name = parts[0]
+                if not family_name and len(parts) > 1:
+                    family_name = ' '.join(parts[1:])
+
+    if not given_name or not family_name:
+        if email and '@' in email:
+            prefix = email.split('@')[0]
+            clean_prefix = re.sub(r'\d+$', '', prefix)
+            if not clean_prefix:
+                clean_prefix = prefix
+            
+            parts = re.split(r'[._\-]', clean_prefix)
+            parts = [p for p in parts if p]
+            
+            if len(parts) >= 2:
+                if not given_name:
+                    given_name = parts[0].capitalize()
+                if not family_name:
+                    family_name = ' '.join(p.capitalize() for p in parts[1:])
+            elif len(parts) == 1:
+                single_str = parts[0]
+                if not given_name:
+                    given_name = single_str.capitalize()
+
+    return given_name or "", family_name or ""
+
 # send_booking_email removed
 
 def generate_google_calendar_url(room_name, date, start_time, end_time):

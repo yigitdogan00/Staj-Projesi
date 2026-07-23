@@ -83,21 +83,15 @@ def authorize_google():
             return redirect(url_for('auth.login'))
             
         email = user_info.get('email')
+        from app.utils import parse_name_from_email
+        parsed_fn, parsed_ln = parse_name_from_email(email, user_info)
+
+        given_name = user_info.get('given_name') or parsed_fn
+        family_name = user_info.get('family_name') or parsed_ln
         username = user_info.get('name') or user_info.get('given_name') or email.split('@')[0]
-        given_name = user_info.get('given_name')
-        family_name = user_info.get('family_name')
-        
-        if not given_name or not family_name:
-            full_name = user_info.get('name', '').strip()
-            if full_name:
-                parts = full_name.split()
-                if not given_name and len(parts) > 0:
-                    given_name = parts[0]
-                if not family_name and len(parts) > 1:
-                    family_name = ' '.join(parts[1:])
-        
+
         user = User.query.filter_by(email=email).first()
-        
+
         if not user:
             user = User(
                 username=username,
@@ -110,10 +104,10 @@ def authorize_google():
             log_action(user.id, "KULLANICI_KAYIT", f"{user.username} Google Login ile otomatik kayıt oldu.")
         else:
             updated = False
-            if given_name and not user.first_name:
+            if given_name and (not user.first_name or user.first_name == ""):
                 user.first_name = given_name
                 updated = True
-            if family_name and not user.last_name:
+            if family_name and (not user.last_name or user.last_name == ""):
                 user.last_name = family_name
                 updated = True
             if updated:
