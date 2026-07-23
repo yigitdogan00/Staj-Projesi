@@ -41,7 +41,11 @@ def create_app(config_class=Config):
     bcrypt.init_app(app)
     babel.init_app(app, locale_selector=get_locale)
     
-    scheduler.init_app(app)
+    try:
+        if not scheduler.running:
+            scheduler.init_app(app)
+    except Exception as e:
+        app.logger.warning(f"Scheduler init_app warning: {e}")
     
     from app.extensions import oauth
     oauth.init_app(app)
