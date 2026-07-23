@@ -1,3 +1,4 @@
+import os
 from flask import Flask, request, session
 from app.config import Config
 from app.extensions import db, login_manager, bcrypt, babel, scheduler
@@ -77,6 +78,20 @@ def create_app(config_class=Config):
     def health_check():
         return {'status': 'healthy'}
 
+    # Ensure static directories exist
+    os.makedirs(app.config.get('UPLOAD_FOLDER', os.path.join(app.root_path, 'static', 'uploads', 'documents')), exist_ok=True)
+    os.makedirs(os.path.join(app.root_path, 'static', 'profile_pics'), exist_ok=True)
+
+    @app.errorhandler(404)
+    def not_found_error(error):
+        return render_template('errors/404.html'), 404
+
+    @app.errorhandler(500)
+    def internal_error(error):
+        db.session.rollback()
+        app.logger.error(f"Internal Server Error: {error}", exc_info=True)
+        return render_template('errors/500.html'), 500
+
     with app.app_context():
         from sqlalchemy import inspect, text
         from app.models import User, Room
@@ -87,28 +102,25 @@ def create_app(config_class=Config):
         except Exception as e:
             app.logger.error(f"db.create_all error: {e}")
         
-        # 2. Safe schema column migrations if needed
+        # 2. Safe schema column migrations (each in isolated block)
         try:
             inspector = inspect(db.engine)
-            with db.engine.begin() as conn:
-                if inspector.has_table('user'):
-                    user_cols = [c['name'] for c in inspector.get_columns('user')]
-                    if 'is_admin' not in user_cols:
-                        conn.execute(text('ALTER TABLE "user" ADD COLUMN is_admin BOOLEAN DEFAULT FALSE'))
-                    if 'first_name' not in user_cols:
-                        conn.execute(text('ALTER TABLE "user" ADD COLUMN first_name VARCHAR(50)'))
-                    if 'last_name' not in user_cols:
-                        conn.execute(text('ALTER TABLE "user" ADD COLUMN last_name VARCHAR(50)'))
-
-                if inspector.has_table('room'):
-                    room_cols = [c['name'] for c in inspector.get_columns('room')]
-                    if 'english_name' not in room_cols:
-                        conn.execute(text('ALTER TABLE "room" ADD COLUMN english_name VARCHAR(50)'))
-
-                if inspector.has_table('reservation'):
-                    res_cols = [c['name'] for c in inspector.get_columns('reservation')]
-                    if 'checked_in' not in res_cols:
-                        conn.execute(text('ALTER TABLE "reservation" ADD COLUMN checked_in BOOLEAN DEFAULT FALSE'))
+            migrations = [
+                ('user', 'is_admin', 'BOOLEAN DEFAULT FALSE'),
+                ('user', 'first_name', 'VARCHAR(50)'),
+                ('user', 'last_name', 'VARCHAR(50)'),
+                ('room', 'english_name', 'VARCHAR(50)'),
+                ('reservation', 'checked_in', 'BOOLEAN DEFAULT FALSE')
+            ]
+            for tbl, col, col_type in migrations:
+                try:
+                    if inspector.has_table(tbl):
+                        cols = [c['name'] for c in inspector.get_columns(tbl)]
+                        if col not in cols:
+                            with db.engine.begin() as conn:
+                                conn.execute(text(f'ALTER TABLE "{tbl}" ADD COLUMN {col} {col_type}'))
+                except Exception as m_err:
+                    app.logger.warning(f"Migration error for {tbl}.{col}: {m_err}")
         except Exception as e:
             app.logger.error(f"Migration check error: {e}")
 

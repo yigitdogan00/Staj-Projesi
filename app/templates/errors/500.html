@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container text-center py-5" style="max-width: 600px;">
+    <div class="card bg-dark text-white p-4 shadow-lg border-secondary rounded-4">
+        <h1 class="display-1 text-danger fw-bold">500</h1>
+        <h3 class="mb-3">Bir Sunucu Hatası Oluştu</h3>
+        <p class="text-muted mb-4">İşleminiz gerçekleştirilirken beklenmeyen bir sorun meydana geldi. Lütfen sayfayı yenilemeyi veya ana sayfaya dönmeyi deneyin.</p>
+        <div class="d-flex justify-content-center gap-3">
+            <a href="javascript:history.back()" class="btn btn-outline-light rounded-pill px-4">Geri Dön</a>
+            <a href="{{ url_for('main.index') }}" class="btn btn-primary rounded-pill px-4">Ana Sayfaya Dön</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
