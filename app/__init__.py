@@ -54,14 +54,17 @@ def create_app(config_class=Config):
         }
     )    
     from app.jobs import check_upcoming_reservations, check_short_term_reminders
-    # Schedule the job to run daily at 08:00 AM
-    scheduler.add_job(id='Daily Reservation Check', func=check_upcoming_reservations, args=[app], trigger='cron', hour=8, minute=0)
-    
-    # Schedule short-term reminders to run exactly at the 0th second of every minute
-    scheduler.add_job(id='Short Term Reminder Check', func=check_short_term_reminders, args=[app], trigger='cron', second=0)
-    
-    # Start scheduler
-    scheduler.start()
+    try:
+        # Schedule the job to run daily at 08:00 AM
+        scheduler.add_job(id='Daily Reservation Check', func=check_upcoming_reservations, args=[app], trigger='cron', hour=8, minute=0, replace_existing=True)
+        
+        # Schedule short-term reminders to run exactly at the 0th second of every minute
+        scheduler.add_job(id='Short Term Reminder Check', func=check_short_term_reminders, args=[app], trigger='cron', second=0, replace_existing=True)
+        
+        if not scheduler.running:
+            scheduler.start()
+    except Exception as e:
+        app.logger.error(f"APScheduler Startup Error: {e}")
 
     # Register Blueprints
     from app.auth import bp as auth_bp
