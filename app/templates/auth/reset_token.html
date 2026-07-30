@@ -3,14 +3,14 @@
 {% block content %}
 <div class="auth-container">
     <div class="auth-card">
-        <h2 class="auth-title">Yeni Şifre Belirle</h2>
-        <p style="color: #94a3b8; text-align: center; margin-bottom: 2rem;">Hesabınız için yeni ve güvenli bir şifre belirleyin.</p>
+        <h2 class="auth-title">{% if current_lang == 'en' %}Set New Password{% else %}Yeni Şifre Belirle{% endif %}</h2>
+        <p style="color: #94a3b8; text-align: center; margin-bottom: 2rem;">{% if current_lang == 'en' %}Set a new and secure password for your account.{% else %}Hesabınız için yeni ve güvenli bir şifre belirleyin.{% endif %}</p>
         
         <form method="POST" action="">
             {{ form.hidden_tag() }}
             
             <div class="form-group">
-                {{ form.password.label(class="form-label") }}
+                <label class="form-label" style="color: #cbd5e1; display: block; margin-bottom: 0.5rem; font-weight: bold;">{% if current_lang == 'en' %}NEW PASSWORD{% else %}YENİ ŞİFRE{% endif %}</label>
                 {% if form.password.errors %}
                     {{ form.password(class="form-control", style="border-color: #ef4444;") }}
                     <div style="color: #ef4444; font-size: 0.875rem; margin-top: 0.25rem;">
@@ -19,12 +19,12 @@
                         {% endfor %}
                     </div>
                 {% else %}
-                    {{ form.password(class="form-control", placeholder="Yeni şifreniz") }}
+                    {{ form.password(class="form-control", placeholder="Your new password" if current_lang == 'en' else "Yeni şifreniz") }}
                 {% endif %}
             </div>
 
             <div class="form-group">
-                {{ form.confirm_password.label(class="form-label") }}
+                <label class="form-label" style="color: #cbd5e1; display: block; margin-bottom: 0.5rem; font-weight: bold;">{% if current_lang == 'en' %}CONFIRM NEW PASSWORD{% else %}ŞİFREYİ DOĞRULAYIN{% endif %}</label>
                 {% if form.confirm_password.errors %}
                     {{ form.confirm_password(class="form-control", style="border-color: #ef4444;") }}
                     <div style="color: #ef4444; font-size: 0.875rem; margin-top: 0.25rem;">
@@ -33,12 +33,14 @@
                         {% endfor %}
                     </div>
                 {% else %}
-                    {{ form.confirm_password(class="form-control", placeholder="Şifrenizi doğrulayın") }}
+                    {{ form.confirm_password(class="form-control", placeholder="Confirm your password" if current_lang == 'en' else "Şifrenizi doğrulayın") }}
                 {% endif %}
             </div>
 
             <div class="form-group" style="margin-top: 2rem;">
-                {{ form.submit(class="btn btn-primary", style="width: 100%;") }}
+                <button type="submit" class="btn btn-primary" style="width: 100%; font-weight: bold; cursor: pointer; text-transform: uppercase;">
+                    {% if current_lang == 'en' %}UPDATE PASSWORD{% else %}ŞİFREYİ GÜNCELLE{% endif %}
+                </button>
             </div>
         </form>
     </div>

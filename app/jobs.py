@@ -53,8 +53,6 @@ def check_short_term_reminders(app):
         hour_1_str = target_time_1.strftime('%H:%M')
         
         def notify_users(res, title, body):
-            from app.models import User
-            
             users_to_notify = [res.user_id] + [a.id for a in res.attendees if a.id != res.user_id]
             for uid in users_to_notify:
                 notif = Notification(user_id=uid, type='info', message=body)
@@ -107,7 +105,6 @@ def send_push_to_reservation_users(app, res, title, body):
     
     for sub in subscriptions:
         try:
-            import json
             subscription_info = json.loads(sub.subscription_json)
             webpush(
                 subscription_info=subscription_info,

@@ -5,9 +5,10 @@ from flask_login import login_required, current_user
 from werkzeug.utils import secure_filename
 from app.models import Room, Reservation, User, AuditLog, Notification, Document
 from app.extensions import db
-from datetime import datetime, date
+from datetime import datetime
 from app.utils import admin_required, log_action
 from app.forms import UpdateAccountForm
+from flask_babel import gettext
 
 bp = Blueprint('main', __name__)
 
@@ -128,13 +129,18 @@ def inject_lang():
                 if timedelta(seconds=0) < diff <= timedelta(minutes=1):
                     starting_soon_meeting = res
                     
-        # Find upcoming accepted meetings
-        accepted_notifs = Notification.query.filter_by(user_id=current_user.id, type='invitation', status='accepted').all()
-        for notif in accepted_notifs:
-            if notif.reservation and notif.reservation.date >= today_str:
-                if notif.reservation not in upcoming_accepted_meetings:
-                    upcoming_accepted_meetings.append(notif.reservation)
-        upcoming_accepted_meetings.sort(key=lambda x: (x.date, x.start_time))
+        # Find all upcoming meetings for current_user (created by user or accepted invitation)
+        all_user_res = Reservation.query.filter(
+            (Reservation.user_id == current_user.id) | (Reservation.attendees.any(id=current_user.id))
+        ).all()
+
+        my_upcoming_meetings = []
+        for res in all_user_res:
+            if res.date > today_str or (res.date == today_str and res.end_time > time_str):
+                my_upcoming_meetings.append(res)
+
+        my_upcoming_meetings.sort(key=lambda x: (x.date, x.start_time))
+        upcoming_accepted_meetings = my_upcoming_meetings
         
         # Prepare list of today's meetings for frontend timers
         today_meetings_list = []
@@ -254,13 +260,65 @@ def inject_lang():
         }
         return f"{dt.day} {aylar[dt.month]} {dt.year}"
 
-    return dict(trans=gettext, translate_notification=translate_notification, current_lang=lang, unread_notifications=unread_notifications, active_meeting=active_meeting, upcoming_accepted_meetings=upcoming_accepted_meetings, starting_soon_meeting=starting_soon_meeting, today_meetings_list=today_meetings_list if current_user.is_authenticated else [], translate_log_details=translate_log_details, translate_log_action=translate_log_action, format_tr_datetime=format_tr_datetime)
+    from app.models import get_turkey_time
+    now_dt = get_turkey_time()
+    today_date_str = now_dt.strftime('%d.%m.%Y')
+    today_date_en = now_dt.strftime('%Y-%m-%d')
+
+    return dict(trans=gettext, translate_notification=translate_notification, current_lang=lang, unread_notifications=unread_notifications, active_meeting=active_meeting, upcoming_accepted_meetings=upcoming_accepted_meetings, starting_soon_meeting=starting_soon_meeting, today_meetings_list=today_meetings_list if current_user.is_authenticated else [], translate_log_details=translate_log_details, translate_log_action=translate_log_action, format_tr_datetime=format_tr_datetime, today_date_str=today_date_str, today_date_en=today_date_en)
 
 @bp.route('/lang/<lang_code>')
 def change_language(lang_code):
     if lang_code in ['tr', 'en']:
         session['lang'] = lang_code
     return redirect(request.referrer or url_for('main.index'))
+
+@bp.route('/api/reservation/<int:res_id>/ics')
+def reservation_ics(res_id):
+    from app.models import Reservation
+    from flask import Response, abort
+    import datetime
+    res = Reservation.query.get_or_404(res_id)
+    
+    try:
+        dt_parts = res.date.split('-')
+        sh, sm = map(int, res.start_time.split(':'))
+        eh, em = map(int, res.end_time.split(':'))
+        
+        y, m, d = int(dt_parts[0]), int(dt_parts[1]), int(dt_parts[2])
+        start_dt = datetime.datetime(y, m, d, sh, sm)
+        end_dt = datetime.datetime(y, m, d, eh, em)
+        
+        dt_start_str = start_dt.strftime('%Y%m%dT%H%M%S')
+        dt_end_str = end_dt.strftime('%Y%m%dT%H%M%S')
+        dt_stamp = datetime.datetime.utcnow().strftime('%Y%m%dT%H%M%SZ')
+        
+        summary = f"Toplanti: {res.room.name}"
+        description = f"{res.room.name} odasinda planlanmis toplanti."
+        location = f"{res.room.name} Odasi"
+        
+        ics_content = f"""BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Staj Uygulamasi//Oda Rezervasyonu//TR
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+BEGIN:VEVENT
+UID:reservation-{res.id}-{dt_stamp}@stajuygulamasi
+DTSTAMP:{dt_stamp}
+DTSTART:{dt_start_str}
+DTEND:{dt_end_str}
+SUMMARY:{summary}
+DESCRIPTION:{description}
+LOCATION:{location}
+STATUS:CONFIRMED
+END:VEVENT
+END:VCALENDAR"""
+
+        response = Response(ics_content, mimetype='text/calendar')
+        response.headers["Content-Disposition"] = f"attachment; filename=toplanti_{res.id}.ics"
+        return response
+    except Exception as e:
+        abort(500)
 
 import re
 @bp.route('/api/ai/command', methods=['POST'])
@@ -279,9 +337,233 @@ def ai_command():
     command_text = data.get('command', '').lower()
     
     def normalize(t):
+        import unicodedata
+        t = t.replace('İ', 'i').replace('I', 'ı')
+        t = unicodedata.normalize('NFKD', t)
+        t = "".join([c for c in t if unicodedata.category(c) != 'Mn'])
         return t.lower().replace('ı','i').replace('ş','s').replace('ç','c').replace('ğ','g').replace('ö','o').replace('ü','u')
         
     norm_cmd = normalize(command_text)
+
+    def find_invited_users(cmd_text, cur_user):
+        from app.models import User
+        all_users = User.query.filter(User.id != cur_user.id).all()
+        invited = []
+        norm_t = normalize(cmd_text)
+        
+        for u in all_users:
+            u_norm = normalize(u.username)
+            if len(u_norm) < 2:
+                continue
+            pattern = r'\b' + re.escape(u_norm) + r"(?:'?(?:[ieaıuüogsnmkvlzdthjrpfcb]|ile|yi|ye|ya|yu|yü)*)?"
+            if re.search(pattern, norm_t, re.IGNORECASE) or u_norm in norm_t:
+                if u not in invited:
+                    invited.append(u)
+        return invited
+
+    # Cancel Selection Handler
+    cancel_map = session.get('awaiting_cancel_selection')
+    if cancel_map:
+        matched_id = None
+        if norm_cmd in cancel_map:
+            matched_id = cancel_map.get(norm_cmd)
+        elif norm_cmd.startswith('cancel_res_'):
+            try:
+                matched_id = int(norm_cmd.replace('cancel_res_', ''))
+            except ValueError:
+                pass
+
+        if matched_id:
+            session.pop('awaiting_cancel_selection', None)
+            target_res = Reservation.query.get(matched_id)
+            if target_res and (target_res.user_id == current_user.id or current_user.is_admin):
+                r_date = target_res.date
+                r_start_time = target_res.start_time
+                r_end_time = target_res.end_time
+                r_room_name = target_res.room.name
+                db.session.delete(target_res)
+                db.session.commit()
+                m_tr = f"<b>{r_date}</b> tarihindeki <b>{r_start_time} - {r_end_time}</b> saatli <b>{r_room_name}</b> odası rezervasyonunuz başarıyla iptal edildi. 🗑️"
+                m_en = f"Your reservation for <b>{r_room_name}</b> on <b>{r_date}</b> ({r_start_time}-{r_end_time}) has been successfully canceled. 🗑️"
+                return jsonify({'success': True, 'reload': True, 'message': msg(m_tr, m_en)})
+            else:
+                return jsonify({'success': False, 'message': msg('Seçilen rezervasyon bulunamadı veya iptal yetkiniz yok.', 'Selected reservation not found or unauthorized.')})
+
+    # Interactive Multi-step Booking State Handler
+    booking_state = session.get('interactive_booking_state')
+    if booking_state:
+        step = booking_state.get('step')
+        if step == 'awaiting_duration':
+            duration_mins = None
+            duration_str = ""
+            if any(w in norm_cmd for w in ["30", "yarim", "yarım"]):
+                duration_mins = 30
+                duration_str = "30 dakikalık"
+            elif any(w in norm_cmd for w in ["1.5", "1,5", "90"]):
+                duration_mins = 90
+                duration_str = "1.5 saatlik"
+            elif any(w in norm_cmd for w in ["1 saat", "1saat", "bir saat", "1"]):
+                duration_mins = 60
+                duration_str = "1 saatlik"
+            elif any(w in norm_cmd for w in ["2 saat", "2saat", "iki saat", "2"]):
+                duration_mins = 120
+                duration_str = "2 saatlik"
+            else:
+                m_dur = re.search(r'(\d+(?:\.\d+)?)\s*(?:saat|st|hour)', command_text)
+                if m_dur:
+                    val = float(m_dur.group(1))
+                    duration_mins = int(val * 60)
+                    duration_str = f"{val} saatlik"
+
+            if not duration_mins:
+                duration_mins = 60
+                duration_str = "1 saatlik"
+
+            room_id = booking_state.get('room_id')
+            date_str = booking_state.get('date')
+            start_time = booking_state.get('start_time')
+            invited_ids = booking_state.get('invited_user_ids', [])
+
+            sh, sm = map(int, start_time.split(':'))
+            start_mins = sh * 60 + sm
+            end_mins = start_mins + duration_mins
+            end_time = f"{end_mins // 60:02d}:{end_mins % 60:02d}"
+
+            if start_mins >= 18 * 60 or end_mins > 18 * 60:
+                session.pop('interactive_booking_state', None)
+                m_tr = "Toplantı odaları en son saat 18:00'e kadar rezerve edilebilir. Saat 18:00'den sonrası için rezervasyon yapılamaz."
+                m_en = "Meeting rooms can only be booked until 18:00. Reservations cannot be made after 18:00."
+                return jsonify({'success': False, 'message': msg(m_tr, m_en)})
+
+            room = Room.query.get(room_id)
+            existing = Reservation.query.filter_by(room_id=room.id, date=date_str).all()
+            conflict = False
+            for res in existing:
+                rh, rm = map(int, res.start_time.split(':'))
+                res_s = rh * 60 + rm
+                rh, rm = map(int, res.end_time.split(':'))
+                res_e = rh * 60 + rm
+                if not (end_mins <= res_s or start_mins >= res_e):
+                    conflict = True
+                    break
+
+            if conflict:
+                session.pop('interactive_booking_state', None)
+                other_rooms = Room.query.filter(Room.id != room.id).all()
+                free_alternatives = []
+                for r_alt in other_rooms:
+                    r_existing = Reservation.query.filter_by(room_id=r_alt.id, date=date_str).all()
+                    r_conflict = False
+                    for res in r_existing:
+                        rh, rm = map(int, res.start_time.split(':'))
+                        res_s = rh * 60 + rm
+                        rh, rm = map(int, res.end_time.split(':'))
+                        res_e = rh * 60 + rm
+                        if not (end_mins <= res_s or start_mins >= res_e):
+                            r_conflict = True
+                            break
+                    if not r_conflict:
+                        free_alternatives.append(r_alt)
+
+                if free_alternatives:
+                    alt_btns = "".join([
+                        f'''<button onclick="sendQuickChoice('{date_str} {r_alt.name} saat {start_time} - {end_time} rezerve et', '📍 {r_alt.name} Odasını Rezerve Et')" type="button" style="background: #3b82f6; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: bold; margin-top: 6px; margin-right: 6px; box-shadow: 0 2px 4px rgba(59,130,246,0.3);">📍 {r_alt.name} ({start_time}-{end_time}) Rezerve Et</button>'''
+                        for r_alt in free_alternatives
+                    ])
+                    m_tr = f"Maalesef <b>{room.name}</b> odası <b>{date_str}</b> tarihinde <b>{start_time} - {end_time}</b> saatleri arasında dolu.<br><br>💡 <b>Akıllı Alternatif Öneri:</b> Aynı saatte şu oda(lar) müsait:<br>{alt_btns}"
+                    m_en = f"Unfortunately, <b>{room.name}</b> room is occupied between <b>{start_time} - {end_time}</b> on <b>{date_str}</b>.<br><br>💡 <b>Smart Alternative:</b> The following room(s) are available:<br>{alt_btns}"
+                else:
+                    m_tr = f"Maalesef <b>{room.name}</b> odası <b>{date_str}</b> tarihinde <b>{start_time} - {end_time}</b> saatleri arasında dolu ve başka alternatif boş oda bulunmuyor."
+                    m_en = f"Unfortunately, <b>{room.name}</b> room is occupied between <b>{start_time} - {end_time}</b> on <b>{date_str}</b> and no alternatives are available."
+                
+                return jsonify({'success': False, 'message': msg(m_tr, m_en)})
+
+            session['interactive_booking_state'] = {
+                'step': 'awaiting_confirmation',
+                'room_id': room_id,
+                'date': date_str,
+                'start_time': start_time,
+                'end_time': end_time,
+                'duration_str': duration_str,
+                'invited_user_ids': invited_ids
+            }
+
+            btn_confirm_html = f'''<div style="display: flex; gap: 0.35rem; margin-top: 0.4rem; flex-wrap: wrap;">
+                <button onclick="sendQuickChoice('Evet, Onaylıyorum')" type="button" style="background: #10b981; color: white; padding: 4px 10px; border-radius: 5px; border: none; cursor: pointer; font-weight: bold; font-size: 0.75rem; width: auto !important; flex-shrink: 0; display: inline-flex; align-items: center; gap: 3px; box-shadow: 0 2px 4px rgba(16,185,129,0.3);">{msg('✅ Evet, Onaylıyorum', '✅ Yes, I Confirm')}</button>
+                <button onclick="sendQuickChoice('Hayır, İptal Et')" type="button" style="background: #ef4444; color: white; padding: 4px 10px; border-radius: 5px; border: none; cursor: pointer; font-weight: bold; font-size: 0.75rem; width: auto !important; flex-shrink: 0; display: inline-flex; align-items: center; gap: 3px;">{msg('❌ Hayır, İptal Et', '❌ No, Cancel')}</button>
+            </div>'''
+
+            m_tr = f"<b>{room.name}</b> odasını <b>{date_str}</b> tarihinde <b>{start_time} - {end_time}</b> saatleri arasında (<b>{duration_str}</b>) rezerve ediyorum, onaylıyor musunuz?<br>{btn_confirm_html}"
+            m_en = f"I am booking <b>{room.name}</b> room on <b>{date_str}</b> between <b>{start_time} - {end_time}</b> ({duration_str}), do you confirm?<br>{btn_confirm_html}"
+            return jsonify({'success': True, 'reload': False, 'message': msg(m_tr, m_en)})
+
+        elif step == 'awaiting_confirmation':
+            if any(w in norm_cmd for w in ["evet", "onay", "onayliyorum", "onaylıyorum", "yes", "tamam", "olur", "confirm"]):
+                room_id = booking_state.get('room_id')
+                date_str = booking_state.get('date')
+                start_time = booking_state.get('start_time')
+                end_time = booking_state.get('end_time')
+                invited_ids = booking_state.get('invited_user_ids', [])
+                room = Room.query.get(room_id)
+                session.pop('interactive_booking_state', None)
+
+                sh_int, sm_int = map(int, start_time.split(':'))
+                eh_int, em_int = map(int, end_time.split(':'))
+                if (sh_int * 60 + sm_int >= 18 * 60) or (eh_int * 60 + em_int > 18 * 60):
+                    m_tr = "Toplantı odaları en son saat 18:00'e kadar rezerve edilebilir. Saat 18:00'den sonrası için rezervasyon yapılamaz."
+                    m_en = "Meeting rooms can only be booked until 18:00. Reservations cannot be made after 18:00."
+                    return jsonify({'success': False, 'message': msg(m_tr, m_en)})
+                
+                # Prevent duplicate reservations
+                existing_res = Reservation.query.filter_by(room_id=room.id, date=date_str, start_time=start_time, end_time=end_time).first()
+                if existing_res:
+                    m_tr = f"<b>{room.name}</b> odası <b>{date_str}</b> tarihinde <b>{start_time} - {end_time}</b> arası zaten sizin adınıza rezerve edilmiş durumda."
+                    m_en = f"<b>{room.name}</b> room is already booked between <b>{start_time} - {end_time}</b> on <b>{date_str}</b>."
+                    return jsonify({'success': True, 'reload': False, 'message': msg(m_tr, m_en)})
+
+                try:
+                    from app.models import User, Notification
+                    new_res = Reservation(
+                        user_id=current_user.id,
+                        room_id=room.id,
+                        date=date_str,
+                        start_time=start_time,
+                        end_time=end_time
+                    )
+                    invited_users = User.query.filter(User.id.in_(invited_ids)).all() if invited_ids else []
+                    for u_inv in invited_users:
+                        new_res.attendees.append(u_inv)
+
+                    db.session.add(new_res)
+                    db.session.flush()
+
+                    invited_names = []
+                    for u_inv in invited_users:
+                        invited_names.append(u_inv.username)
+                        notif_msg = f"{current_user.username} sizi {date_str} tarihinde {start_time}-{end_time} saatleri arasında {room.name} odasındaki toplantıya davet etti."
+                        notif = Notification(user_id=u_inv.id, reservation_id=new_res.id, message=notif_msg, type='invitation', status='pending')
+                        db.session.add(notif)
+
+                    db.session.commit()
+
+                    inv_text_tr = f"<br><br>📩 <b>Toplantı Daveti:</b> <b>{', '.join(invited_names)}</b> kullanıcısına davetiye gönderildi." if invited_names else ""
+                    inv_text_en = f"<br><br>📩 <b>Meeting Invitation:</b> Invitation sent to <b>{', '.join(invited_names)}</b>." if invited_names else ""
+
+                    from app.utils import generate_google_calendar_url
+                    cal_url = generate_google_calendar_url(room.display_name, date_str, start_time, end_time)
+                    cal_btn = f'''<br><a href="{cal_url}" target="_blank" style="display: inline-flex; align-items: center; gap: 4px; margin-top: 6px; background: #3b82f6; color: white; padding: 4px 10px; border-radius: 5px; text-decoration: none; font-size: 0.75rem; font-weight: bold; box-shadow: 0 2px 4px rgba(59,130,246,0.3);">{msg("📅 Takvime Ekle", "📅 Add to Calendar")}</a>'''
+                    m_tr = f"Harika! <b>{room.display_name}</b> odası <b>{date_str}</b> tarihinde <b>{start_time} - {end_time}</b> arası başarıyla sizin adınıza rezerve edildi. 🎉{inv_text_tr}<br>{cal_btn}<br><br>📌 <b>Hatırlatma:</b> QR kodunuzu kullanarak giriş yapabilirsiniz."
+                    m_en = f"Great! <b>{room.display_name}</b> room has been successfully booked for you on <b>{date_str}</b> between <b>{start_time} - {end_time}</b>. 🎉{inv_text_en}<br>{cal_btn}"
+                    return jsonify({'success': True, 'reload': True, 'message': msg(m_tr, m_en)})
+                except Exception as e:
+                    db.session.rollback()
+                    return jsonify({'success': False, 'message': msg('Rezervasyon oluşturulurken bir hata oluştu: ' + str(e), 'An error occurred while creating the reservation.')})
+            elif any(w in norm_cmd for w in ["hayir", "hayır", "iptal", "no", "cancel"]):
+                session.pop('interactive_booking_state', None)
+                return jsonify({'success': True, 'reload': False, 'message': msg('Rezervasyon işlemi iptal edildi. Başka nasıl yardımcı olabilirim?', 'Reservation has been canceled. How else can I help you?')})
+            else:
+                # Fall through to process new command
+                session.pop('interactive_booking_state', None)
     
     if session.get('awaiting_random_booking'):
         state = session.pop('awaiting_random_booking', None)
@@ -382,28 +664,53 @@ def ai_command():
             base_msg_en = f'Hello {current_user.username}, how can I help you, how are you today?'
 
         return jsonify({'success': True, 'reload': False, 'message': msg(base_msg_tr + invitations_text_tr, base_msg_en + invitations_text_en)})
+    elif norm_cmd in ["menu", "menü", "hızlı menü", "hizli menu", "seçenekler", "secenekler", "options", "help", "yardım", "yardim"]:
+        return jsonify({'success': True, 'reload': False, 'message': msg(
+            'Lütfen yapmak istediğiniz işlemi aşağıdaki butonlardan seçin:<br><div style="margin-top:8px; display:flex; flex-direction:column; gap:5px;"><button type="button" onclick="sendQuickChoice(\'1\', \'1 - Oda Rezervasyonu Yap\')" style="background:rgba(79,70,229,0.3); border:1px solid #6366f1; color:white; padding:6px 10px; border-radius:6px; font-size:0.78rem; cursor:pointer; text-align:left;">1️⃣ Oda Rezervasyonu Yap</button><button type="button" onclick="sendQuickChoice(\'2\', \'2 - Rezervasyon İptal Et\')" style="background:rgba(239,68,68,0.3); border:1px solid #ef4444; color:white; padding:6px 10px; border-radius:6px; font-size:0.78rem; cursor:pointer; text-align:left;">2️⃣ Rezervasyon İptal Et</button><button type="button" onclick="sendQuickChoice(\'3\', \'3 - Oda Durumlarını Kontrol Et\')" style="background:rgba(16,185,129,0.3); border:1px solid #10b981; color:white; padding:6px 10px; border-radius:6px; font-size:0.78rem; cursor:pointer; text-align:left;">3️⃣ Oda Durumlarını Kontrol Et</button><button type="button" onclick="sendQuickChoice(\'4\', \'4 - QR İle Giriş Bilgisi\')" style="background:rgba(245,158,11,0.3); border:1px solid #f59e0b; color:white; padding:6px 10px; border-radius:6px; font-size:0.78rem; cursor:pointer; text-align:left;">4️⃣ QR İle Giriş Bilgisi</button><button type="button" onclick="sendQuickChoice(\'5\', \'5 - Sohbeti Kapat\')" style="background:rgba(148,163,184,0.3); border:1px solid #94a3b8; color:white; padding:6px 10px; border-radius:6px; font-size:0.78rem; cursor:pointer; text-align:left;">5️⃣ Sohbeti Kapat</button></div>',
+            'Please select an option below:<br><div style="margin-top:8px; display:flex; flex-direction:column; gap:5px;"><button type="button" onclick="sendQuickChoice(\'1\', \'1 - Book a room\')" style="background:rgba(79,70,229,0.3); border:1px solid #6366f1; color:white; padding:6px 10px; border-radius:6px; font-size:0.78rem; cursor:pointer; text-align:left;">1️⃣ Book a Room</button><button type="button" onclick="sendQuickChoice(\'2\', \'2 - Cancel a reservation\')" style="background:rgba(239,68,68,0.3); border:1px solid #ef4444; color:white; padding:6px 10px; border-radius:6px; font-size:0.78rem; cursor:pointer; text-align:left;">2️⃣ Cancel a Reservation</button><button type="button" onclick="sendQuickChoice(\'3\', \'3 - Check room availability\')" style="background:rgba(16,185,129,0.3); border:1px solid #10b981; color:white; padding:6px 10px; border-radius:6px; font-size:0.78rem; cursor:pointer; text-align:left;">3️⃣ Check Room Availability</button><button type="button" onclick="sendQuickChoice(\'4\', \'4 - QR login info\')" style="background:rgba(245,158,11,0.3); border:1px solid #f59e0b; color:white; padding:6px 10px; border-radius:6px; font-size:0.78rem; cursor:pointer; text-align:left;">4️⃣ QR Login Info</button><button type="button" onclick="sendQuickChoice(\'5\', \'5 - Close chat\')" style="background:rgba(148,163,184,0.3); border:1px solid #94a3b8; color:white; padding:6px 10px; border-radius:6px; font-size:0.78rem; cursor:pointer; text-align:left;">5️⃣ Close Chat</button></div>'
+        )})
     elif any(k in norm_cmd for k in ["iyiyim", "iyi sen", "iyiyim sen", "iyi, sen", "fine", "good", "iyiyim sen nasılsın", "iyiyim sen nasilsin"]):
         return jsonify({'success': True, 'reload': False, 'message': msg(
-            'Ben harika hissediyorum, tıkır tıkır çalışıyorum! Sorduğun için çok teşekkür ederim ❤️<br><br>Hangi işlemi yapmak istersin?<br><br>1 - Oda rezervasyonu yap<br>2 - Oda iptal et<br>3 - Oda durumunu sorgula<br>4 - QR ile giriş bilgisi<br>5 - Sohbeti kapat<br><br>Lütfen seçim yapınız (1, 2, 3, 4 veya 5 yazın).',
-            'I am doing perfectly and running smoothly! Thank you so much for asking ❤️<br><br>What would you like to do?<br><br>1 - Book a room<br>2 - Cancel a reservation<br>3 - Check room availability<br>4 - QR login info<br>5 - Close chat<br><br>Please select an option (type 1, 2, 3, 4, or 5).'
+            'Ben harika hissediyorum, tıkır tıkır çalışıyorum! Sorduğun için çok teşekkür ederim ❤️<br><br>Hangi işlemi yapmak istersin?<br><div style="margin-top:8px; display:flex; flex-direction:column; gap:5px;"><button type="button" onclick="sendQuickChoice(\'1\', \'1 - Oda Rezervasyonu Yap\')" style="background:rgba(79,70,229,0.3); border:1px solid #6366f1; color:white; padding:6px 10px; border-radius:6px; font-size:0.78rem; cursor:pointer; text-align:left;">1️⃣ Oda Rezervasyonu Yap</button><button type="button" onclick="sendQuickChoice(\'2\', \'2 - Rezervasyon İptal Et\')" style="background:rgba(239,68,68,0.3); border:1px solid #ef4444; color:white; padding:6px 10px; border-radius:6px; font-size:0.78rem; cursor:pointer; text-align:left;">2️⃣ Rezervasyon İptal Et</button><button type="button" onclick="sendQuickChoice(\'3\', \'3 - Oda Durumlarını Kontrol Et\')" style="background:rgba(16,185,129,0.3); border:1px solid #10b981; color:white; padding:6px 10px; border-radius:6px; font-size:0.78rem; cursor:pointer; text-align:left;">3️⃣ Oda Durumlarını Kontrol Et</button><button type="button" onclick="sendQuickChoice(\'4\', \'4 - QR İle Giriş Bilgisi\')" style="background:rgba(245,158,11,0.3); border:1px solid #f59e0b; color:white; padding:6px 10px; border-radius:6px; font-size:0.78rem; cursor:pointer; text-align:left;">4️⃣ QR İle Giriş Bilgisi</button><button type="button" onclick="sendQuickChoice(\'5\', \'5 - Sohbeti Kapat\')" style="background:rgba(148,163,184,0.3); border:1px solid #94a3b8; color:white; padding:6px 10px; border-radius:6px; font-size:0.78rem; cursor:pointer; text-align:left;">5️⃣ Sohbeti Kapat</button></div>',
+            'I am doing perfectly and running smoothly! Thank you so much for asking ❤️<br><br>What would you like to do?<br><div style="margin-top:8px; display:flex; flex-direction:column; gap:5px;"><button type="button" onclick="sendQuickChoice(\'1\', \'1 - Book a room\')" style="background:rgba(79,70,229,0.3); border:1px solid #6366f1; color:white; padding:6px 10px; border-radius:6px; font-size:0.78rem; cursor:pointer; text-align:left;">1️⃣ Book a Room</button><button type="button" onclick="sendQuickChoice(\'2\', \'2 - Cancel a reservation\')" style="background:rgba(239,68,68,0.3); border:1px solid #ef4444; color:white; padding:6px 10px; border-radius:6px; font-size:0.78rem; cursor:pointer; text-align:left;">2️⃣ Cancel a Reservation</button><button type="button" onclick="sendQuickChoice(\'3\', \'3 - Check room availability\')" style="background:rgba(16,185,129,0.3); border:1px solid #10b981; color:white; padding:6px 10px; border-radius:6px; font-size:0.78rem; cursor:pointer; text-align:left;">3️⃣ Check Room Availability</button><button type="button" onclick="sendQuickChoice(\'4\', \'4 - QR login info\')" style="background:rgba(245,158,11,0.3); border:1px solid #f59e0b; color:white; padding:6px 10px; border-radius:6px; font-size:0.78rem; cursor:pointer; text-align:left;">4️⃣ QR Login Info</button><button type="button" onclick="sendQuickChoice(\'5\', \'5 - Close chat\')" style="background:rgba(148,163,184,0.3); border:1px solid #94a3b8; color:white; padding:6px 10px; border-radius:6px; font-size:0.78rem; cursor:pointer; text-align:left;">5️⃣ Close Chat</button></div>'
         )})
     elif "nasılsın" in norm_cmd or "nasilsin" in norm_cmd or "naber" in norm_cmd or "how are you" in norm_cmd:
         return jsonify({'success': True, 'reload': False, 'message': msg(
-            'Harikayım! Sana nasıl yardımcı olabilirim?<br><br>1 - Oda rezervasyonu yap<br>2 - Oda iptal et<br>3 - Oda durumunu sorgula<br>4 - QR ile giriş bilgisi<br>5 - Sohbeti kapat<br><br>Lütfen seçim yapınız (1, 2, 3, 4 veya 5 yazın).',
-            'I am doing great! How can I help you?<br><br>1 - Book a room<br>2 - Cancel a reservation<br>3 - Check room availability<br>4 - QR login info<br>5 - Close chat<br><br>Please select an option (type 1, 2, 3, 4, or 5).'
+            'Harikayım! Sana nasıl yardımcı olabilirim?<br><div style="margin-top:8px; display:flex; flex-direction:column; gap:5px;"><button type="button" onclick="sendQuickChoice(\'1\', \'1 - Oda Rezervasyonu Yap\')" style="background:rgba(79,70,229,0.3); border:1px solid #6366f1; color:white; padding:6px 10px; border-radius:6px; font-size:0.78rem; cursor:pointer; text-align:left;">1️⃣ Oda Rezervasyonu Yap</button><button type="button" onclick="sendQuickChoice(\'2\', \'2 - Rezervasyon İptal Et\')" style="background:rgba(239,68,68,0.3); border:1px solid #ef4444; color:white; padding:6px 10px; border-radius:6px; font-size:0.78rem; cursor:pointer; text-align:left;">2️⃣ Rezervasyon İptal Et</button><button type="button" onclick="sendQuickChoice(\'3\', \'3 - Oda Durumlarını Kontrol Et\')" style="background:rgba(16,185,129,0.3); border:1px solid #10b981; color:white; padding:6px 10px; border-radius:6px; font-size:0.78rem; cursor:pointer; text-align:left;">3️⃣ Oda Durumlarını Kontrol Et</button><button type="button" onclick="sendQuickChoice(\'4\', \'4 - QR İle Giriş Bilgisi\')" style="background:rgba(245,158,11,0.3); border:1px solid #f59e0b; color:white; padding:6px 10px; border-radius:6px; font-size:0.78rem; cursor:pointer; text-align:left;">4️⃣ QR İle Giriş Bilgisi</button><button type="button" onclick="sendQuickChoice(\'5\', \'5 - Sohbeti Kapat\')" style="background:rgba(148,163,184,0.3); border:1px solid #94a3b8; color:white; padding:6px 10px; border-radius:6px; font-size:0.78rem; cursor:pointer; text-align:left;">5️⃣ Sohbeti Kapat</button></div>',
+            'I am doing great! How can I help you?<br><div style="margin-top:8px; display:flex; flex-direction:column; gap:5px;"><button type="button" onclick="sendQuickChoice(\'1\', \'1 - Book a room\')" style="background:rgba(79,70,229,0.3); border:1px solid #6366f1; color:white; padding:6px 10px; border-radius:6px; font-size:0.78rem; cursor:pointer; text-align:left;">1️⃣ Book a Room</button><button type="button" onclick="sendQuickChoice(\'2\', \'2 - Cancel a reservation\')" style="background:rgba(239,68,68,0.3); border:1px solid #ef4444; color:white; padding:6px 10px; border-radius:6px; font-size:0.78rem; cursor:pointer; text-align:left;">2️⃣ Cancel a Reservation</button><button type="button" onclick="sendQuickChoice(\'3\', \'3 - Check room availability\')" style="background:rgba(16,185,129,0.3); border:1px solid #10b981; color:white; padding:6px 10px; border-radius:6px; font-size:0.78rem; cursor:pointer; text-align:left;">3️⃣ Check Room Availability</button><button type="button" onclick="sendQuickChoice(\'4\', \'4 - QR login info\')" style="background:rgba(245,158,11,0.3); border:1px solid #f59e0b; color:white; padding:6px 10px; border-radius:6px; font-size:0.78rem; cursor:pointer; text-align:left;">4️⃣ QR Login Info</button><button type="button" onclick="sendQuickChoice(\'5\', \'5 - Close chat\')" style="background:rgba(148,163,184,0.3); border:1px solid #94a3b8; color:white; padding:6px 10px; border-radius:6px; font-size:0.78rem; cursor:pointer; text-align:left;">5️⃣ Close Chat</button></div>'
         )})
     elif norm_cmd in ["teşekkürler", "tesekkurler", "teşekkür ederim", "tesekkur ederim", "sağol", "sagol", "thanks", "thank you"]:
         return jsonify({'success': True, 'reload': False, 'message': msg(
-            'Rica ederim! Sana nasıl yardımcı olabilirim?<br><br>1 - Oda rezervasyonu yap<br>2 - Oda iptal et<br>3 - Oda durumunu sorgula<br>4 - QR ile giriş bilgisi<br>5 - Sohbeti kapat<br><br>Lütfen seçim yapınız (1, 2, 3, 4 veya 5 yazın).',
-            'You\'re welcome! How can I help you?<br><br>1 - Book a room<br>2 - Cancel a reservation<br>3 - Check room availability<br>4 - QR login info<br>5 - Close chat<br><br>Please select an option (type 1, 2, 3, 4, or 5).'
+            'Rica ederim! Sana nasıl yardımcı olabilirim?<br><div style="margin-top:8px; display:flex; flex-direction:column; gap:5px;"><button type="button" onclick="sendQuickChoice(\'1\', \'1 - Oda Rezervasyonu Yap\')" style="background:rgba(79,70,229,0.3); border:1px solid #6366f1; color:white; padding:6px 10px; border-radius:6px; font-size:0.78rem; cursor:pointer; text-align:left;">1️⃣ Oda Rezervasyonu Yap</button><button type="button" onclick="sendQuickChoice(\'2\', \'2 - Rezervasyon İptal Et\')" style="background:rgba(239,68,68,0.3); border:1px solid #ef4444; color:white; padding:6px 10px; border-radius:6px; font-size:0.78rem; cursor:pointer; text-align:left;">2️⃣ Rezervasyon İptal Et</button><button type="button" onclick="sendQuickChoice(\'3\', \'3 - Oda Durumlarını Kontrol Et\')" style="background:rgba(16,185,129,0.3); border:1px solid #10b981; color:white; padding:6px 10px; border-radius:6px; font-size:0.78rem; cursor:pointer; text-align:left;">3️⃣ Oda Durumlarını Kontrol Et</button><button type="button" onclick="sendQuickChoice(\'4\', \'4 - QR İle Giriş Bilgisi\')" style="background:rgba(245,158,11,0.3); border:1px solid #f59e0b; color:white; padding:6px 10px; border-radius:6px; font-size:0.78rem; cursor:pointer; text-align:left;">4️⃣ QR İle Giriş Bilgisi</button><button type="button" onclick="sendQuickChoice(\'5\', \'5 - Sohbeti Kapat\')" style="background:rgba(148,163,184,0.3); border:1px solid #94a3b8; color:white; padding:6px 10px; border-radius:6px; font-size:0.78rem; cursor:pointer; text-align:left;">5️⃣ Sohbeti Kapat</button></div>',
+            'You\'re welcome! How can I help you?<br><div style="margin-top:8px; display:flex; flex-direction:column; gap:5px;"><button type="button" onclick="sendQuickChoice(\'1\', \'1 - Book a room\')" style="background:rgba(79,70,229,0.3); border:1px solid #6366f1; color:white; padding:6px 10px; border-radius:6px; font-size:0.78rem; cursor:pointer; text-align:left;">1️⃣ Book a Room</button><button type="button" onclick="sendQuickChoice(\'2\', \'2 - Cancel a reservation\')" style="background:rgba(239,68,68,0.3); border:1px solid #ef4444; color:white; padding:6px 10px; border-radius:6px; font-size:0.78rem; cursor:pointer; text-align:left;">2️⃣ Cancel a Reservation</button><button type="button" onclick="sendQuickChoice(\'3\', \'3 - Check room availability\')" style="background:rgba(16,185,129,0.3); border:1px solid #10b981; color:white; padding:6px 10px; border-radius:6px; font-size:0.78rem; cursor:pointer; text-align:left;">3️⃣ Check Room Availability</button><button type="button" onclick="sendQuickChoice(\'4\', \'4 - QR login info\')" style="background:rgba(245,158,11,0.3); border:1px solid #f59e0b; color:white; padding:6px 10px; border-radius:6px; font-size:0.78rem; cursor:pointer; text-align:left;">4️⃣ QR Login Info</button><button type="button" onclick="sendQuickChoice(\'5\', \'5 - Close chat\')" style="background:rgba(148,163,184,0.3); border:1px solid #94a3b8; color:white; padding:6px 10px; border-radius:6px; font-size:0.78rem; cursor:pointer; text-align:left;">5️⃣ Close Chat</button></div>'
         )})
     elif norm_cmd in ["tamam", "ok", "okay", "tamamdır", "tamamdir", "iyi günler", "iyi gunler", "iyi çalışmalar", "iyi calismalar"]:
         return jsonify({'success': True, 'reload': False, 'message': msg(
-            'Tamamdır! Sana nasıl yardımcı olabilirim?<br><br>1 - Oda rezervasyonu yap<br>2 - Oda iptal et<br>3 - Oda durumunu sorgula<br>4 - QR ile giriş bilgisi<br>5 - Sohbeti kapat<br><br>Lütfen seçim yapınız (1, 2, 3, 4 veya 5 yazın).',
-            'Alright! How can I help you?<br><br>1 - Book a room<br>2 - Cancel a reservation<br>3 - Check room availability<br>4 - QR login info<br>5 - Close chat<br><br>Please select an option (type 1, 2, 3, 4, or 5).'
+            'Tamamdır! Sana nasıl yardımcı olabilirim?<br><div style="margin-top:8px; display:flex; flex-direction:column; gap:5px;"><button type="button" onclick="sendQuickChoice(\'1\', \'1 - Oda Rezervasyonu Yap\')" style="background:rgba(79,70,229,0.3); border:1px solid #6366f1; color:white; padding:6px 10px; border-radius:6px; font-size:0.78rem; cursor:pointer; text-align:left;">1️⃣ Oda Rezervasyonu Yap</button><button type="button" onclick="sendQuickChoice(\'2\', \'2 - Rezervasyon İptal Et\')" style="background:rgba(239,68,68,0.3); border:1px solid #ef4444; color:white; padding:6px 10px; border-radius:6px; font-size:0.78rem; cursor:pointer; text-align:left;">2️⃣ Rezervasyon İptal Et</button><button type="button" onclick="sendQuickChoice(\'3\', \'3 - Oda Durumlarını Kontrol Et\')" style="background:rgba(16,185,129,0.3); border:1px solid #10b981; color:white; padding:6px 10px; border-radius:6px; font-size:0.78rem; cursor:pointer; text-align:left;">3️⃣ Oda Durumlarını Kontrol Et</button><button type="button" onclick="sendQuickChoice(\'4\', \'4 - QR İle Giriş Bilgisi\')" style="background:rgba(245,158,11,0.3); border:1px solid #f59e0b; color:white; padding:6px 10px; border-radius:6px; font-size:0.78rem; cursor:pointer; text-align:left;">4️⃣ QR İle Giriş Bilgisi</button><button type="button" onclick="sendQuickChoice(\'5\', \'5 - Sohbeti Kapat\')" style="background:rgba(148,163,184,0.3); border:1px solid #94a3b8; color:white; padding:6px 10px; border-radius:6px; font-size:0.78rem; cursor:pointer; text-align:left;">5️⃣ Sohbeti Kapat</button></div>',
+            'Alright! How can I help you?<br><div style="margin-top:8px; display:flex; flex-direction:column; gap:5px;"><button type="button" onclick="sendQuickChoice(\'1\', \'1 - Book a room\')" style="background:rgba(79,70,229,0.3); border:1px solid #6366f1; color:white; padding:6px 10px; border-radius:6px; font-size:0.78rem; cursor:pointer; text-align:left;">1️⃣ Book a Room</button><button type="button" onclick="sendQuickChoice(\'2\', \'2 - Cancel a reservation\')" style="background:rgba(239,68,68,0.3); border:1px solid #ef4444; color:white; padding:6px 10px; border-radius:6px; font-size:0.78rem; cursor:pointer; text-align:left;">2️⃣ Cancel a Reservation</button><button type="button" onclick="sendQuickChoice(\'3\', \'3 - Check room availability\')" style="background:rgba(16,185,129,0.3); border:1px solid #10b981; color:white; padding:6px 10px; border-radius:6px; font-size:0.78rem; cursor:pointer; text-align:left;">3️⃣ Check Room Availability</button><button type="button" onclick="sendQuickChoice(\'4\', \'4 - QR login info\')" style="background:rgba(245,158,11,0.3); border:1px solid #f59e0b; color:white; padding:6px 10px; border-radius:6px; font-size:0.78rem; cursor:pointer; text-align:left;">4️⃣ QR Login Info</button><button type="button" onclick="sendQuickChoice(\'5\', \'5 - Close chat\')" style="background:rgba(148,163,184,0.3); border:1px solid #94a3b8; color:white; padding:6px 10px; border-radius:6px; font-size:0.78rem; cursor:pointer; text-align:left;">5️⃣ Close Chat</button></div>'
         )})
     elif norm_cmd == "1":
-        return jsonify({'success': True, 'reload': False, 'message': msg('Oda rezervasyonu yapmak için bana bir tarih, saat ve oda adı söyleyebilirsin. Örn: "İnovasyon odasını 21.07.2026 saat 10:00-11:00 arası ayır"', 'To book a room, you can tell me the date, time, and room name. e.g., "Book Synergy room on 21.07.2026 from 10:00 to 11:00"')})
+        now_dt = get_turkey_time()
+        next_h = now_dt.hour + 1
+        if next_h < 9:
+            suggest_date = now_dt.strftime('%d.%m.%Y')
+            suggest_date_en = now_dt.strftime('%Y-%m-%d')
+            s_time = "09:00-10:00"
+        elif next_h >= 17:
+            from datetime import timedelta
+            tomorrow_dt = now_dt + timedelta(days=1)
+            suggest_date = tomorrow_dt.strftime('%d.%m.%Y')
+            suggest_date_en = tomorrow_dt.strftime('%Y-%m-%d')
+            s_time = "09:00-10:00"
+        else:
+            suggest_date = now_dt.strftime('%d.%m.%Y')
+            suggest_date_en = now_dt.strftime('%Y-%m-%d')
+            s_time = f"{next_h:02d}:00-{next_h+1:02d}:00"
+
+        return jsonify({'success': True, 'reload': False, 'message': msg(
+            f'Oda rezervasyonu yapmak için bana bir tarih, saat ve oda adı söyleyebilirsin. Örn: "İnovasyon odasını {suggest_date} saat {s_time} arası ayır"',
+            f'To book a room, you can tell me the date, time, and room name. e.g., "Book Synergy room on {suggest_date_en} from {s_time}"'
+        )})
     elif norm_cmd == "2":
         return jsonify({'success': True, 'reload': False, 'message': msg('Rezervasyon iptal etmek için takvim veya genel bakış sayfasına gidip kendi dolu (kırmızı) randevunuza tıklayarak iptal işlemini gerçekleştirebilirsiniz.', 'To cancel a reservation, you can click on your booked slot (red) on the calendar or overview page.')})
     elif norm_cmd == "3":
@@ -432,6 +739,15 @@ def ai_command():
                 if notif.reservation not in my_res:
                     my_res.append(notif.reservation)
                     
+        # Deduplicate reservations by ID
+        unique_my_res = []
+        seen_ids = set()
+        for r in my_res:
+            if r.id not in seen_ids:
+                seen_ids.add(r.id)
+                unique_my_res.append(r)
+        my_res = unique_my_res
+
         my_res.sort(key=lambda x: x.start_time)
         
         if my_res:
@@ -458,7 +774,8 @@ def ai_command():
             return jsonify({'success': True, 'reload': False, 'message': msg("Bugün için planlanmış herhangi bir toplantınız bulunmuyor. Harika bir gün geçirin!", "You don't have any meetings scheduled for today. Have a great day!")})
             
     # 2. İptal etme özelliği
-    if any(k in norm_cmd for k in ["iptal et", "toplantimi iptal", "rezervasyonu iptal"]):
+    cancel_keywords = ["iptal", "iptal et", "iptal etme", "iptal etmek", "toplantimi iptal", "toplantımı iptal", "rezervasyonu iptal", "rezervasyon iptal", "iptal etmi", "iptali", "cancel", "cancellation", "delete booking", "cancel meeting"]
+    if any(k in norm_cmd for k in cancel_keywords):
         now = get_turkey_time()
         today_str = now.strftime('%Y-%m-%d')
         # Find active future/current reservations
@@ -484,17 +801,49 @@ def ai_command():
             r = valid_res[0]
             r_date = r.date
             r_start_time = r.start_time
-            r_room_name = r.room.name
+            r_room_name = r.room.display_name
             db.session.delete(r)
             db.session.commit()
             return jsonify({'success': True, 'reload': True, 'message': msg(f"<b>{r_date}</b> tarihindeki <b>{r_start_time}</b> saatli <b>{r_room_name}</b> odası rezervasyonunuz başarıyla iptal edildi.", f"Your reservation for <b>{r_room_name}</b> on <b>{r_date}</b> at <b>{r_start_time}</b> has been successfully canceled.")})
         else:
-            # Too many to automatically delete
-            res_texts = []
-            for r in valid_res:
-                res_texts.append(f"{r.date} | {r.start_time}-{r.end_time} | {r.room.name}")
-            msg_tr = "Birden fazla aktif rezervasyonunuz var. Lütfen takvim üzerinden iptal etmek istediğinizi seçin:<br><br>" + "<br>".join(res_texts)
-            return jsonify({'success': True, 'reload': False, 'message': msg(msg_tr, msg_tr)})
+            letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L']
+            cancel_map = {}
+            res_items_html = []
+
+            for idx, r in enumerate(valid_res):
+                label_let = letters[idx] if idx < len(letters) else str(idx + 1)
+                label_num = str(idx + 1)
+                cancel_map[f"cancel_res_{r.id}"] = r.id
+                cancel_map[label_let.lower()] = r.id
+                cancel_map[label_num] = r.id
+
+                btn_lbl = msg('🗑️ İptal', '🗑️ Cancel')
+                btn_mask = msg('🗑️ İptal Et', '🗑️ Cancel')
+
+                res_items_html.append(f'''
+                <div style="background: rgba(255,255,255,0.08); border-left: 3px solid #ef4444; padding: 6px 10px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+                    <div style="flex: 1 1 auto; min-width: 0; color: white;">
+                        <div style="font-weight: bold; color: #f87171; font-size: 0.85rem; line-height: 1.2;">
+                            📍 {r.room.display_name}
+                        </div>
+                        <div style="color: #cbd5e1; font-size: 0.74rem; line-height: 1.2; margin-top: 2px;">
+                            📅 {r.date} | ⏰ {r.start_time} - {r.end_time}
+                        </div>
+                    </div>
+                    <button onclick="sendQuickChoice('cancel_res_{r.id}', '{btn_mask}')" type="button" style="background: #ef4444; color: white; border: none; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 0.75rem; font-weight: bold; white-space: nowrap; width: auto !important; flex-shrink: 0; box-shadow: 0 2px 4px rgba(239,68,68,0.3);">
+                        {btn_lbl}
+                    </button>
+                </div>
+                ''')
+
+            session.pop('interactive_booking_state', None)
+            session['awaiting_cancel_selection'] = cancel_map
+
+            container_html = f'''<div style="max-height: 180px; overflow-y: auto; margin-top: 8px; display: flex; flex-direction: column; gap: 6px; padding-right: 2px;">{"".join(res_items_html)}</div>'''
+
+            m_tr = f"İptal etmek istediğiniz randevunun yanındaki <b>🗑️ İptal</b> butonuna tıklayabilirsiniz:{container_html}"
+            m_en = f"Click the <b>🗑️ Cancel</b> button next to the reservation you want to cancel:{container_html}"
+            return jsonify({'success': True, 'reload': False, 'message': msg(m_tr, m_en)})
             
     # 2.5 Davetleri kabul veya reddetme
     if any(k in norm_cmd for k in ["kabul", "onayla", "accept", "daveti kabul"]):
@@ -533,8 +882,8 @@ def ai_command():
         today_str = now.strftime('%Y-%m-%d')
         start_h = now.hour
         
-        if start_h >= 23:
-             return jsonify({'success': True, 'reload': False, 'message': msg("Şu an saat çok geç, odalar boş.", "It's too late right now, rooms are empty.")})
+        if start_h >= 18 or start_h < 9:
+             return jsonify({'success': True, 'reload': False, 'message': msg("Mesai saatleri (09:00 - 18:00) dışındayız. Toplantı odaları saat 18:00'den sonra kapalıdır.", "Outside working hours (09:00 - 18:00). Meeting rooms are closed after 18:00.")})
              
         end_h = start_h + 1
         start_time_str = f"{str(start_h).zfill(2)}:00"
@@ -555,8 +904,79 @@ def ai_command():
         else:
             return jsonify({'success': True, 'reload': False, 'message': msg(f"Şu an ({start_time_str} - {end_time_str}) saatleri arasında tüm odalarımız dolu maalesef.", f"Unfortunately, all rooms are fully booked right now ({start_time_str} - {end_time_str}).")})
 
+    # Friendly Conversational & Menu Shortcut Handlers
+    greetings = ["merhaba", "selam", "hello", "hi", "hey", "gunaydin", "günaydın", "iyi gunler", "iyi günler", "iyi aksamlar", "iyi akşamlar"]
+    if norm_cmd in greetings or any(norm_cmd == g for g in greetings):
+        return jsonify({
+            'success': True,
+            'reload': False,
+            'message': msg(
+                'Merhaba! 👋 Ben akıllı asistanınız. Size oda rezervasyonu yapma, oda durumunu sorgulama veya randevu iptal işlemlerinde yardımcı olabilirim. Nasıl yardımcı olabilirim?',
+                'Hello! 👋 I am your smart assistant. I can help you with room bookings, checking availability, or canceling reservations. How can I help you today?'
+            )
+        })
+
+    if norm_cmd in ["nasilsin", "nasiısin", "nasılsın", "how are you", "neler yapabilirsin", "ne yapabilirsin", "yardim", "yardım", "help"]:
+        return jsonify({
+            'success': True,
+            'reload': False,
+            'message': msg(
+                'Harikayım, teşekkürler! 😊 Sizin için şu işlemleri gerçekleştirebilirim:<br>• Oda rezerve edebilirim (Örn: <i>"İnovasyon odasını bugün 14:00 - 15:00 arasına rezerve et"</i>)<br>• Boş oda durumunu sorgulayabilirim (Örn: <i>"Şu an boş oda var mı?"</i>)<br>• Rezervasyonlarınızı listeleyip iptal edebilirim (Örn: <i>"Randevumu iptal et"</i>)',
+                'Doing great, thank you! 😊 I can assist you with:<br>• Booking rooms (e.g. <i>"Book Innovation room today from 14:00 to 15:00"</i>)<br>• Checking room availability (e.g. <i>"Is there any available room right now?"</i>)<br>• Listing and canceling reservations (e.g. <i>"Cancel my reservation"</i>)'
+            )
+        })
+
+    if any(k in norm_cmd for k in ["tesekkur", "teşekkür", "sağol", "sagol", "thanks", "thank you"]):
+        return jsonify({
+            'success': True,
+            'reload': False,
+            'message': msg(
+                'Rica ederim! Başka bir isteğiniz olursa ben buradayım. 😊',
+                'You\'re welcome! I am here if you need anything else. 😊'
+            )
+        })
+
+    # Direct Number Menu Shortcuts (1, 3, 4, 5)
+    if norm_cmd in ['1', '1.', '1-']:
+        return jsonify({
+            'success': True,
+            'reload': False,
+            'message': msg(
+                'Oda rezervasyonu yapmak için hangi odayı, hangi tarih ve saatte istediğinizi yazabilirsiniz.<br>Örneğin: <i>"İnovasyon odasını bugün 14:00 - 15:00 arasına rezerve et"</i> veya <i>"Sinerji odasını yarın saat 10:00\'a ayır"</i>',
+                'To book a room, please specify room name, date and time.<br>Example: <i>"Book Innovation room today from 14:00 to 15:00"</i>'
+            )
+        })
+    elif norm_cmd in ['3', '3.', '3-']:
+        return jsonify({
+            'success': True,
+            'reload': False,
+            'message': msg(
+                'Oda durumunu sorgulamak için oda adını yazabilirsiniz.<br>Örneğin: <i>"Sinerji odası bugün boş mu?"</i> veya <i>"Şu an boş oda var mı?"</i>',
+                'To check room status, mention the room name or ask:<br>Example: <i>"Is Sinerji room available today?"</i> or <i>"Any free room right now?"</i>'
+            )
+        })
+    elif norm_cmd in ['4', '4.', '4-']:
+        return jsonify({
+            'success': True,
+            'reload': False,
+            'message': msg(
+                '📌 <b>QR ile Giriş Bilgisi:</b><br>Toplantı saatiniz geldiğinde oda kapısında bulunan QR kodu mobil cihazınızla okutarak toplantı girişinizi (Check-in) gerçekleştirebilirsiniz.',
+                '📌 <b>QR Login Info:</b><br>When your meeting time arrives, scan the QR code located on the room door using your mobile device to check in.'
+            )
+        })
+    elif norm_cmd in ['5', '5.', '5-']:
+        return jsonify({
+            'success': True,
+            'reload': False,
+            'message': msg(
+                'İyi günler dilerim! İhtiyacınız olduğunda sohbet penceresini açabilirsiniz. 👋',
+                'Have a nice day! Open the chat window whenever you need help. 👋'
+            )
+        })
+
     # 1. Parse Date
     date_str = None
+    explicit_date = True
     date_match = re.search(r'(\d{1,2})\.(\d{1,2})\.(\d{4})', command_text)
     if date_match:
         d, m, y = date_match.groups()
@@ -569,11 +989,43 @@ def ai_command():
         else:
             now = get_turkey_time()
             import datetime
-            if any(word in norm_cmd for word in ["bugun", "bugün", "today"]):
+            DAYS_MAP = {
+                'pazartesi': 0, 'monday': 0, 'mon': 0,
+                'sali': 1, 'salı': 1, 'tuesday': 1, 'tue': 1,
+                'carsamba': 2, 'çarşamba': 2, 'wednesday': 2, 'wed': 2,
+                'persembe': 3, 'perşembe': 3, 'thursday': 3, 'thu': 3,
+                'cuma': 4, 'friday': 4, 'fri': 4,
+                'cumartesi': 5, 'saturday': 5, 'sat': 5,
+                'pazar': 6, 'sunday': 6, 'sun': 6
+            }
+            
+            target_day = None
+            for d_name, d_code in DAYS_MAP.items():
+                if d_name in norm_cmd:
+                    target_day = d_code
+                    break
+                    
+            is_next_week = any(phrase in norm_cmd for phrase in ["onumuzdeki", "önümüzdeki", "gelecek", "haftaya", "next"])
+            
+            if target_day is not None:
+                cur_day = now.weekday()
+                days_ahead = (target_day - cur_day) % 7
+                if is_next_week:
+                    if target_day >= cur_day:
+                        days_ahead += 7
+                target_date = now.date() + datetime.timedelta(days=days_ahead)
+                date_str = target_date.strftime('%Y-%m-%d')
+            elif is_next_week:
+                target_date = now.date() + datetime.timedelta(days=7)
+                date_str = target_date.strftime('%Y-%m-%d')
+            elif any(word in norm_cmd for word in ["bugun", "bugün", "today"]):
                 date_str = now.strftime('%Y-%m-%d')
             elif any(word in norm_cmd for word in ["yarin", "yarın", "tomorrow"]):
                 tomorrow = now + datetime.timedelta(days=1)
                 date_str = tomorrow.strftime('%Y-%m-%d')
+            else:
+                explicit_date = False
+                date_str = now.strftime('%Y-%m-%d')
             
     # 2. Find Room
     rooms = Room.query.all()
@@ -589,50 +1041,95 @@ def ai_command():
             break
 
     # 3. Parse Time
-    time_match = re.search(r'(\d{1,2})[.:](\d{2})\s*(?:-|ile|ve|to|and)?\s*(\d{1,2})[.:](\d{2})', command_text, re.IGNORECASE)
+    time_range_match = re.search(r'(\d{1,2})[.:](\d{2})\s*(?:-|ile|ve|to|and|\s+)\s*(\d{1,2})[.:](\d{2})', command_text, re.IGNORECASE)
+    parsed_start_time = None
+    parsed_end_time = None
     
-    # Check Intent and Missing Fields
-    is_booking_intent = any(k in norm_cmd for k in ["ayir", "ayırt", "ayır", "rezerv", "rezerve", "randevu"]) or found_room or time_match or date_str
+    if time_range_match:
+        sh, sm, eh, em = time_range_match.groups()
+        parsed_start_time = f"{sh.zfill(2)}:{sm}"
+        parsed_end_time = f"{eh.zfill(2)}:{em}"
+    else:
+        # Check hour-to-hour range like "17-18", "17.18", "17 ile 18", "17-18 arasi"
+        hour_range_match = re.search(r'\b([01]?\d|2[0-3])\s*(?:-|[.:]|ile|ve|to|and)\s*([01]?\d|2[0-3])\s*(?:arasi|arası|saat|st|hours)?\b', norm_cmd, re.IGNORECASE)
+        if hour_range_match:
+            h1, h2 = int(hour_range_match.group(1)), int(hour_range_match.group(2))
+            if 0 <= h1 < 24 and 0 <= h2 <= 24 and h1 < h2:
+                parsed_start_time = f"{h1:02d}:00"
+                parsed_end_time = f"{h2:02d}:00"
 
-    if not date_str:
-        if is_booking_intent:
-            return jsonify({'success': False, 'message': msg('Lütfen tarih aralığını belirtin.', 'Please specify the date range.')})
-        else:
-            return jsonify({
-                'success': False, 
-                'reload': False,
-                'message': msg(
-                    'Maalesef anlayamadım şunu mu demek istediniz?<br><br>1 - Oda rezervasyonu yap<br>2 - Oda iptal et<br>3 - Oda durumunu sorgula<br>4 - QR ile giriş bilgisi<br>5 - Sohbeti kapat<br><br>Lütfen seçim yapınız (1, 2, 3, 4 veya 5 yazın).',
-                    'Sorry, I couldn\'t understand. Did you mean?<br><br>1 - Book a room<br>2 - Cancel a reservation<br>3 - Check room availability<br>4 - QR login info<br>5 - Close chat<br><br>Please select an option (type 1, 2, 3, 4, or 5).'
-                )
-            })
+    single_time_match = None
+    if not parsed_start_time:
+        for m in re.finditer(r'(?:saat\s*)?(\d{1,2})[.:](\d{2})', command_text, re.IGNORECASE):
+            h_val, m_val = int(m.group(1)), int(m.group(2))
+            if 0 <= h_val <= 23 and 0 <= m_val <= 59:
+                after_text = command_text[m.end(2):]
+                if re.match(r'^\.\d{2,4}', after_text):
+                    continue
+                single_time_match = m
+                break
+
+    time_match = (parsed_start_time is not None) or (single_time_match is not None)
+
+    # Only inherit last queried room & date if explicit time or booking/inquiry intent is present
+    action_keywords = ["ayir", "ayırt", "ayır", "rezerv", "rezerve", "randevu", "sorgula", "sorgulamak", "sorgu", "durum", "bilgi", "kontrol", "bak", "book", "schedule", "create", "reservation", "appoint", "appointment", "reserve", "make", "find", "check"]
+    has_time_or_action = time_match or any(k in norm_cmd for k in action_keywords)
+    
+    if not explicit_date and session.get('last_queried_date') and has_time_or_action and not any(k in norm_cmd for k in ["iptal", "cancel"]):
+        date_str = session.get('last_queried_date')
+
+    if not found_room and session.get('last_queried_room_id') and has_time_or_action and not any(k in norm_cmd for k in ["iptal", "cancel"]):
+        found_room = Room.query.get(session.get('last_queried_room_id'))
+
+    if found_room:
+        session['last_queried_room_id'] = found_room.id
+        session['last_queried_date'] = date_str
+
+    def time_to_minutes(t_str):
+        h, m = map(int, t_str.split(':'))
+        return h * 60 + m
+
+    # Check Intent and Missing Fields
+    is_booking_intent = any(k in norm_cmd for k in action_keywords) or (found_room is not None) or time_match or explicit_date
 
     if not found_room:
         if is_booking_intent:
             return jsonify({'success': False, 'message': msg('Lütfen hangi odayı rezerve etmek istediğinizi belirtin.', 'Please specify which room you want to book.')})
         else:
-            return jsonify({'success': False, 'message': msg('Sistemde böyle bir oda bulunamadı. Lütfen oda adını kontrol edin.', 'No such room was found in the system. Please check the room name.')})
+            return jsonify({
+                'success': False, 
+                'reload': False,
+                'message': msg(
+                    'Yazdığınız ifadeyi anlayamadım. Size yardımcı olabilmem için oda adı, tarih veya yapmak istediğiniz işlemi belirtebilirsiniz.<br><br>💡 <b>Örnek Komutlar:</b><br>• <i>"İnovasyon odasını bugün 14:00 - 15:00 arasına rezerve et"</i><br>• <i>"Sinerji odası müsait mi?"</i><br>• <i>"Randevumu iptal et"</i>',
+                    'I couldn\'t understand your message. Please specify a room name, date or action.<br><br>💡 <b>Example Commands:</b><br>• <i>"Book Innovation room today from 14:00 to 15:00"</i><br>• <i>"Is Sinerji room available?"</i><br>• <i>"Cancel my reservation"</i>'
+                )
+            })
         
-    def time_to_minutes(t_str):
-        h, m = map(int, t_str.split(':'))
-        return h * 60 + m
-        
-    # 4. Check Existing Reservations
-    existing = Reservation.query.filter_by(room_id=found_room.id, date=date_str).all()
-    
     start_time = None
     end_time = None
-    
-    if time_match:
-        sh, sm, eh, em = time_match.groups()
+    is_single_time_booking = False
+
+    if parsed_start_time and parsed_end_time:
+        start_time = parsed_start_time
+        end_time = parsed_end_time
+    elif single_time_match:
+        sh, sm = single_time_match.groups()
         start_time = f"{sh.zfill(2)}:{sm}"
-        end_time = f"{eh.zfill(2)}:{em}"
-        
+        sh_int = int(sh)
+        end_time = f"{sh_int + 1:02d}:{sm}"
+        is_single_time_booking = True
+
+    if start_time and end_time:
         req_start = time_to_minutes(start_time)
         req_end = time_to_minutes(end_time)
         
         if req_start >= req_end:
             return jsonify({'success': False, 'message': msg('Bitiş saati başlangıç saatinden önce olamaz.', 'End time cannot be earlier than start time.')})
+            
+        if req_start >= 18 * 60 or req_end > 18 * 60:
+            m_tr = "Toplantı odaları en son saat 18:00'e kadar rezerve edilebilir. Saat 18:00'den sonrası için rezervasyon yapılamaz."
+            m_en = "Meeting rooms can only be booked until 18:00. Reservations cannot be made after 18:00."
+            return jsonify({'success': False, 'message': msg(m_tr, m_en)})
             
         from app.models import get_turkey_time
         now = get_turkey_time()
@@ -642,6 +1139,21 @@ def ai_command():
         if date_str < today_str or (date_str == today_str and req_start <= current_mins):
             return jsonify({'success': False, 'message': msg('Zamanı geçti, lütfen ileri bir zaman veya başka bir saat giriniz.', 'The time has passed, please enter a future time.')})
             
+        # 4. Check overlapping invitations
+        from app.models import Notification
+        my_invitations = Notification.query.filter_by(user_id=current_user.id, type='invitation', status='pending').all()
+        for notif in my_invitations:
+            r = getattr(notif, 'reservation', None)
+            if r and r.date == date_str:
+                res_s = time_to_minutes(r.start_time)
+                res_e = time_to_minutes(r.end_time)
+                if not (req_end <= res_s or req_start >= res_e):
+                    m_tr = f"Sizin bu saatlerde (<b>{r.start_time}-{r.end_time}</b>) <b>{r.room.name}</b> odasında zaten bekleyen bir davetiniz var. Lütfen önce bildirimlerinizden bu daveti yanıtlayın."
+                    m_en = f"You already have a pending invitation for <b>{r.room.name}</b> at these hours (<b>{r.start_time}-{r.end_time}</b>). Please respond to your invitation in notifications first."
+                    return jsonify({'success': False, 'message': msg(m_tr, m_en)})
+
+        # 5. Check Existing Reservations (Room Conflict)
+        existing = Reservation.query.filter_by(room_id=found_room.id, date=date_str).all()
         for res in existing:
             res_s = time_to_minutes(res.start_time)
             res_e = time_to_minutes(res.end_time)
@@ -662,16 +1174,41 @@ def ai_command():
                     if is_free:
                         available_rooms.append(other_room.name)
                 
-                m_tr = f"{found_room.name} odası bu saatlerde maalesef dolu."
-                m_en = f"Unfortunately, {found_room.name} room is occupied at these hours."
                 if available_rooms:
-                    m_tr += " Fakat şu odalar aynı saatlerde boş: " + ", ".join(available_rooms)
-                    m_en += " However, these rooms are available: " + ", ".join(available_rooms)
+                    alt_btns = "".join([
+                        f'''<button onclick="sendQuickChoice('{date_str} {r_name} saat {start_time} - {end_time} rezerve et', '📍 {r_name} Odasını Rezerve Et')" type="button" style="background: #3b82f6; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: bold; margin-top: 6px; margin-right: 6px; box-shadow: 0 2px 4px rgba(59,130,246,0.3);">📍 {r_name} ({start_time}-{end_time}) Rezerve Et</button>'''
+                        for r_name in available_rooms
+                    ])
+                    m_tr = f"Maalesef <b>{found_room.name}</b> odası bu saatlerde ({start_time}-{end_time}) dolu.<br><br>💡 <b>Akıllı Alternatif Öneri:</b> Aynı saatte şu oda(lar) müsait:<br>{alt_btns}"
+                    m_en = f"Unfortunately, <b>{found_room.name}</b> room is occupied at these hours ({start_time}-{end_time}).<br><br>💡 <b>Smart Alternative:</b> The following room(s) are available:<br>{alt_btns}"
                 else:
-                    m_tr += " Üstelik bu saatlerde başka boş oda da bulunmuyor."
-                    m_en += " Moreover, there are no other available rooms at this time."
+                    m_tr = f"Maalesef <b>{found_room.name}</b> odası bu saatlerde ({start_time}-{end_time}) dolu ve başka alternatif boş oda bulunmuyor."
+                    m_en = f"Unfortunately, <b>{found_room.name}</b> room is occupied at these hours ({start_time}-{end_time}) and no alternatives are available."
                 
                 return jsonify({'success': False, 'message': msg(m_tr, m_en)})
+
+        if is_single_time_booking:
+            invited_users = find_invited_users(command_text, current_user)
+            invited_ids = [u.id for u in invited_users]
+            session['interactive_booking_state'] = {
+                'step': 'awaiting_confirmation',
+                'room_id': found_room.id,
+                'date': date_str,
+                'start_time': start_time,
+                'end_time': end_time,
+                'invited_user_ids': invited_ids
+            }
+            
+            btn_confirm_html = f'''<div style="display: flex; gap: 0.35rem; margin-top: 0.4rem; flex-wrap: wrap;">
+                <button onclick="sendQuickChoice('Evet, Onaylıyorum')" type="button" style="background: #10b981; color: white; padding: 4px 10px; border-radius: 5px; border: none; cursor: pointer; font-weight: bold; font-size: 0.75rem; width: auto !important; flex-shrink: 0; display: inline-flex; align-items: center; gap: 3px; box-shadow: 0 2px 4px rgba(16,185,129,0.3);">{msg('✅ Evet, Onaylıyorum', '✅ Yes, I Confirm')}</button>
+                <button onclick="sendQuickChoice('Hayır, İptal Et')" type="button" style="background: #ef4444; color: white; padding: 4px 10px; border-radius: 5px; border: none; cursor: pointer; font-weight: bold; font-size: 0.75rem; width: auto !important; flex-shrink: 0; display: inline-flex; align-items: center; gap: 3px;">{msg('❌ Hayır, İptal Et', '❌ No, Cancel')}</button>
+            </div>'''
+            
+            inv_info_tr = f" (davetli: <b>{', '.join([u.username for u in invited_users])}</b>)" if invited_users else ""
+            inv_info_en = f" (invited: <b>{', '.join([u.username for u in invited_users])}</b>)" if invited_users else ""
+            m_tr = f"<b>{found_room.display_name}</b> odasını <b>{date_str}</b> tarihinde <b>{start_time} - {end_time}</b> saatleri arasında{inv_info_tr} sizin adınıza rezerve ediyorum, onaylıyor musunuz?<br>{btn_confirm_html}"
+            m_en = f"I am booking <b>{found_room.display_name}</b> room on <b>{date_str}</b> between <b>{start_time} - {end_time}</b>{inv_info_en}, do you confirm?<br>{btn_confirm_html}"
+            return jsonify({'success': True, 'reload': False, 'message': msg(m_tr, m_en)})
     else:
         from app.models import get_turkey_time
         now = get_turkey_time()
@@ -679,8 +1216,10 @@ def ai_command():
         current_mins = now.hour * 60 + now.minute if date_str == today_str else 0
         
         possible_starts = [f"{h:02d}:00" for h in range(9, 18)]
+        inquiry_keywords = ["boş mu", "bos mu", "müsait mi", "musait mi", "boşluk", "bosluk", "durumu", "var mi", "var mı", "sorgula", "sorgulamak", "sorgu", "kontrol", "bilgi", "durum", "incele"]
 
-        if any(w in norm_cmd for w in ["boş mu", "bos mu", "müsait mi", "musait mi", "boşluk", "bosluk", "durumu", "var mi", "var mı"]):
+        if not time_match or any(w in norm_cmd for w in inquiry_keywords):
+            existing = Reservation.query.filter_by(room_id=found_room.id, date=date_str).all()
             available_slots = []
             for p_start in possible_starts:
                 req_start = time_to_minutes(p_start)
@@ -700,13 +1239,31 @@ def ai_command():
                 if not conflict:
                     available_slots.append(p_start)
             
+            btn_view = msg(f"🚪 {found_room.display_name}", f"🚪 {found_room.display_name}")
+            btn_overview = msg("📅 Genel Bakış", "📅 Overview")
+            btn_html = f'''<div style="margin-top: 0.35rem; display: flex; gap: 0.3rem; flex-wrap: wrap;">
+                <a href="{url_for('main.book_room', room_id=found_room.id, date=date_str)}" style="background: #4f46e5; color: white; padding: 3px 7px; border-radius: 4px; text-decoration: none; font-weight: bold; font-size: 0.72rem; display: inline-flex; align-items: center; gap: 2px; box-shadow: 0 2px 4px rgba(79,70,229,0.3); width: auto !important; flex-shrink: 0;">
+                    {btn_view}
+                </a>
+                <a href="{url_for('main.overview')}" style="background: #334155; color: white; padding: 3px 7px; border-radius: 4px; text-decoration: none; font-size: 0.72rem; display: inline-flex; align-items: center; gap: 2px; width: auto !important; flex-shrink: 0;">
+                    {btn_overview}
+                </a>
+            </div>'''
+
             if available_slots:
-                slots_str = ", ".join(available_slots)
-                m_tr = f"{date_str} tarihinde <b>{found_room.name}</b> odasında şu saatlerde başlangıç için uygunluk var: <b>{slots_str}</b>.<br>Rezervasyon yapmak isterseniz lütfen saati belirtin (Örn: 10:00 - 11:00 arası)."
-                m_en = f"On {date_str}, <b>{found_room.name}</b> has availability starting at: <b>{slots_str}</b>.<br>Please specify the exact time to book."
+                slot_btns = []
+                for slot in available_slots:
+                    slot_btns.append(f'''<button onclick="sendQuickChoice('{slot}')" type="button" style="background: #3b82f6; color: white; padding: 4px 10px; border-radius: 5px; border: none; cursor: pointer; font-weight: bold; font-size: 0.78rem; width: auto !important; flex-shrink: 0; display: inline-flex; align-items: center; gap: 3px;">⏰ {slot}</button>''')
+                
+                slot_btns_html = f'''<div style="display: flex; gap: 0.35rem; margin-top: 0.4rem; margin-bottom: 0.4rem; flex-wrap: wrap;">{"".join(slot_btns)}</div>'''
+
+                m_tr = f"<b>{date_str}</b> tarihinde <b>{found_room.display_name}</b> odasında şu saatler <b>MÜSAİT</b>:<br>{slot_btns_html}{btn_html}"
+                m_en = f"On <b>{date_str}</b>, <b>{found_room.display_name}</b> is <b>AVAILABLE</b> at:<br>{slot_btns_html}{btn_html}"
                 return jsonify({'success': True, 'reload': False, 'message': msg(m_tr, m_en)})
             else:
-                return jsonify({'success': False, 'message': msg(f'{date_str} tarihinde {found_room.name} odasında boş yer yok.', f'No available slots found for {found_room.name} on {date_str}.')})
+                m_tr = f'<b>{date_str}</b> tarihinde <b>{found_room.display_name}</b> odasında tüm saatler dolu.<br>{btn_html}'
+                m_en = f'No available slots found for <b>{found_room.display_name}</b> on <b>{date_str}</b>.<br>{btn_html}'
+                return jsonify({'success': False, 'message': msg(m_tr, m_en)})
 
         return jsonify({'success': False, 'message': msg('Lütfen saat aralığını belirtin.', 'Please specify the time range.')})
             
@@ -724,8 +1281,64 @@ def ai_command():
                 m_en = f"You already have a pending invitation for <b>{r.room.name}</b> at these hours (<b>{r.start_time}-{r.end_time}</b>). Please respond to your invitation in notifications first."
                 return jsonify({'success': False, 'message': msg(m_tr, m_en)})
 
+    # 5.5 Recurring Bookings Handler (Tekrarlayan Rezervasyonlar)
+    is_recurring = any(k in norm_cmd for k in ["her hafta", "haftalik", "haftalık", "her sali", "her salı", "her pazartesi", "her carsamba", "her çarşamba", "her persembe", "her perşembe", "her cuma", "hafta boyunca"])
+    if is_recurring:
+        if req_start >= 18 * 60 or req_end > 18 * 60:
+            m_tr = "Toplantı odaları en son saat 18:00'e kadar rezerve edilebilir. Saat 18:00'den sonrası için rezervasyon yapılamaz."
+            m_en = "Meeting rooms can only be booked until 18:00. Reservations cannot be made after 18:00."
+            return jsonify({'success': False, 'message': msg(m_tr, m_en)})
+
+        import datetime, uuid
+        weeks_count = 4
+        m_w = re.search(r'(\d+)\s*hafta', command_text, re.IGNORECASE)
+        if m_w:
+            weeks_count = min(int(m_w.group(1)), 12)
+
+        base_date = datetime.datetime.strptime(date_str, '%Y-%m-%d').date()
+        rec_id = f"rec_{uuid.uuid4().hex[:8]}"
+        created_res = []
+        conflict_dates = []
+
+        for w in range(weeks_count):
+            cur_date = (base_date + datetime.timedelta(weeks=w)).strftime('%Y-%m-%d')
+            cur_existing = Reservation.query.filter_by(room_id=found_room.id, date=cur_date).all()
+            has_conf = False
+            for c_res in cur_existing:
+                c_s = time_to_minutes(c_res.start_time)
+                c_e = time_to_minutes(c_res.end_time)
+                if not (req_end <= c_s or req_start >= c_e):
+                    has_conf = True
+                    break
+            if not has_conf:
+                r_item = Reservation(
+                    user_id=current_user.id,
+                    room_id=found_room.id,
+                    date=cur_date,
+                    start_time=start_time,
+                    end_time=end_time,
+                    recurrence_id=rec_id
+                )
+                db.session.add(r_item)
+                created_res.append(r_item)
+            else:
+                conflict_dates.append(cur_date)
+
+        db.session.commit()
+        if created_res:
+            dates_str = ", ".join([f"<b>{r_i.date}</b>" for r_i in created_res])
+            from app.utils import generate_google_calendar_url
+            cal_url = generate_google_calendar_url(found_room.display_name, created_res[0].date, start_time, end_time)
+            cal_btn = f'''<br><a href="{cal_url}" target="_blank" style="display: inline-flex; align-items: center; gap: 4px; margin-top: 6px; background: #3b82f6; color: white; padding: 4px 10px; border-radius: 5px; text-decoration: none; font-size: 0.75rem; font-weight: bold; box-shadow: 0 2px 4px rgba(59,130,246,0.3);">{msg("📅 Takvime Ekle", "📅 Add to Calendar")}</a>'''
+            m_tr = f"Harika! <b>{found_room.display_name}</b> odası <b>{len(created_res)} hafta boyunca</b> ({start_time}-{end_time}) başarıyla rezerve edildi: {dates_str} 🔁🎉<br>{cal_btn}"
+            if conflict_dates:
+                conf_str = ", ".join([f"<b>{cd}</b>" for cd in conflict_dates])
+                m_tr += f"<br><br>⚠️ Şu tarihler dolu olduğu için atlandı: {conf_str}"
+            return jsonify({'success': True, 'reload': True, 'message': msg(m_tr, m_tr)})
+
     # 6. Create Reservation
     try:
+        invited_users = find_invited_users(command_text, current_user)
         new_res = Reservation(
             user_id=current_user.id,
             room_id=found_room.id,
@@ -733,11 +1346,31 @@ def ai_command():
             start_time=start_time,
             end_time=end_time
         )
+        for u_inv in invited_users:
+            new_res.attendees.append(u_inv)
+
         db.session.add(new_res)
+        db.session.flush()
+
+        invited_names = []
+        from app.models import Notification
+        for u_inv in invited_users:
+            invited_names.append(u_inv.username)
+            notif_msg = f"{current_user.username} sizi {date_str} tarihinde {start_time}-{end_time} saatleri arasında {found_room.name} odasındaki toplantıya davet etti."
+            notif = Notification(user_id=u_inv.id, reservation_id=new_res.id, message=notif_msg, type='invitation', status='pending')
+            db.session.add(notif)
+
         db.session.commit()
-        msg_tr = f"Harika! <b>{found_room.name}</b> odası <b>{date_str}</b> tarihinde <b>{start_time}-{end_time}</b> arası sizin için rezerve edildi.<br><br>📌 <b>Hatırlatmalar:</b><br>• Gerekli belgeleri yüklemeyi unutmayın.<br>• QR ile giriş yapmayı unutmayın."
-        msg_en = f"Great! <b>{found_room.name}</b> has been booked for you on <b>{date_str}</b> between <b>{start_time}-{end_time}</b>.<br><br>📌 <b>Reminders:</b><br>• Do not forget to upload the necessary documents.<br>• Do not forget to log in with QR."
-        return jsonify({'success': True, 'reload': False, 'message': msg(msg_tr, msg_en)})
+
+        inv_text_tr = f"<br><br>📩 <b>Toplantı Daveti:</b> <b>{', '.join(invited_names)}</b> kullanıcısına davetiye gönderildi." if invited_names else ""
+        inv_text_en = f"<br><br>📩 <b>Meeting Invitation:</b> Invitation sent to <b>{', '.join(invited_names)}</b>." if invited_names else ""
+
+        from app.utils import generate_google_calendar_url
+        cal_url = generate_google_calendar_url(found_room.display_name, date_str, start_time, end_time)
+        cal_btn = f'''<br><a href="{cal_url}" target="_blank" style="display: inline-flex; align-items: center; gap: 4px; margin-top: 6px; background: #3b82f6; color: white; padding: 4px 10px; border-radius: 5px; text-decoration: none; font-size: 0.75rem; font-weight: bold; box-shadow: 0 2px 4px rgba(59,130,246,0.3);">{msg("📅 Takvime Ekle", "📅 Add to Calendar")}</a>'''
+        msg_tr = f"Harika! <b>{found_room.display_name}</b> odası <b>{date_str}</b> tarihinde <b>{start_time}-{end_time}</b> arası sizin için rezerve edildi. 🎉{inv_text_tr}<br>{cal_btn}<br><br>📌 <b>Hatırlatmalar:</b><br>• Gerekli belgeleri yüklemeyi unutmayın.<br>• QR ile giriş yapmayı unutmayın."
+        msg_en = f"Great! <b>{found_room.display_name}</b> has been booked for you on <b>{date_str}</b> between <b>{start_time}-{end_time}</b>. 🎉{inv_text_en}<br>{cal_btn}<br><br>📌 <b>Reminders:</b><br>• Do not forget to upload the necessary documents.<br>• Do not forget to log in with QR."
+        return jsonify({'success': True, 'reload': True, 'message': msg(msg_tr, msg_en)})
     except Exception as e:
         db.session.rollback()
         return jsonify({'success': False, 'message': 'Bir hata oluştu: ' + str(e)})
@@ -816,20 +1449,37 @@ def rooms():
                 label = gettext('Kısmen Dolu')
                 color = '#f59e0b' # Yellow
                 
+            booked_hours = []
+            for h in range(9, 18):
+                h_str = f"{h:02d}:00"
+                h_s_mins = h * 60
+                h_e_mins = h_s_mins + 60
+                h_booked = False
+                for res in reservations:
+                    res_s_h, res_s_m = map(int, res.start_time.split(':'))
+                    res_e_h, res_e_m = map(int, res.end_time.split(':'))
+                    res_start_mins = res_s_h * 60 + res_s_m
+                    res_end_mins = res_e_h * 60 + res_e_m
+                    if not (h_e_mins <= res_start_mins or h_s_mins >= res_end_mins):
+                        h_booked = True
+                        break
+                if h_booked:
+                    booked_hours.append(h_str)
+
             room_stats.append({
                 'room': r,
                 'status': status,
                 'label': label,
                 'color': color,
-                'booked_minutes': actual_booked_minutes
+                'booked_minutes': actual_booked_minutes,
+                'booked_hours': booked_hours
             })
     except Exception as e:
         db.session.rollback()
         current_app.logger.error(f"Error loading rooms in /rooms: {e}", exc_info=True)
         flash(gettext('Oda verileri yüklenirken bir veritabanı hatası oluştu. Lütfen sayfayı yenileyin.'), 'warning')
         
-    return render_template('rooms/list.html', title='Odalar', room_stats=room_stats, today_date=today_str)
-
+    return render_template('rooms/list.html', title='Oda Listesi', room_stats=room_stats)
 
 @bp.route('/rooms/add', methods=['GET', 'POST'])
 @admin_required
@@ -838,15 +1488,15 @@ def add_room():
     from app.models import Room
     form = RoomForm()
     if form.validate_on_submit():
-        new_room = Room(
+        room = Room(
             name=form.name.data,
             english_name=form.english_name.data,
             capacity=form.capacity.data,
             description=form.description.data
         )
-        db.session.add(new_room)
+        db.session.add(room)
         db.session.commit()
-        log_action(current_user.id, "ODA_EKLENDİ", f"{form.name.data} odası eklendi.")
+        log_action(current_user.id, "ODA_EKLENDİ", f"{room.name} odası eklendi.")
         from flask_babel import gettext
         flash(gettext('Yeni oda başarıyla eklendi!'), 'success')
         return redirect(url_for('main.rooms'))
@@ -1081,7 +1731,7 @@ def book_room(room_id):
             duration = int(duration)
             if duration not in [30, 60]:
                 duration = 60
-        except:
+        except (ValueError, TypeError):
             duration = 60
 
         from datetime import datetime, timedelta
@@ -1093,22 +1743,61 @@ def book_room(room_id):
             flash('Bu saatin süresi dolmuş, geçmiş bir saate rezervasyon yapamazsınız.', 'danger')
             return redirect(url_for('main.book_room', room_id=room.id))
 
+        if start_time >= '18:00' or end_time > '18:00':
+            flash('Toplantı odaları en son saat 18:00\'e kadar rezerve edilebilir. Saat 18:00\'den sonrası için rezervasyon yapılamaz.', 'danger')
+            return redirect(url_for('main.book_room', room_id=room.id))
 
+        repeat_weeks = request.form.get('repeat_weeks', 0, type=int)
+        if repeat_weeks not in [0, 1, 2, 3]:
+            repeat_weeks = 0
 
-        # OVERLAP PREVENTION: Check if already booked
-        all_day_res = Reservation.query.filter_by(room_id=room.id, date=req_date).all()
-        overlap = False
-        for r in all_day_res:
-            # If the existing reservation ended early (before now), it shouldn't block the slot
-            if req_date == today_str and r.end_time <= current_hour_str:
-                continue
+        # Parse attendees
+        attendee_ids = request.form.getlist('attendees')
+        invited_users = User.query.filter(User.id.in_(attendee_ids)).all() if attendee_ids else []
+
+        created_dates = []
+        conflicting_dates = []
+        base_date_obj = datetime.strptime(req_date, '%Y-%m-%d').date()
+
+        for i in range(repeat_weeks + 1):
+            target_date = (base_date_obj + timedelta(weeks=i)).strftime('%Y-%m-%d')
+            # OVERLAP PREVENTION: Check if already booked
+            all_day_res = Reservation.query.filter_by(room_id=room.id, date=target_date).all()
+            overlap = False
+            for r in all_day_res:
+                # If the existing reservation ended early (before now), it shouldn't block the slot
+                if target_date == today_str and r.end_time <= current_hour_str:
+                    continue
+                # İki zaman aralığının kesişip kesişmediğini kontrol et
+                if max(start_time, r.start_time) < min(end_time, r.end_time):
+                    overlap = True
+                    break
+            
+            if overlap:
+                conflicting_dates.append(target_date)
+            else:
+                new_reservation = Reservation(
+                    user_id=current_user.id,
+                    room_id=room.id,
+                    date=target_date,
+                    start_time=start_time,
+                    end_time=end_time
+                )
+                for user in invited_users:
+                    new_reservation.attendees.append(user)
+
+                db.session.add(new_reservation)
+                db.session.flush() # To get new_reservation.id
+        
+                # Now update notifications with reservation_id
+                for user in invited_users:
+                    msg = f"{current_user.username} sizi {target_date} tarihinde {start_time}-{end_time} saatleri arasında {room.name} odasındaki toplantıya davet etti."
+                    notif = Notification(user_id=user.id, reservation_id=new_reservation.id, message=msg, type='invitation', status='pending')
+                    db.session.add(notif)
                 
-            # İki zaman aralığının kesişip kesişmediğini kontrol et
-            if max(start_time, r.start_time) < min(end_time, r.end_time):
-                overlap = True
-                break
-                
-        if overlap:
+                created_dates.append(target_date)
+
+        if not created_dates:
             # Kullanıcıya boş olan diğer odaları öner
             other_rooms = Room.query.filter(Room.id != room.id).all()
             available_rooms = []
@@ -1132,38 +1821,8 @@ def book_room(room_id):
                 flash('Üzgünüz, bu saat dilimi az önce başkası tarafından rezerve edildi veya çakışıyor. Lütfen süreyi veya saati değiştirin.', 'danger')
                 
             return redirect(url_for('main.book_room', room_id=room.id))
-        
-        # Parse attendees
-        attendee_ids = request.form.getlist('attendees')
-        invited_users = User.query.filter(User.id.in_(attendee_ids)).all() if attendee_ids else []
 
-        new_reservation = Reservation(
-            user_id=current_user.id,
-            room_id=room.id,
-            date=req_date,
-            start_time=start_time,
-            end_time=end_time
-        )
-        
-        for user in invited_users:
-            new_reservation.attendees.append(user)
-            
-            # Create a notification for the invited user
-            msg = f"{current_user.username} sizi {req_date} tarihinde {start_time}-{end_time} saatleri arasında {room.name} odasındaki toplantıya davet etti."
-            notif = Notification(user_id=user.id, message=msg, type='invitation', status='pending')
-            # Assign reservation after new_reservation gets an ID (we'll flush first)
-            
-        db.session.add(new_reservation)
-        db.session.flush() # To get new_reservation.id
-        
-        # Now update notifications with reservation_id
-        for user in invited_users:
-            notif = Notification(user_id=user.id, reservation_id=new_reservation.id, message=f"{current_user.username} sizi {req_date} tarihinde {start_time}-{end_time} saatleri arasında {room.name} odasındaki toplantıya davet etti.", type='invitation', status='pending')
-            db.session.add(notif)
-            
         db.session.commit()
-        
-        # Mail sending removed
         
         # Log the action
         log_msg = f"{room.name} odası için {req_date} {start_time}-{end_time} rezervasyonu yapıldı."
@@ -1191,7 +1850,7 @@ def dashboard():
     
     reservations = []
     for res in all_reservations:
-        if res.date < today_str or (res.date == today_str and res.end_time <= time_str):
+        if res.date < today_str:
             continue
         res.cal_url = generate_google_calendar_url(res.room.name, res.date, res.start_time, res.end_time)
         reservations.append(res)
@@ -1201,7 +1860,7 @@ def dashboard():
     
     invited_reservations = []
     for res in all_invited:
-        if res.date < today_str or (res.date == today_str and res.end_time <= time_str):
+        if res.date < today_str:
             continue
         res.cal_url = generate_google_calendar_url(res.room.name, res.date, res.start_time, res.end_time)
         invited_reservations.append(res)
@@ -1308,31 +1967,82 @@ def admin_panel():
 @bp.route('/admin/logs', methods=['GET'])
 @admin_required
 def admin_logs():
-    from app.models import AuditLog
-    from datetime import datetime, time
+    from app.models import AuditLog, User, get_turkey_time
+    from datetime import datetime, time, timedelta
     
     page = request.args.get('page', 1, type=int)
+    per_page = request.args.get('per_page', 20, type=int)
+    if per_page not in [10, 20, 50, 100]:
+        per_page = 20
+        
+    start_date = request.args.get('start_date', '')
+    end_date = request.args.get('end_date', '')
     date_filter = request.args.get('date', '')
+    
+    if date_filter and not start_date and not end_date:
+        start_date = date_filter
+        end_date = date_filter
+
+    action_filter = request.args.get('action', '')
+    user_id_filter = request.args.get('user_id', type=int)
+
+    prev_date = ''
+    next_date = ''
+    
+    ref_date_str = start_date or date_filter
+    if ref_date_str:
+        try:
+            target_date = datetime.strptime(ref_date_str, '%Y-%m-%d').date()
+            prev_date = (target_date - timedelta(days=1)).strftime('%Y-%m-%d')
+            next_date = (target_date + timedelta(days=1)).strftime('%Y-%m-%d')
+        except ValueError:
+            pass
+            
+    if not prev_date or not next_date:
+        today = get_turkey_time().date()
+        prev_date = (today - timedelta(days=1)).strftime('%Y-%m-%d')
+        next_date = (today + timedelta(days=1)).strftime('%Y-%m-%d')
     
     try:
         query = AuditLog.query
         
-        if date_filter:
+        if start_date:
             try:
-                target_date = datetime.strptime(date_filter, '%Y-%m-%d').date()
-                start_datetime = datetime.combine(target_date, time.min)
-                end_datetime = datetime.combine(target_date, time.max)
-                query = query.filter(AuditLog.timestamp >= start_datetime, AuditLog.timestamp <= end_datetime)
+                s_dt = datetime.combine(datetime.strptime(start_date, '%Y-%m-%d').date(), time.min)
+                query = query.filter(AuditLog.timestamp >= s_dt)
             except ValueError:
                 pass
                 
-        logs = query.order_by(AuditLog.timestamp.desc()).paginate(page=page, per_page=20, error_out=False)
+        if end_date:
+            try:
+                e_dt = datetime.combine(datetime.strptime(end_date, '%Y-%m-%d').date(), time.max)
+                query = query.filter(AuditLog.timestamp <= e_dt)
+            except ValueError:
+                pass
+                
+        if action_filter:
+            query = query.filter(AuditLog.action == action_filter)
+            
+        if user_id_filter:
+            query = query.filter(AuditLog.user_id == user_id_filter)
+            
+        logs = query.order_by(AuditLog.timestamp.desc()).paginate(page=page, per_page=per_page, error_out=False)
+        
+        all_actions = [a[0] for a in db.session.query(AuditLog.action).distinct().all() if a[0]]
+        all_users = User.query.all()
+        
     except Exception as e:
         db.session.rollback()
         current_app.logger.error(f"Error loading admin_logs: {e}")
-        logs = AuditLog.query.filter_by(id=-1).paginate(page=1, per_page=20, error_out=False)
+        logs = AuditLog.query.filter_by(id=-1).paginate(page=1, per_page=per_page, error_out=False)
+        all_actions = []
+        all_users = []
     
-    return render_template('admin_logs.html', title='Log Yönetimi', logs=logs, date_filter=date_filter)
+    return render_template('admin_logs.html', title='Log Yönetimi', logs=logs, 
+                           start_date=start_date, end_date=end_date, date_filter=date_filter, 
+                           action_filter=action_filter, user_id_filter=user_id_filter, per_page=per_page,
+                           prev_date=prev_date, next_date=next_date,
+                           all_actions=all_actions, all_users=all_users)
 
 @bp.route('/admin/logs/export', methods=['GET'])
 @admin_required
@@ -1344,18 +2054,38 @@ def export_admin_logs():
     import io
     from flask import Response
 
+    start_date = request.args.get('start_date', '')
+    end_date = request.args.get('end_date', '')
     date_filter = request.args.get('date', '')
+    action_filter = request.args.get('action', '')
+    user_id_filter = request.args.get('user_id', type=int)
+
+    if date_filter and not start_date and not end_date:
+        start_date = date_filter
+        end_date = date_filter
+
     query = AuditLog.query
 
-    if date_filter:
+    if start_date:
         try:
-            target_date = datetime.strptime(date_filter, '%Y-%m-%d').date()
-            start_datetime = datetime.combine(target_date, time.min)
-            end_datetime = datetime.combine(target_date, time.max)
-            query = query.filter(AuditLog.timestamp >= start_datetime, AuditLog.timestamp <= end_datetime)
+            s_dt = datetime.combine(datetime.strptime(start_date, '%Y-%m-%d').date(), time.min)
+            query = query.filter(AuditLog.timestamp >= s_dt)
         except ValueError:
             pass
             
+    if end_date:
+        try:
+            e_dt = datetime.combine(datetime.strptime(end_date, '%Y-%m-%d').date(), time.max)
+            query = query.filter(AuditLog.timestamp <= e_dt)
+        except ValueError:
+            pass
+            
+    if action_filter:
+        query = query.filter(AuditLog.action == action_filter)
+        
+    if user_id_filter:
+        query = query.filter(AuditLog.user_id == user_id_filter)
+
     logs = query.order_by(AuditLog.timestamp.desc()).all()
 
     output = io.StringIO()
@@ -1393,11 +2123,11 @@ def export_admin_logs():
         
     response = Response(output.getvalue(), mimetype='text/csv')
     
-    # Determine filename
-    if date_filter:
+    filename = f"sistem_loglari_filtreli.csv"
+    if start_date and end_date:
+        filename = f"sistem_loglari_{start_date}_to_{end_date}.csv"
+    elif date_filter:
         filename = f"sistem_loglari_{date_filter}.csv"
-    else:
-        filename = f"sistem_loglari_tum.csv"
         
     response.headers["Content-Disposition"] = f"attachment; filename={filename}"
     return response
@@ -1550,7 +2280,7 @@ def delete_user(user_id):
         if os.path.exists(doc.file_path):
             try:
                 os.remove(doc.file_path)
-            except:
+            except OSError:
                 pass
         db.session.delete(doc)
     
@@ -1803,11 +2533,6 @@ def door_scanner():
         })
         
     return render_template('door_scanner.html', title='Sanal Kapı Okuyucu', test_options=test_options)
-
-ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx'}
-
-def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 @bp.route('/reservation/<int:res_id>/upload_document', methods=['POST'])
 @login_required

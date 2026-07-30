@@ -252,31 +252,33 @@
     <div id="loading" style="text-align: center; padding: 2rem; color: var(--primary); display: none;">Veriler
         yükleniyor...</div>
 
-    <table class="matrix-table" id="matrix-table">
-        <thead>
-            <tr>
-                <th style="width: 200px;">{{ gettext('Toplantı Odası') }}</th>
-                <th>09:00</th>
-                <th>10:00</th>
-                <th>11:00</th>
-                <th>12:00</th>
-                <th>13:00</th>
-                <th>14:00</th>
-                <th>15:00</th>
-                <th>16:00</th>
-                <th>17:00</th>
-            </tr>
-        </thead>
-        <tbody id="matrix-body">
-            {% for room in rooms %}
-            <tr data-room-id="{{ room.id }}">
-                <td class="room-name">{{ room.display_name }} <br><span
-                        style="font-size: 0.75rem; color: #94a3b8; font-weight: normal;">{{ gettext('Kapasite') }}: {{ room.capacity }}</span></td>
-                <!-- JS tarafından doldurulacak hücreler -->
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <div class="table-responsive">
+        <table class="matrix-table" id="matrix-table">
+            <thead>
+                <tr>
+                    <th style="width: 200px;">{{ gettext('Toplantı Odası') }}</th>
+                    <th>09:00</th>
+                    <th>10:00</th>
+                    <th>11:00</th>
+                    <th>12:00</th>
+                    <th>13:00</th>
+                    <th>14:00</th>
+                    <th>15:00</th>
+                    <th>16:00</th>
+                    <th>17:00</th>
+                </tr>
+            </thead>
+            <tbody id="matrix-body">
+                {% for room in rooms %}
+                <tr data-room-id="{{ room.id }}">
+                    <td class="room-name">{{ room.display_name }} <br><span
+                            style="font-size: 0.75rem; color: #94a3b8; font-weight: normal;">{{ gettext('Kapasite') }}: {{ room.capacity }}</span></td>
+                    <!-- JS tarafından doldurulacak hücreler -->
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
 
 <script>

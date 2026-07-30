@@ -15,6 +15,51 @@
     </div>
 </div>
 
+<!-- İnteraktif Filtreleme ve Arama Çubuğu (Interactive Filter & Search Bar) -->
+<div style="background: var(--card-bg); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); border: 1px solid var(--border-color); border-radius: 0.75rem; padding: 1rem 1.25rem; margin-bottom: 1.5rem;">
+    <div class="filter-bar-grid" style="display: grid; grid-template-columns: 1fr auto; gap: 1rem; align-items: center;">
+        <input type="text" id="roomSearchInput" onkeyup="filterRooms()" placeholder="{% if current_lang == 'en' %}🔍 Search room name, feature or capacity...{% else %}🔍 Oda adı, özellik veya kapasite ara...{% endif %}" style="width: 100%; box-sizing: border-box; padding: 0.65rem 1rem; border-radius: 0.5rem; border: 1px solid var(--border-color); background: rgba(0,0,0,0.3); color: white; outline: none; font-size: 0.875rem;">
+        
+        <select id="statusFilterSelect" onchange="filterRooms()" style="box-sizing: border-box; padding: 0.65rem 1rem; border-radius: 0.5rem; border: 1px solid var(--border-color); background: #1e293b; color: white; font-size: 0.875rem; outline: none; cursor: pointer; min-width: 170px;">
+            <option value="all" style="background: #1e293b; color: white;">{% if current_lang == 'en' %}All Statuses{% else %}Tüm Durumlar{% endif %}</option>
+            <option value="free" style="background: #1e293b; color: white;">{% if current_lang == 'en' %}Available Today{% else %}Bugün Müsait{% endif %}</option>
+            <option value="busy" style="background: #1e293b; color: white;">{% if current_lang == 'en' %}Occupied / Partial{% else %}Dolu / Kısmen Dolu{% endif %}</option>
+        </select>
+    </div>
+</div>
+
+<style>
+    @media (max-width: 640px) {
+        .filter-bar-grid {
+            grid-template-columns: 1fr !important;
+        }
+    }
+</style>
+
+<script>
+function filterRooms() {
+    const q = document.getElementById('roomSearchInput').value.toLowerCase().trim();
+    const status = document.getElementById('statusFilterSelect').value;
+    
+    const cards = document.querySelectorAll('.room-card-item');
+    cards.forEach(card => {
+        const name = card.getAttribute('data-name') || '';
+        const desc = card.getAttribute('data-desc') || '';
+        const cap = card.getAttribute('data-capacity') || '';
+        const stat = card.getAttribute('data-status') || '';
+        
+        const matchesQuery = !q || name.includes(q) || desc.includes(q) || cap.includes(q);
+        const matchesStatus = status === 'all' || (status === 'free' && stat === 'free') || (status === 'busy' && stat !== 'free');
+        
+        if (matchesQuery && matchesStatus) {
+            card.style.display = 'flex';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+}
+</script>
+
 <style>
     .rooms-grid {
         display: grid;
@@ -36,7 +81,7 @@
 <div class="rooms-grid">
     {% for stat in room_stats %}
     {% set room = stat.room %}
-    <div class="glass-card" style="margin: 0; padding: 1.5rem; text-align: left; display: flex; flex-direction: column;">
+    <div class="glass-card room-card-item" data-name="{{ room.display_name|lower }}" data-desc="{{ gettext(room.description)|lower }}" data-capacity="{{ room.capacity }}" data-status="{{ 'free' if stat.booked_minutes == 0 else 'busy' }}" style="margin: 0; padding: 1.5rem; text-align: left; display: flex; flex-direction: column;">
         <div class="room-card-header" style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
             <h3 style="margin-top: 0; color: var(--primary); font-size: 1.5rem; margin-bottom: 0; word-break: break-word;">{{ room.display_name }}</h3>
             <span style="background-color: {{ stat.color }}; color: white; padding: 0.25rem 0.75rem; border-radius: 999px; font-size: 0.75rem; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.2); white-space: nowrap;">
@@ -53,7 +98,10 @@
             {% endif %}
         </p>
         
-        <p style="font-size: 0.875rem; color: #94a3b8; margin-bottom: 1rem;"><strong style="color: white;">{{ gettext('Kapasite') }}:</strong> {{ room.capacity }} {{ gettext('Kişi') }}</p>
+        <p style="font-size: 0.875rem; color: #94a3b8; margin-bottom: 0.5rem;"><strong style="color: white;">{{ gettext('Kapasite') }}:</strong> {{ room.capacity }} {{ gettext('Kişi') }}</p>
+        
+
+
         <p style="font-size: 0.875rem; color: #cbd5e1; margin-bottom: 1.5rem; flex-grow: 1;">{{ gettext(room.description) }}</p>
         <div style="display: flex; gap: 0.5rem; justify-content: center; flex-wrap: wrap;">
             <a href="{{ url_for('main.book_room', room_id=room.id) }}" class="btn" style="text-align: center; flex: 1;">{{ gettext('Takvimi Görüntüle') }}</a>

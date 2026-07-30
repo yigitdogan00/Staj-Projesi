@@ -1,9 +1,12 @@
-from flask import Blueprint, render_template, url_for, flash, redirect, request
-from flask_login import login_user, current_user, logout_user, login_required
+import random
+from datetime import timedelta
+from flask import Blueprint, render_template, url_for, flash, redirect, request, session, current_app, g
+from flask_login import login_user, current_user, logout_user
 from app.extensions import db, bcrypt
-from app.models import User
+from app.models import User, get_turkey_time
 from app.forms import RegistrationForm, LoginForm
 from flask_babel import gettext
+from app.utils import send_verification_code_email, log_action
 
 bp = Blueprint('auth', __name__)
 
@@ -14,17 +17,80 @@ def register():
     form = RegistrationForm()
     if form.validate_on_submit():
         hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
-        user = User(username=form.username.data, email=form.email.data, password_hash=hashed_password, first_name=form.first_name.data, last_name=form.last_name.data)
+        code = f"{random.randint(100000, 999999)}"
+        user = User(
+            username=form.username.data,
+            email=form.email.data,
+            password_hash=hashed_password,
+            first_name=form.first_name.data,
+            last_name=form.last_name.data,
+            is_verified=False,
+            verification_code=code,
+            verification_code_expires_at=get_turkey_time() + timedelta(minutes=15)
+        )
         try:
             db.session.add(user)
             db.session.commit()
-            flash(gettext('Hesabınız başarıyla oluşturuldu! Şimdi giriş yapabilirsiniz.'), 'success')
-            return redirect(url_for('auth.login'))
+            send_verification_code_email(user, code)
+            session['unverified_user_id'] = user.id
+            flash(gettext('Kayıt başarılı! Lütfen e-posta adresinize gönderilen 6 haneli doğrulama kodunu girin.'), 'info')
+            return redirect(url_for('auth.verify_email'))
         except Exception as e:
             db.session.rollback()
+            current_app.logger.error(f"Registration Error: {e}", exc_info=True)
             flash(gettext('Kayıt işlemi sırasında bir hata oluştu. Bu e-posta zaten kayıtlı olabilir veya butona çift tıklamış olabilirsiniz.'), 'danger')
             return render_template('auth/register.html', title='Kayıt Ol', form=form)
     return render_template('auth/register.html', title='Kayıt Ol', form=form)
+
+@bp.route('/verify-email', methods=['GET', 'POST'])
+def verify_email():
+    user_id = session.get('unverified_user_id')
+    if not user_id:
+        flash(gettext('Lütfen önce kayıt olun veya giriş yapın.'), 'warning')
+        return redirect(url_for('auth.login'))
+    
+    user = User.query.get_or_404(user_id)
+    if user.is_verified:
+        session.pop('unverified_user_id', None)
+        flash(gettext('Hesabınız zaten doğrulanmış. Giriş yapabilirsiniz.'), 'info')
+        return redirect(url_for('auth.login'))
+
+    if request.method == 'POST':
+        input_code = str(request.form.get('code', '')).strip()
+        now = get_turkey_time()
+        if user.verification_code and user.verification_code == input_code and user.verification_code_expires_at and now <= user.verification_code_expires_at:
+            user.is_verified = True
+            user.verification_code = None
+            user.verification_code_expires_at = None
+            db.session.commit()
+            session.pop('unverified_user_id', None)
+            log_action(user.id, "YENİ_HESAP", f"{user.username} e-posta doğrulamasını tamamlayıp hesabını aktifleştirdi.")
+            flash(gettext('E-posta adresiniz başarıyla doğrulandı! Şimdi giriş yapabilirsiniz.'), 'success')
+            return redirect(url_for('auth.login'))
+        else:
+            flash(gettext('Girdiğiniz doğrulama kodu hatalı veya süresi dolmuş.'), 'danger')
+
+    return render_template('auth/verify_email.html', title='E-posta Doğrulama', user=user)
+
+@bp.route('/resend-verification', methods=['POST'])
+def resend_verification():
+    user_id = session.get('unverified_user_id')
+    if not user_id:
+        flash(gettext('Kullanıcı oturumu bulunamadı.'), 'warning')
+        return redirect(url_for('auth.login'))
+    
+    user = User.query.get_or_404(user_id)
+    if user.is_verified:
+        return redirect(url_for('auth.login'))
+
+    code = f"{random.randint(100000, 999999)}"
+    user.verification_code = code
+    user.verification_code_expires_at = get_turkey_time() + timedelta(minutes=15)
+    db.session.commit()
+
+    send_verification_code_email(user, code)
+    flash(gettext('Yeni doğrulama kodu e-posta adresinize gönderildi.'), 'success')
+    return redirect(url_for('auth.verify_email'))
 
 @bp.route('/login', methods=['GET', 'POST'])
 def login():
@@ -38,12 +104,42 @@ def login():
             form.email.data = remembered_email
             form.remember.data = True
             
+    # Brute-Force Rate Limiting Protection
+    import time
+    failed_count = session.get('failed_login_count', 0)
+    last_failed_time = session.get('failed_login_time', 0)
+    now_ts = time.time()
+
+    if last_failed_time and (now_ts - last_failed_time > 120):
+        failed_count = 0
+        session.pop('failed_login_count', None)
+        session.pop('failed_login_time', None)
+
+    if failed_count >= 5:
+        remaining_secs = max(1, int(120 - (now_ts - last_failed_time)))
+        if g.get('current_lang') == 'en':
+            msg_text = f"Too many failed login attempts. Please wait {remaining_secs} seconds before trying again."
+        else:
+            msg_text = f"Çok fazla hatalı giriş denemesi yapıldı. Güvenliğiniz için lütfen {remaining_secs} saniye bekleyip tekrar deneyin."
+        flash(msg_text, 'danger')
+        return render_template('auth/login.html', title='Giriş Yap', form=form)
+
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
         if user and bcrypt.check_password_hash(user.password_hash, form.password.data):
-            login_user(user, remember=form.remember.data)
+            if not user.is_verified:
+                session['unverified_user_id'] = user.id
+                flash(gettext('Hesabınız henüz doğrulanmamış. Lütfen e-posta adresinize gönderilen doğrulama kodunu girin.'), 'warning')
+                return redirect(url_for('auth.verify_email'))
+
+            session.pop('failed_login_count', None)
+            session.pop('failed_login_time', None)
+            login_user(user, remember=False)
+            session.pop('interactive_booking_state', None)
+            session.pop('last_queried_room_id', None)
+            session.pop('last_queried_date', None)
+            session.pop('awaiting_random_booking', None)
             
-            from app.utils import log_action
             log_action(user.id, "SİSTEME_GİRİŞ", f"{user.username} sisteme giriş yaptı.")
             
             next_page = request.args.get('next')
@@ -57,6 +153,9 @@ def login():
                 
             return resp
         else:
+            session['failed_login_count'] = failed_count + 1
+            session['failed_login_time'] = time.time()
+            log_action(user.id if user else None, "HATALI_GİRİŞ_DENEMESİ", f"{form.email.data} adresiyle hatalı şifre denemesi yapıldı (Deneme: {failed_count + 1}).")
             flash(gettext('Giriş başarısız. Lütfen e-posta ve şifrenizi kontrol edin.'), 'danger')
     return render_template('auth/login.html', title='Giriş Yap', form=form)
 
@@ -100,13 +199,17 @@ def authorize_google():
                 username=username,
                 email=email,
                 first_name=given_name,
-                last_name=family_name
+                last_name=family_name,
+                is_verified=True
             )
             db.session.add(user)
             db.session.commit()
             log_action(user.id, "KULLANICI_KAYIT", f"{user.username} Google Login ile otomatik kayıt oldu.")
         else:
             updated = False
+            if not user.is_verified:
+                user.is_verified = True
+                updated = True
             if given_name and (not user.first_name or user.first_name == ""):
                 user.first_name = given_name
                 updated = True
@@ -116,7 +219,7 @@ def authorize_google():
             if updated:
                 db.session.commit()
 
-        login_user(user, remember=True)
+        login_user(user, remember=False)
         log_action(user.id, "SİSTEME_GİRİŞ", f"{user.username} Google Login ile sisteme giriş yaptı.")
         
         next_page = request.args.get('next')
@@ -131,6 +234,7 @@ def authorize_google():
 @bp.route('/logout')
 def logout():
     logout_user()
+    session.clear()
     return redirect(url_for('main.index'))
 
 @bp.route("/reset_password", methods=['GET', 'POST'])

@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
-{% block meta_description %}{{ gettext('Modern, hızlı ve akıllı toplantı odası rezervasyon sistemi. İhtiyacınız olan toplantı odasını anında bulun, saniyeler içinde ayırtın ve ekibinizi kolayca davet edin.') }}{% endblock %}
+{% block meta_description %}{{ gettext('Modern, hızlı ve akıllı toplantı odası rezervasyon sistemi. İhtiyacınız olan
+toplantı odasını anında bulun, saniyeler içinde ayırtın ve ekibinizi kolayca davet edin.') }}{% endblock %}
 
 {% block content %}
 
@@ -63,7 +64,7 @@
 
     /* macOS Style White Box */
     .macos-window {
-        background: rgba(255, 255, 255, 0.95);
+        background: rgba(255, 255, 255, 0.2);
         border-radius: 16px;
         box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.1);
         width: 100%;
@@ -185,7 +186,8 @@
 <div class="index-container">
     <div class="index-left">
         <h1>{{ gettext('Toplantı Odası Rezervasyon Sistemine Hoş Geldiniz') }}</h1>
-        <p>{{ gettext('Modern, hızlı ve akıllı rezervasyon yönetimi. İhtiyacınız olan toplantı odasını anında bulun, saniyeler içinde ayırtın ve ekibinizi kolayca davet edin.') }}</p>
+        <p>{{ gettext('Modern, hızlı ve akıllı rezervasyon yönetimi. İhtiyacınız olan toplantı odasını anında bulun,
+            saniyeler içinde ayırtın ve ekibinizi kolayca davet edin.') }}</p>
     </div>
 
     <div class="index-right">
@@ -198,8 +200,10 @@
             </div>
             <div class="macos-body">
                 <h3>{{ gettext('Hemen Başlayın') }}</h3>
-                <a href="{{ url_for('auth.login') }}" class="premium-btn btn-login transition-link">{{ gettext('Giriş Yap') }}</a>
-                <a href="{{ url_for('auth.register') }}" class="premium-btn btn-register transition-link">{{ gettext('Kayıt Ol') }}</a>
+                <a href="{{ url_for('auth.login') }}" class="premium-btn btn-login transition-link">{{ gettext('Giriş
+                    Yap') }}</a>
+                <a href="{{ url_for('auth.register') }}" class="premium-btn btn-register transition-link">{{
+                    gettext('Kayıt Ol') }}</a>
             </div>
         </div>
         {% else %}
@@ -212,7 +216,8 @@
             <div class="macos-body">
                 <h3>{{ gettext('Hoş Geldiniz') }}, {{ current_user.username }}!</h3>
                 <a href="{{ url_for('main.rooms') }}" class="premium-btn btn-login">{{ gettext('Odalar') }}</a>
-                <a href="{{ url_for('main.dashboard') }}" class="premium-btn btn-register">{{ gettext('Kontrol Paneli') }}</a>
+                <a href="{{ url_for('main.dashboard') }}" class="premium-btn btn-register">{{ gettext('Kontrol Paneli')
+                    }}</a>
             </div>
         </div>
         {% endif %}

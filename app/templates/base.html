@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="{{ current_lang if current_lang else 'tr' }}">
 
 <head>
     <meta charset="UTF-8">
@@ -7,13 +7,34 @@
     <meta name="theme-color" content="#4F46E5">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="description" content="{% block meta_description %}{{ gettext('Modern, hızlı ve akıllı toplantı odası rezervasyon yönetimi. İhtiyacınız olan toplantı odasını anında bulun, saniyeler içinde ayırtın ve ekibinizi kolayca davet edin.') }}{% endblock %}">
+    <meta name="description" content="{% block meta_description %}{% if current_lang == 'en' %}Modern, fast and smart meeting room reservation management. Find the meeting room you need instantly and book in seconds.{% else %}Modern, hızlı ve akıllı toplantı odası rezervasyon yönetimi. İhtiyacınız olan toplantı odasını anında bulun, saniyeler içinde ayırtın ve ekibinizi kolayca davet edin.{% endif %}{% endblock %}">
     <meta name="robots" content="index, follow">
-    <meta property="og:title" content="{% if title %}{{ gettext(title) }} - {% endif %}{{ gettext('Rezervasyon Sistemi') }}">
-    <meta property="og:description" content="{% block og_description %}{{ gettext('Modern, hızlı ve akıllı toplantı odası rezervasyon yönetimi. İhtiyacınız olan toplantı odasını anında bulun ve kolayca ayırtın.') }}{% endblock %}">
+    {% set title_map_en = {
+        'Şifreyi Sıfırla': 'Reset Password',
+        'Şifre Sıfırla': 'Reset Password',
+        'Yeni Şifre Belirle': 'Set New Password',
+        'Giriş Yap': 'Login',
+        'Kayıt Ol': 'Register',
+        'E-posta Doğrulama': 'Email Verification',
+        'Ana Sayfa': 'Home',
+        'Oda Listesi': 'Meeting Rooms',
+        'Oda Ekle': 'Add Room',
+        'Odayı Düzenle': 'Edit Room',
+        'Günlük Durum': 'Daily Overview',
+        'Dashboard': 'Dashboard',
+        'Admin Paneli': 'Admin Panel',
+        'Log Yönetimi': 'Audit Logs',
+        'Profilim': 'My Profile',
+        'Sanal Kapı Okuyucu': 'Virtual Door Scanner',
+        'Toplantılarım': 'My Meetings'
+    } %}
+    {% set page_title = title_map_en.get(title, title) if current_lang == 'en' else title %}
+    {% set site_title = 'Booking System' if current_lang == 'en' else 'Rezervasyon Sistemi' %}
+    <meta property="og:title" content="{% if page_title %}{{ page_title }} - {% endif %}{{ site_title }}">
+    <meta property="og:description" content="{% block og_description %}{% if current_lang == 'en' %}Modern, fast and smart meeting room reservation management. Find the meeting room you need instantly and book easily.{% else %}Modern, hızlı ve akıllı toplantı odası rezervasyon yönetimi. İhtiyacınız olan toplantı odasını anında bulun ve kolayca ayırtın.{% endif %}{% endblock %}">
     <meta property="og:type" content="website">
     <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
-    <title>{{ gettext(title) }} - {{ gettext('Rezervasyon Sistemi') }}</title>
+    <title>{% if page_title %}{{ page_title }} - {% endif %}{{ site_title }}</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -226,12 +247,30 @@
         .nav-links {
             display: flex;
             align-items: center;
-            gap: 1rem;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .nav-links > a {
+            white-space: nowrap;
         }
 
         @media (max-width: 768px) {
+            /* Prevent iOS / Mobile Safari Auto-Zoom on Input Focus */
+            input, select, textarea {
+                font-size: 16px !important;
+            }
+
+            /* Touch Target Minimum Dimensions (44px rule) */
+            button, .btn, input[type="submit"], input[type="button"], select {
+                min-height: 44px;
+                touch-action: manipulation;
+            }
+
             .mobile-menu-btn {
                 display: block;
+                min-height: 44px;
+                min-width: 44px;
             }
 
             .nav-links {
@@ -247,6 +286,8 @@
                 border-bottom: 1px solid var(--border-color);
                 box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
                 z-index: 999;
+                max-height: 80vh;
+                overflow-y: auto;
             }
 
             .nav-links.active {
@@ -257,8 +298,12 @@
                 margin-left: 0 !important;
                 margin-bottom: 0.75rem;
                 width: 100%;
-                padding: 0.5rem 0;
+                padding: 0.75rem 0;
+                min-height: 44px;
+                display: flex;
+                align-items: center;
                 border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+                box-sizing: border-box;
             }
 
             #notifDropdownContainer,
@@ -275,7 +320,9 @@
             #notifMenu,
             #acceptedMenu {
                 position: static !important;
-                width: 100%;
+                width: 100% !important;
+                max-width: 100% !important;
+                box-sizing: border-box !important;
                 margin-top: 0.5rem;
             }
 
@@ -296,16 +343,17 @@
 
             /* Responsive Layout Adjustments */
             .container {
-                padding: 1rem !important;
+                padding: 1rem 0.75rem !important;
             }
 
             .glass-card {
-                padding: 1.5rem !important;
-                margin: 1rem auto !important;
+                padding: 1.25rem 1rem !important;
+                margin: 0.75rem auto !important;
+                border-radius: 12px !important;
             }
 
             .glass-card h2 {
-                font-size: 1.5rem !important;
+                font-size: 1.35rem !important;
             }
 
             .rnd-watermark {
@@ -315,6 +363,25 @@
             .watermark-spotlight-container {
                 width: 200vw !important;
                 height: 200vh !important;
+            }
+
+            /* Global Table Responsive Container on Mobile */
+            .table-responsive {
+                width: 100%;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                margin-bottom: 1rem;
+                border-radius: 8px;
+            }
+
+            /* Modal dialog scaling on Mobile */
+            .modal-content, .custom-modal-content {
+                width: 94vw !important;
+                max-width: 550px !important;
+                max-height: 85vh !important;
+                overflow-y: auto !important;
+                padding: 1.25rem 1rem !important;
+                box-sizing: border-box !important;
             }
 
             /* Mobile Specific Background Aesthetics */
@@ -635,10 +702,10 @@
             {% endif %}
 
             <div id="notifDropdownContainer"
-                style="position: relative; margin-left: 1rem; border-left: 1px solid rgba(255,255,255,0.1); padding-left: 1rem;">
+                style="position: relative; margin-left: 0.25rem; border-left: 1px solid rgba(255,255,255,0.1); padding-left: 0.75rem; display: flex; align-items: center;">
                 <button
                     onclick="const menu = document.getElementById('notifMenu'); menu.style.display = menu.style.display === 'none' ? 'block' : 'none';"
-                    style="background: none; border: none; color: #cbd5e1; cursor: pointer; position: relative; font-size: 1.25rem; padding: 0;">
+                    style="background: none; border: none; color: #cbd5e1; cursor: pointer; position: relative; font-size: 1.2rem; padding: 0; display: flex; align-items: center;">
                     🔔
                     {% if unread_notifications|length > 0 %}
                     <span id="notifBadge"
@@ -646,7 +713,7 @@
                     {% endif %}
                 </button>
                 <div id="notifMenu"
-                    style="display: none; position: absolute; right: 0; background: rgba(15, 23, 42, 0.95); border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5); -webkit-backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); min-width: 320px; z-index: 1000; border-radius: 8px; padding: 1rem; margin-top: 15px;">
+                    style="display: none; position: absolute; right: 0; top: calc(100% + 20px); background: rgba(15, 23, 42, 0.95); border: 1px solid rgba(255,255,255,0.15); box-shadow: 0 12px 30px -5px rgba(0, 0, 0, 0.6); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); min-width: 320px; z-index: 1000; border-radius: 12px; padding: 1rem;">
                     <div
                         style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.5rem; margin-bottom: 1rem;">
                         <h4 style="margin: 0; font-size: 1rem; color: white;">{{ gettext('Bildirimler') }}</h4>
@@ -680,19 +747,25 @@
                 </div>
             </div>
 
-            {% if upcoming_accepted_meetings %}
             <div id="acceptedDropdownContainer"
-                style="position: relative; margin-left: 1rem; padding-left: 1rem; border-left: 1px solid rgba(255,255,255,0.1);">
+                style="position: relative; margin-left: 0.25rem; border-left: 1px solid rgba(255,255,255,0.1); padding-left: 0.75rem; display: flex; align-items: center;">
                 <button
                     onclick="const menu = document.getElementById('acceptedMenu'); menu.style.display = menu.style.display === 'none' ? 'block' : 'none';"
-                    style="background: none; border: 1px solid rgba(16,185,129,0.5); border-radius: 6px; color: #10b981; cursor: pointer; font-size: 0.85rem; padding: 0.4rem 0.8rem; display: flex; align-items: center; gap: 0.4rem; transition: background 0.2s;">
-                    <span style="font-size: 0.9rem;">✅</span> {{ gettext('Kabul Edilen Toplantılar') }}
+                    style="background: rgba(16,185,129,0.15); border: 1px solid rgba(16,185,129,0.4); border-radius: 6px; color: #10b981; cursor: pointer; font-size: 0.8rem; font-weight: 600; padding: 0.35rem 0.65rem; display: inline-flex; align-items: center; gap: 0.35rem; transition: all 0.2s; white-space: nowrap;">
+                    <span>📅</span>
+                    <span>{{ gettext('Toplantılarım') }}</span>
+                    {% if upcoming_accepted_meetings|length > 0 %}
+                    <span style="background: #10b981; color: white; border-radius: 10px; font-size: 0.7rem; padding: 1px 6px; font-weight: bold;">{{ upcoming_accepted_meetings|length }}</span>
+                    {% endif %}
                 </button>
                 <div id="acceptedMenu"
-                    style="display: none; position: absolute; right: 0; background: rgba(15, 23, 42, 0.95); border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5); -webkit-backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); min-width: 250px; z-index: 1000; border-radius: 8px; padding: 1rem; margin-top: 15px;">
+                    style="display: none; position: absolute; right: 0; top: calc(100% + 20px); background: rgba(15, 23, 42, 0.95); border: 1px solid rgba(255,255,255,0.15); box-shadow: 0 12px 30px -5px rgba(0, 0, 0, 0.6); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); min-width: 270px; z-index: 1000; border-radius: 12px; padding: 1rem;">
                     <h4
-                        style="margin: 0 0 0.75rem 0; font-size: 0.9rem; color: white; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.5rem;">
-                        {{ gettext('Yaklaşan Toplantılar') }}</h4>
+                        style="margin: 0 0 0.75rem 0; font-size: 0.875rem; color: white; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.5rem; display: flex; align-items: center; justify-content: space-between;">
+                        <span>{{ gettext('Yaklaşan Toplantılarım') }}</span>
+                        <span style="background: rgba(16,185,129,0.2); color: #10b981; font-size: 0.75rem; padding: 2px 6px; border-radius: 4px;">{{ upcoming_accepted_meetings|length }}</span>
+                    </h4>
+                    {% if upcoming_accepted_meetings %}
                     {% for meeting in upcoming_accepted_meetings %}
                     <div
                         style="border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 0.5rem; margin-bottom: 0.5rem; display: flex; flex-direction: column; gap: 0.25rem;">
@@ -713,28 +786,36 @@
                         </a>
                     </div>
                     {% endfor %}
+                    <a href="{{ url_for('main.dashboard') }}" style="display: block; text-align: center; margin-top: 0.5rem; font-size: 0.75rem; color: #818cf8; text-decoration: none; font-weight: 500;">
+                        {{ gettext('Tümünü Gör (Kontrol Paneli) ➔') }}
+                    </a>
+                    {% else %}
+                    <p style="font-size: 0.8rem; color: #94a3b8; margin: 0.5rem 0; text-align: center;">{{ gettext('Yaklaşan toplantınız bulunmuyor.') }}</p>
+                    <a href="{{ url_for('main.rooms') }}" style="display: block; text-align: center; margin-top: 0.5rem; font-size: 0.75rem; background: #4f46e5; color: white; padding: 4px 8px; border-radius: 5px; text-decoration: none; font-weight: bold;">
+                        + {{ gettext('Yeni Rezervasyon Yap') }}
+                    </a>
+                    {% endif %}
                 </div>
             </div>
-            {% endif %}
 
             <a href="{{ url_for('main.profile') }}" style="text-decoration: none;">
                 <div class="profile-avatar-container"
-                    style="display: flex; align-items: center; gap: 0.5rem; margin-left: 1rem; padding-left: 1rem; border-left: 1px solid rgba(255,255,255,0.1); cursor: pointer;">
+                    style="display: flex; align-items: center; gap: 0.5rem; margin-left: 0.25rem; padding-left: 0.75rem; border-left: 1px solid rgba(255,255,255,0.1); cursor: pointer;">
                     {% if current_user.profile_image != 'default.jpg' %}
                     <img src="{{ url_for('static', filename='profile_pics/' + current_user.profile_image) }}"
                         class="avatar" title="{{ current_user.username }}" style="object-fit: cover;">
                     {% else %}
                     <div class="avatar" title="{{ current_user.username }}">{{ current_user.username[0] }}</div>
                     {% endif %}
-                    <span style="color: #cbd5e1; font-weight: 500;">{{ current_user.username }}</span>
+                    <span style="color: #cbd5e1; font-weight: 500; font-size: 0.875rem;">{{ current_user.username }}</span>
                 </div>
             </a>
             <!-- Notifications Toggle -->
             <button id="enableNotificationsBtn" class="btn"
-                style="background: rgba(245, 158, 11, 0.2); border: 1px solid #f59e0b; color: #f59e0b; font-size: 0.8rem; padding: 0.4rem 0.8rem; margin-left: 1rem; display: none; align-items: center; gap: 0.4rem;">
+                style="background: rgba(245, 158, 11, 0.2); border: 1px solid #f59e0b; color: #f59e0b; font-size: 0.8rem; padding: 0.35rem 0.65rem; margin-left: 0.25rem; display: none; align-items: center; gap: 0.4rem; white-space: nowrap; width: auto;">
                 <i class="fas fa-bell"></i> {{ gettext('Bildirimleri Aç') }}
             </button>
-            <a href="{{ url_for('auth.logout') }}" style="color: #ef4444; margin-left: 1rem;">{{ gettext('Çıkış Yap') }}</a>
+            <a href="{{ url_for('auth.logout') }}" style="color: #ef4444; margin-left: 0.25rem; white-space: nowrap;">{{ gettext('Çıkış Yap') }}</a>
             {% else %}
             <a href="{{ url_for('auth.login') }}">{{ gettext('Giriş Yap') }}</a>
             <a href="{{ url_for('auth.register') }}">{{ gettext('Kayıt Ol') }}</a>
@@ -742,7 +823,7 @@
 
             <!-- Language Switcher -->
             <div class="lang-switcher"
-                style="margin-left: 1rem; border-left: 1px solid rgba(255,255,255,0.2); padding-left: 1rem; display: flex; gap: 0.5rem;">
+                style="margin-left: 0.25rem; border-left: 1px solid rgba(255,255,255,0.2); padding-left: 0.75rem; display: flex; gap: 0.4rem; align-items: center;">
                 <a href="{{ url_for('main.change_language', lang_code='tr') }}"
                     style="color: {{ '#10b981' if current_lang == 'tr' else '#94a3b8' }}; font-weight: bold; text-decoration: none;">TR</a>
                 <span style="color: #475569;">|</span>
@@ -1025,28 +1106,50 @@
     <!-- AI Robot Widget -->
     <div id="ai-robot-widget" style="position: fixed; bottom: 20px; right: 20px; z-index: 9999;">
         <!-- Chat Window -->
-        <div id="ai-chat-window" style="display: none; width: 300px; background: rgba(15, 23, 42, 0.95); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5); overflow: hidden; margin-bottom: 15px; flex-direction: column;">
+        <div id="ai-chat-window" style="display: none; width: 320px; max-width: calc(100vw - 30px); background: rgba(15, 23, 42, 0.96); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.15); border-radius: 14px; box-shadow: 0 12px 30px -5px rgba(0, 0, 0, 0.6); overflow: hidden; margin-bottom: 15px; flex-direction: column;">
             <div style="background: var(--primary); padding: 10px 15px; color: white; font-weight: bold; display: flex; justify-content: space-between; align-items: center;">
                 <span>🤖 {% if current_lang == 'en' %}Smart Assistant{% else %}Akıllı Asistan{% endif %}</span>
-                <button onclick="document.getElementById('ai-chat-window').style.display='none'" style="background: none; border: none; color: white; cursor: pointer; font-size: 16px;">✖</button>
+                <div style="display: flex; gap: 8px; align-items: center;">
+                    <button onclick="clearAiChat()" title="{% if current_lang == 'en' %}Clear History{% else %}Sohbet Geçmişini Temizle{% endif %}" style="background: none; border: none; color: #cbd5e1; cursor: pointer; font-size: 13px;">🗑️</button>
+                    <button onclick="closeAiChat()" style="background: none; border: none; color: white; cursor: pointer; font-size: 16px;">✖</button>
+                </div>
             </div>
-            <div id="ai-chat-messages" style="height: 250px; padding: 15px; overflow-y: auto; color: #cbd5e1; font-size: 0.9rem; display: flex; flex-direction: column; gap: 10px;">
-                <div style="background: rgba(255,255,255,0.1); padding: 8px 12px; border-radius: 8px; align-self: flex-start; max-width: 80%;">
+            <div id="ai-chat-messages" style="height: 330px; max-height: 52vh; padding: 10px; overflow-y: auto; color: #cbd5e1; font-size: 0.82rem; line-height: 1.35; display: flex; flex-direction: column; gap: 6px;">
+                <div style="background: rgba(255,255,255,0.1); padding: 12px 14px; border-radius: 10px; align-self: flex-start; max-width: 92%;">
                     {% if current_lang == 'en' %}
-                    Hello! I am your smart assistant. You can book a room by typing a natural sentence. For example:<br><br><i>"Book the Innovation room on 21.07.2026 between 14:00 and 15:00"</i>
+                    Hello! I am your smart assistant. You can perform actions by typing a natural sentence or click below to see quick options:<br><br>
+                    <button type="button" onclick="sendQuickChoice('menu', '⚡ Quick Menu Options')" style="background: var(--primary); color: white; border: none; padding: 8px 14px; border-radius: 8px; font-weight: bold; font-size: 0.8rem; cursor: pointer; width: 100%; transition: all 0.2s; box-shadow: 0 4px 10px rgba(79, 70, 229, 0.4);">⚡ Click for Quick Menu Options</button>
                     {% else %}
-                    Merhaba! Ben akıllı asistanınız. İstediğiniz bir odayı doğal bir cümle kurarak benim aracılığımla rezerve edebilirsiniz. Örneğin:<br><br><i>"İnovasyon odasını 21.07.2026 saat 14:00 - 15:00 arasına rezerve et"</i>
+                    Merhaba! Ben akıllı asistanınız. İstediğiniz bir odayı doğal bir cümle kurarak rezerve edebilir veya hızlı menüyü açmak için tıklayabilirsiniz:<br><br>
+                    <button type="button" onclick="sendQuickChoice('menu', '⚡ Hızlı Menü')" style="background: var(--primary); color: white; border: none; padding: 8px 14px; border-radius: 8px; font-weight: bold; font-size: 0.8rem; cursor: pointer; width: 100%; transition: all 0.2s; box-shadow: 0 4px 10px rgba(79, 70, 229, 0.4);">⚡ Hızlı Butonlara Erişim İçin Tıklayın</button>
                     {% endif %}
                 </div>
             </div>
-            <div style="padding: 10px; border-top: 1px solid rgba(255,255,255,0.1); display: flex; gap: 5px;">
-                <input type="text" id="ai-chat-input" placeholder="{% if current_lang == 'en' %}Type your command...{% else %}Komutunuzu yazın...{% endif %}" style="flex: 1; padding: 8px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.3); color: white; outline: none; font-size: 0.85rem;" onkeypress="if(event.key === 'Enter') sendAiCommand()">
-                <button onclick="sendAiCommand()" style="background: var(--primary); border: none; border-radius: 6px; color: white; padding: 0 12px; cursor: pointer;">{% if current_lang == 'en' %}Send{% else %}Gönder{% endif %}</button>
+            <div style="padding: 8px 10px; border-top: 1px solid rgba(255,255,255,0.1); display: flex; gap: 4px; align-items: center;">
+                <input type="text" id="ai-chat-input" placeholder="{% if current_lang == 'en' %}Type command...{% else %}Komutunuzu yazın...{% endif %}" style="flex: 1; min-width: 0; padding: 8px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.3); color: white; outline: none; font-size: 0.82rem;" onkeypress="if(event.key === 'Enter') sendAiCommand()">
+                <button id="ai-mic-btn" onclick="toggleVoiceRecognition()" type="button" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; color: white; width: 34px; height: 34px; flex-shrink: 0; cursor: pointer; font-size: 0.95rem; transition: all 0.3s ease; display: inline-flex; align-items: center; justify-content: center;" title="{% if current_lang == 'en' %}Voice Command{% else %}Sesli Komut{% endif %}">🎤</button>
+                <button onclick="sendAiCommand()" type="button" style="background: var(--primary); border: none; border-radius: 6px; color: white; padding: 0 10px; height: 34px; flex-shrink: 0; white-space: nowrap; font-size: 0.82rem; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 3px;">
+                    <span>{% if current_lang == 'en' %}Send{% else %}Gönder{% endif %}</span> ➔
+                </button>
             </div>
         </div>
         
         <!-- Floating Button -->
         <style>
+            #ai-chat-messages::-webkit-scrollbar {
+                width: 6px;
+            }
+            #ai-chat-messages::-webkit-scrollbar-track {
+                background: rgba(0, 0, 0, 0.2);
+                border-radius: 3px;
+            }
+            #ai-chat-messages::-webkit-scrollbar-thumb {
+                background: rgba(255, 255, 255, 0.2);
+                border-radius: 3px;
+            }
+            #ai-chat-messages::-webkit-scrollbar-thumb:hover {
+                background: rgba(255, 255, 255, 0.4);
+            }
             @keyframes robot-float {
                 0% { transform: translateY(0px); box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
                 50% { transform: translateY(-8px); box-shadow: 0 12px 20px rgba(0,0,0,0.4); }
@@ -1109,26 +1212,171 @@
     <script>
         function toggleAiChat() {
             const chat = document.getElementById('ai-chat-window');
-            chat.style.display = chat.style.display === 'none' || chat.style.display === '' ? 'flex' : 'none';
-            if (chat.style.display === 'flex') {
+            const isHidden = chat.style.display === 'none' || chat.style.display === '';
+            chat.style.display = isHidden ? 'flex' : 'none';
+            if (isHidden) {
+                sessionStorage.setItem('ai_chat_open', 'true');
                 document.getElementById('ai-chat-input').focus();
+            } else {
+                sessionStorage.setItem('ai_chat_open', 'false');
             }
         }
 
-        async function sendAiCommand() {
+        function closeAiChat() {
+            const chat = document.getElementById('ai-chat-window');
+            if (chat) {
+                chat.style.display = 'none';
+                sessionStorage.setItem('ai_chat_open', 'false');
+            }
+        }
+
+        function clearAiChat() {
+            sessionStorage.removeItem('ai_chat_messages_html');
+            window.location.reload();
+        }
+
+        let voiceRecognition = null;
+        let isListening = false;
+
+        function toggleVoiceRecognition() {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            const micBtn = document.getElementById('ai-mic-btn');
+            const input = document.getElementById('ai-chat-input');
+            
+            if (!SpeechRecognition) {
+                alert("{% if current_lang == 'en' %}Voice recognition is not supported in your browser. Please use Chrome or Edge.{% else %}Tarayıcınız sesli komut özelliğini desteklemiyor. Lütfen Chrome veya Edge kullanın.{% endif %}");
+                return;
+            }
+
+            if (isListening && voiceRecognition) {
+                voiceRecognition.stop();
+                return;
+            }
+
+            try {
+                voiceRecognition = new SpeechRecognition();
+                voiceRecognition.continuous = false;
+                voiceRecognition.interimResults = true;
+                voiceRecognition.lang = "{% if current_lang == 'en' %}en-US{% else %}tr-TR{% endif %}";
+
+                voiceRecognition.onstart = function() {
+                    isListening = true;
+                    if (micBtn) {
+                        micBtn.style.background = '#ef4444';
+                        micBtn.style.borderColor = '#ef4444';
+                        micBtn.style.boxShadow = '0 0 12px rgba(239, 68, 68, 0.8)';
+                        micBtn.innerHTML = '🛑';
+                    }
+                    if (input) {
+                        input.placeholder = "{% if current_lang == 'en' %}Listening... Speak now{% else %}Dinleniyor... Konuşabilirsiniz{% endif %}";
+                    }
+                };
+
+                voiceRecognition.onresult = function(event) {
+                    let transcript = '';
+                    for (let i = event.resultIndex; i < event.results.length; i++) {
+                        transcript += event.results[i][0].transcript;
+                    }
+                    if (input) {
+                        input.value = transcript;
+                    }
+                };
+
+                voiceRecognition.onerror = function(event) {
+                    console.error('Voice recognition error:', event.error);
+                    stopListeningUI();
+                };
+
+                voiceRecognition.onend = function() {
+                    stopListeningUI();
+                    if (input && input.value.trim().length > 0) {
+                        sendAiCommand();
+                    }
+                };
+
+                voiceRecognition.start();
+            } catch (err) {
+                console.error(err);
+                stopListeningUI();
+            }
+        }
+
+        function stopListeningUI() {
+            isListening = false;
+            const micBtn = document.getElementById('ai-mic-btn');
+            const input = document.getElementById('ai-chat-input');
+            if (micBtn) {
+                micBtn.style.background = 'rgba(255,255,255,0.1)';
+                micBtn.style.borderColor = 'rgba(255,255,255,0.2)';
+                micBtn.style.boxShadow = 'none';
+                micBtn.innerHTML = '🎤';
+            }
+            if (input) {
+                input.placeholder = "{% if current_lang == 'en' %}Type your command...{% else %}Komutunuzu yazın...{% endif %}";
+            }
+        }
+
+        function sendQuickChoice(text, displayText) {
+            sendAiCommand(text, displayText);
+        }
+
+        function saveChatHistory() {
+            const msgs = document.getElementById('ai-chat-messages');
+            if (msgs) {
+                sessionStorage.setItem('ai_chat_messages_html', msgs.innerHTML);
+                sessionStorage.setItem('ai_chat_user_id', "{{ current_user.id if current_user.is_authenticated else 'guest' }}");
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const chat = document.getElementById('ai-chat-window');
+            const msgs = document.getElementById('ai-chat-messages');
+            
+            const currentUserId = "{{ current_user.id if current_user.is_authenticated else 'guest' }}";
+            const storedUserId = sessionStorage.getItem('ai_chat_user_id');
+
+            if (storedUserId !== null && storedUserId !== currentUserId) {
+                sessionStorage.removeItem('ai_chat_messages_html');
+                sessionStorage.removeItem('ai_chat_open');
+            }
+            sessionStorage.setItem('ai_chat_user_id', currentUserId);
+
+            const savedMsgs = sessionStorage.getItem('ai_chat_messages_html');
+            if (savedMsgs && msgs) {
+                msgs.innerHTML = savedMsgs;
+                msgs.scrollTop = msgs.scrollHeight;
+            }
+
+            if (sessionStorage.getItem('ai_chat_open') === 'true' && chat) {
+                chat.style.display = 'flex';
+            }
+        });
+
+        async function sendAiCommand(commandOverride, displayOverride) {
             const input = document.getElementById('ai-chat-input');
             const msgs = document.getElementById('ai-chat-messages');
-            const text = input.value.trim();
+            const text = (typeof commandOverride === 'string' && commandOverride) ? commandOverride : (input ? input.value.trim() : '');
             if (!text) return;
             
+            let userDisplay = displayOverride;
+            if (!userDisplay) {
+                if (text.startsWith('cancel_res_')) {
+                    userDisplay = '{% if current_lang == "en" %}🗑️ Cancel Reservation{% else %}🗑️ İptal Et{% endif %}';
+                } else {
+                    userDisplay = text;
+                }
+            }
+
             // Add user message
-            msgs.innerHTML += `<div style="background: var(--primary); padding: 8px 12px; border-radius: 8px; align-self: flex-end; max-width: 80%; color: white;">${text}</div>`;
-            input.value = '';
+            msgs.innerHTML += `<div style="background: var(--primary); padding: 8px 12px; border-radius: 8px; align-self: flex-end; max-width: 80%; color: white;">${userDisplay}</div>`;
+            if (input && !commandOverride) input.value = '';
             msgs.scrollTop = msgs.scrollHeight;
+            saveChatHistory();
 
             {% if not current_user.is_authenticated %}
             msgs.innerHTML += `<div style="background: rgba(255,255,255,0.1); border-left: 3px solid #ef4444; padding: 8px 12px; border-radius: 8px; align-self: flex-start; max-width: 80%;">{% if current_lang == 'en' %}Please log in to use this feature.{% else %}Bu özelliği kullanabilmek için lütfen önce giriş yapın.{% endif %}</div>`;
             msgs.scrollTop = msgs.scrollHeight;
+            saveChatHistory();
             return;
             {% endif %}
 
@@ -1146,28 +1394,53 @@
                 const data = await res.json();
                 
                 // Remove loading
-                document.getElementById(loadingId).remove();
+                const loadingElem = document.getElementById(loadingId);
+                if (loadingElem) loadingElem.remove();
 
                 // Add AI response
                 let color = data.success ? '#10b981' : '#ef4444';
                 let defaultMsg = data.success ? '{% if current_lang == "en" %}Operation successful{% else %}İşlem başarılı{% endif %}' : '{% if current_lang == "en" %}An error occurred{% else %}Bir hata oluştu{% endif %}';
                 msgs.innerHTML += `<div style="background: rgba(255,255,255,0.1); border-left: 3px solid ${color}; padding: 8px 12px; border-radius: 8px; align-self: flex-start; max-width: 80%;">${data.message || defaultMsg}</div>`;
                 msgs.scrollTop = msgs.scrollHeight;
+                saveChatHistory();
                 
                 if (data.success && data.reload !== false) {
                     setTimeout(() => window.location.reload(), 2000);
                 }
                 
                 if (data.close_chat) {
-                    setTimeout(() => toggleAiChat(), 1500);
+                    setTimeout(() => closeAiChat(), 1500);
                 }
             } catch (err) {
-                document.getElementById(loadingId).remove();
+                const loadingElem = document.getElementById(loadingId);
+                if (loadingElem) loadingElem.remove();
                 let errMsg = '{% if current_lang == "en" %}Connection failed.{% else %}Sunucuya bağlanılamadı.{% endif %}';
                 msgs.innerHTML += `<div style="background: rgba(255,255,255,0.1); border-left: 3px solid #ef4444; padding: 8px 12px; border-radius: 8px; align-self: flex-start; max-width: 80%;">${errMsg}</div>`;
                 msgs.scrollTop = msgs.scrollHeight;
+                saveChatHistory();
             }
         }
+
+        // Mobile Menu Click Outside & Link Close Handler
+        document.addEventListener('click', function(e) {
+            const navLinks = document.getElementById('navLinks');
+            const menuBtn = document.querySelector('.mobile-menu-btn');
+            if (navLinks && navLinks.classList.contains('active')) {
+                if (!navLinks.contains(e.target) && (!menuBtn || !menuBtn.contains(e.target))) {
+                    navLinks.classList.remove('active');
+                }
+            }
+        });
+        document.addEventListener('DOMContentLoaded', function() {
+            const navLinks = document.getElementById('navLinks');
+            if (navLinks) {
+                navLinks.querySelectorAll('a').forEach(link => {
+                    link.addEventListener('click', () => {
+                        navLinks.classList.remove('active');
+                    });
+                });
+            }
+        });
     </script>
 </body>
 </html>

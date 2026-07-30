@@ -11,7 +11,7 @@ def get_turkey_time():
 
 @login_manager.user_loader
 def load_user(user_id):
-    return User.query.get(int(user_id))
+    return db.session.get(User, int(user_id))
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -22,6 +22,9 @@ class User(UserMixin, db.Model):
     last_name = db.Column(db.String(50), nullable=True)
     is_admin = db.Column(db.Boolean, default=False)
     profile_image = db.Column(db.String(120), nullable=False, default='default.jpg')
+    is_verified = db.Column(db.Boolean, default=False, nullable=False)
+    verification_code = db.Column(db.String(6), nullable=True)
+    verification_code_expires_at = db.Column(db.DateTime, nullable=True)
     
     @property
     def full_name(self):
@@ -92,6 +95,7 @@ class Reservation(db.Model):
     
     created_at = db.Column(db.DateTime, nullable=False, default=get_turkey_time)
     checked_in = db.Column(db.Boolean, default=False)
+    recurrence_id = db.Column(db.String(50), nullable=True)
 
     # Relationships
     attendees = db.relationship('User', secondary=reservation_attendees, lazy='subquery', backref=db.backref('invited_reservations', lazy=True))
@@ -112,7 +116,7 @@ class AuditLog(db.Model):
     def user(self):
         from app.models import User
         if self.user_id:
-            return User.query.get(self.user_id)
+            return db.session.get(User, self.user_id)
         return None
 
 class Notification(db.Model):

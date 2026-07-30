@@ -1,6 +1,7 @@
 from functools import wraps
-from flask import abort
+from flask import abort, current_app
 from flask_login import current_user
+from itsdangerous import URLSafeSerializer
 
 # send_email removed
 
@@ -128,13 +129,17 @@ def log_action(user_id, action, details=None):
     # Artık kayıtlar logs.db'de sonsuza kadar kalacak, silinmeyecek.
 
 
-def send_reset_email(user):
+def send_reset_email(user, lang=None):
     import smtplib
     from email.mime.text import MIMEText
     from email.mime.multipart import MIMEMultipart
-    from flask import current_app, url_for
+    from flask import current_app, url_for, session, g
 
     try:
+        if not lang:
+            lang = getattr(g, 'current_lang', None) or session.get('lang') or 'tr'
+
+        is_en = (lang == 'en')
         token = user.get_reset_token()
         reset_url = url_for('auth.reset_token', token=token, _external=True)
 
@@ -149,19 +154,41 @@ def send_reset_email(user):
             return False
 
         msg = MIMEMultipart('alternative')
-        msg['Subject'] = "Şifre Sıfırlama Talebi - Toplantı Odası Rezervasyon Sistemi"
-        msg['From'] = sender
-        msg['To'] = user.email
+        
+        if is_en:
+            msg['Subject'] = "Password Reset Request - Meeting Room Reservation System"
+            text_body = f"""Hello {user.username},
 
-        text_body = f"""Merhaba {user.username},
+To reset your password, please click the following link:
+{reset_url}
+
+If you did not request this, please ignore this email.
+"""
+            html_body = f"""
+        <div style="font-family: Arial, sans-serif; background-color: #0f172a; padding: 30px; color: #ffffff;">
+            <div style="max-width: 600px; margin: 0 auto; background: #1e293b; border-radius: 12px; padding: 25px; border: 1px solid rgba(255,255,255,0.1);">
+                <h2 style="color: #4F46E5; margin-top: 0;">🔒 Password Reset Request</h2>
+                <p style="color: #cbd5e1; font-size: 16px;">Hello <strong>{user.username}</strong>,</p>
+                <p style="color: #cbd5e1; font-size: 15px; line-height: 1.6;">A password reset request was made for your account in the Meeting Room Reservation System. Click the button below to set a new password:</p>
+                <div style="text-align: center; margin: 30px 0;">
+                    <a href="{reset_url}" style="background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%); color: white; padding: 12px 28px; border-radius: 8px; text-decoration: none; font-weight: bold; display: inline-block;">Reset Password</a>
+                </div>
+                <p style="color: #94a3b8; font-size: 13px;">If the button does not work, you can copy and paste the following link into your browser:<br><a href="{reset_url}" style="color: #818cf8;">{reset_url}</a></p>
+                <hr style="border: none; border-top: 1px solid rgba(255,255,255,0.1); margin: 25px 0;">
+                <p style="color: #64748b; font-size: 12px; margin-bottom: 0;">If you did not make this request, you can safely ignore this email. Your password will remain unchanged.</p>
+            </div>
+        </div>
+        """
+        else:
+            msg['Subject'] = "Şifre Sıfırlama Talebi - Toplantı Odası Rezervasyon Sistemi"
+            text_body = f"""Merhaba {user.username},
 
 Şifrenizi sıfırlamak için aşağıdaki bağlantıya tıklayın:
 {reset_url}
 
 Bu talebi siz yapmadıysanız lütfen bu e-postayı dikkate almayın.
 """
-
-        html_body = f"""
+            html_body = f"""
         <div style="font-family: Arial, sans-serif; background-color: #0f172a; padding: 30px; color: #ffffff;">
             <div style="max-width: 600px; margin: 0 auto; background: #1e293b; border-radius: 12px; padding: 25px; border: 1px solid rgba(255,255,255,0.1);">
                 <h2 style="color: #4F46E5; margin-top: 0;">🔒 Şifre Sıfırlama Talebi</h2>
@@ -177,6 +204,9 @@ Bu talebi siz yapmadıysanız lütfen bu e-postayı dikkate almayın.
         </div>
         """
 
+        msg['From'] = sender
+        msg['To'] = user.email
+
         msg.attach(MIMEText(text_body, 'plain', 'utf-8'))
         msg.attach(MIMEText(html_body, 'html', 'utf-8'))
 
@@ -191,34 +221,87 @@ Bu talebi siz yapmadıysanız lütfen bu e-postayı dikkate almayın.
         return False
 
 
-def generate_qr_token(reservation_id, user_id):
-    from itsdangerous import URLSafeSerializer
+def send_verification_code_email(user, code):
+    import smtplib
+    from email.mime.text import MIMEText
+    from email.mime.multipart import MIMEMultipart
     from flask import current_app
+
+    current_app.logger.info(f"=== E-POSTA DOĞRULAMA KODU [{user.email}]: {code} ===")
+
+    try:
+        mail_server = str(current_app.config.get('MAIL_SERVER') or 'smtp.gmail.com').strip()
+        mail_port = int(current_app.config.get('MAIL_PORT') or 587)
+        mail_username = str(current_app.config.get('MAIL_USERNAME') or '').strip()
+        mail_password = str(current_app.config.get('MAIL_PASSWORD') or '').strip()
+        sender = str(current_app.config.get('MAIL_DEFAULT_SENDER') or mail_username).strip()
+
+        if not mail_username or not mail_password:
+            current_app.logger.warning("Mail credentials (MAIL_USERNAME/MAIL_PASSWORD) missing in config. Code logged above.")
+            return True
+
+        msg = MIMEMultipart('alternative')
+        msg['Subject'] = f"{code} - E-posta Doğrulama Kodu | Toplantı Odası Rezervasyonu"
+        msg['From'] = sender
+        msg['To'] = user.email
+
+        text_body = f"""Merhaba {user.username},
+
+Hesabınızı aktifleştirmek için e-posta doğrulama kodunuz: {code}
+
+Bu kod 15 dakika boyunca geçerlidir.
+"""
+
+        html_body = f"""
+        <div style="font-family: Arial, sans-serif; background-color: #0f172a; padding: 30px; color: #ffffff;">
+            <div style="max-width: 600px; margin: 0 auto; background: #1e293b; border-radius: 12px; padding: 25px; border: 1px solid rgba(255,255,255,0.1); text-align: center;">
+                <h2 style="color: #4F46E5; margin-top: 0;">✉️ E-posta Doğrulama Kodu</h2>
+                <p style="color: #cbd5e1; font-size: 16px;">Merhaba <strong>{user.username}</strong>,</p>
+                <p style="color: #cbd5e1; font-size: 15px; line-height: 1.6;">Toplantı Odası Rezervasyon Sistemindeki hesabınızı aktifleştirmek için aşağıdaki 6 haneli doğrulama kodunu kullanın:</p>
+                <div style="background: rgba(79, 70, 229, 0.15); border: 2px dashed #4F46E5; border-radius: 12px; padding: 20px; margin: 25px 0;">
+                    <span style="font-size: 36px; font-weight: 800; letter-spacing: 8px; color: #818CF8; font-family: monospace;">{code}</span>
+                </div>
+                <p style="color: #94a3b8; font-size: 13px;">Bu doğrulama kodu <strong>15 dakika</strong> boyunca geçerlidir.</p>
+                <hr style="border: none; border-top: 1px solid rgba(255,255,255,0.1); margin: 25px 0;">
+                <p style="color: #64748b; font-size: 12px; margin-bottom: 0;">Bu işlemi siz yapmadıysanız lütfen bu e-postayı dikkate almayın.</p>
+            </div>
+        </div>
+        """
+
+        msg.attach(MIMEText(text_body, 'plain', 'utf-8'))
+        msg.attach(MIMEText(html_body, 'html', 'utf-8'))
+
+        server = smtplib.SMTP(mail_server, mail_port, timeout=10)
+        server.starttls()
+        server.login(mail_username, mail_password)
+        server.sendmail(sender, [user.email], msg.as_string())
+        server.quit()
+        return True
+    except Exception as e:
+        current_app.logger.error(f"Failed to send verification code email: {e}", exc_info=True)
+        return False
+
+
+def generate_qr_token(reservation_id, user_id):
     s = URLSafeSerializer(current_app.config['SECRET_KEY'], salt='qr-token')
     return s.dumps({'reservation_id': reservation_id, 'user_id': user_id})
 
 def verify_qr_token(token):
-    from itsdangerous import URLSafeSerializer
-    from flask import current_app
     s = URLSafeSerializer(current_app.config['SECRET_KEY'], salt='qr-token')
     try:
         data = s.loads(token)
         return data.get('reservation_id'), data.get('user_id')
-    except:
+    except Exception:
         return None, None
 
 def generate_exit_qr_token(reservation_id, user_id):
-    from itsdangerous import URLSafeSerializer
-    from flask import current_app
     s = URLSafeSerializer(current_app.config['SECRET_KEY'], salt='exit-qr-token')
     return s.dumps({'reservation_id': reservation_id, 'user_id': user_id})
 
 def verify_exit_qr_token(token):
-    from itsdangerous import URLSafeSerializer
-    from flask import current_app
     s = URLSafeSerializer(current_app.config['SECRET_KEY'], salt='exit-qr-token')
     try:
         data = s.loads(token)
         return data.get('reservation_id'), data.get('user_id')
-    except:
+    except Exception:
         return None, None

@@ -249,17 +249,35 @@
                 </div>
             </div>
 
+            <div style="margin-top: 1.5rem;">
+                <label style="display: block; color: #cbd5e1; margin-bottom: 0.5rem; font-weight: 500; font-size: 0.9rem;">
+                    {% if current_lang == 'en' %}Repeat Option{% else %}Tekrar Seçeneği{% endif %}
+                </label>
+                <select name="repeat_weeks" class="form-control" style="background: rgba(15, 23, 42, 0.9); color: white; border: 1px solid var(--border-color); padding: 0.75rem; border-radius: 0.5rem; width: 100%;">
+                    <option value="0" style="background: #1e293b; color: white;">{% if current_lang == 'en' %}One-time (Do Not Repeat){% else %}Tek Seferlik (Tekrar Etme){% endif %}</option>
+                    <option value="1" style="background: #1e293b; color: white;">{% if current_lang == 'en' %}Weekly (2 Weeks Total){% else %}Her Hafta (Toplam 2 Hafta){% endif %}</option>
+                    <option value="2" style="background: #1e293b; color: white;">{% if current_lang == 'en' %}Weekly (3 Weeks Total){% else %}Her Hafta (Toplam 3 Hafta){% endif %}</option>
+                    <option value="3" style="background: #1e293b; color: white;">{% if current_lang == 'en' %}Weekly (4 Weeks Total){% else %}Her Hafta (Toplam 4 Hafta){% endif %}</option>
+                </select>
+            </div>
+
             <div style="margin-top: 2rem;">
-                <label style="display: block; color: #cbd5e1; margin-bottom: 0.5rem; font-weight: 500;">{{ gettext('Kişileri Davet Et (Opsiyonel)') }}</label>
-                <div class="attendees-list" style="max-height: 250px; min-height: 120px; overflow-y: auto; -webkit-overflow-scrolling: touch; background: rgba(0,0,0,0.2); border: 1px solid var(--border-color); border-radius: 0.5rem; padding: 0.5rem;">
+                <label style="display: block; color: #cbd5e1; margin-bottom: 0.5rem; font-weight: 500; font-size: 0.9rem;">{{ gettext('Kişileri Davet Et (Opsiyonel)') }}</label>
+                <div class="attendees-list" style="max-height: 180px; min-height: 80px; overflow-y: auto; -webkit-overflow-scrolling: touch; background: rgba(0,0,0,0.2); border: 1px solid var(--border-color); border-radius: 0.5rem; padding: 0.35rem;">
                     {% for user in all_users %}
-                    <label style="display: flex; align-items: center; padding: 0.75rem 0.5rem; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.05); color: white; margin: 0; min-height: 44px; transition: background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='transparent'">
-                        <input type="checkbox" name="attendees" value="{{ user.id }}" style="margin-right: 0.75rem; width: 1.5rem; height: 1.5rem; cursor: pointer;">
-                        <span style="font-size: 1rem;">{{ user.username }}</span>
+                    <label style="display: flex; align-items: center; padding: 0.35rem 0.5rem; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.05); color: #e2e8f0; margin: 0; min-height: 32px; border-radius: 4px; transition: background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='transparent'">
+                        <input type="checkbox" name="attendees" value="{{ user.id }}" style="margin-right: 0.5rem; width: 1.1rem; height: 1.1rem; cursor: pointer; accent-color: #6366f1;">
+                        <span style="font-size: 0.85rem;">
+                            {% if user.first_name and user.last_name %}
+                                {{ user.first_name }} {{ user.last_name }} <small style="color: #94a3b8; font-size: 0.75rem;">({{ user.username }})</small>
+                            {% else %}
+                                {{ user.username }}
+                            {% endif %}
+                        </span>
                     </label>
                     {% endfor %}
                     {% if not all_users %}
-                    <div style="padding: 1rem 0.5rem; color: #94a3b8; font-style: italic; text-align: center;">Sistemde davet edilecek başka kullanıcı bulunmuyor.</div>
+                    <div style="padding: 0.75rem 0.5rem; color: #94a3b8; font-style: italic; text-align: center; font-size: 0.85rem;">Sistemde davet edilecek başka kullanıcı bulunmuyor.</div>
                     {% endif %}
                 </div>
             </div>

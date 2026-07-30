@@ -1,5 +1,5 @@
 import os
-from flask import Flask, request, session
+from flask import Flask, request, session, render_template
 from app.config import Config
 from app.extensions import db, login_manager, bcrypt, babel, scheduler
 
@@ -9,7 +9,6 @@ def get_locale():
     return request.accept_languages.best_match(['tr', 'en']) or 'tr'
 
 def compile_translations(app):
-    import os
     import polib
     try:
         po_path = os.path.join(app.root_path, 'translations', 'en', 'LC_MESSAGES', 'messages.po')
@@ -133,7 +132,7 @@ def create_app(config_class=Config):
             admin = User.query.filter_by(email=admin_email).first()
             if not admin:
                 hashed_password = bcrypt.generate_password_hash('admin123').decode('utf-8')
-                admin = User(username='Admin', email=admin_email, password_hash=hashed_password, is_admin=True)
+                admin = User(username='Admin', email=admin_email, password_hash=hashed_password, is_admin=True, is_verified=True)
                 db.session.add(admin)
 
             # Seed Test User if missing
@@ -141,7 +140,7 @@ def create_app(config_class=Config):
             test_user = User.query.filter_by(email=test_email).first()
             if not test_user:
                 hashed_password = bcrypt.generate_password_hash('test1234').decode('utf-8')
-                test_user = User(username='TestUser', email=test_email, password_hash=hashed_password, is_admin=False)
+                test_user = User(username='TestUser', email=test_email, password_hash=hashed_password, is_admin=False, is_verified=True)
                 db.session.add(test_user)
 
             # Seed Default Meeting Rooms if no rooms exist
@@ -163,5 +162,3 @@ def create_app(config_class=Config):
             app.logger.error(f"Auto-seed error: {e}")
 
     return app
-
-app = create_app()

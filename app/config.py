@@ -6,11 +6,15 @@ load_dotenv(os.path.join(basedir, '..', '.env'), override=True)
 if os.path.exists('/etc/secrets/.env'):
     load_dotenv('/etc/secrets/.env', override=True)
 
+from datetime import timedelta
+
 class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'super-secret-key-for-booking-system'
     PREFERRED_URL_SCHEME = os.environ.get('PREFERRED_URL_SCHEME', 'https')
     SESSION_COOKIE_SAMESITE = 'Lax'
     REMEMBER_COOKIE_SAMESITE = 'Lax'
+    REMEMBER_COOKIE_DURATION = timedelta(seconds=0)
+    PERMANENT_SESSION_LIFETIME = timedelta(minutes=60)
     # Database Configuration (PostgreSQL when DATABASE_URL is set, SQLite fallback)
     db_url = os.environ.get('DATABASE_URL')
     if db_url:
@@ -28,7 +32,7 @@ class Config:
     SCHEDULER_TIMEZONE = "Europe/Istanbul"
     
     # File Uploads
-    UPLOAD_FOLDER = os.path.join(basedir, 'app', 'static', 'uploads', 'documents')
+    UPLOAD_FOLDER = os.path.join(basedir, 'static', 'uploads', 'documents')
     MAX_CONTENT_LENGTH = 10 * 1024 * 1024 # 10 MB limit
     
     # Web Push

@@ -14,7 +14,7 @@ def seed_data():
         admin = User.query.filter_by(email=admin_email).first()
         if not admin:
             hashed_password = bcrypt.generate_password_hash('admin123').decode('utf-8')
-            admin = User(username='Admin', email=admin_email, password_hash=hashed_password, is_admin=True)
+            admin = User(username='Admin', email=admin_email, password_hash=hashed_password, is_admin=True, is_verified=True)
             db.session.add(admin)
             print("Admin user created.")
 
@@ -23,7 +23,7 @@ def seed_data():
         test_user = User.query.filter_by(email=test_email).first()
         if not test_user:
             hashed_password = bcrypt.generate_password_hash('test1234').decode('utf-8')
-            test_user = User(username='TestUser', email=test_email, password_hash=hashed_password, is_admin=False)
+            test_user = User(username='TestUser', email=test_email, password_hash=hashed_password, is_admin=False, is_verified=True)
             db.session.add(test_user)
             print("Test user created (test@sirket.com / test1234)")
 

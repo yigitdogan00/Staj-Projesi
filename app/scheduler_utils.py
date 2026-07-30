@@ -1,5 +1,4 @@
 import os
-import logging
 import atexit
 
 _scheduler_lock_file = None

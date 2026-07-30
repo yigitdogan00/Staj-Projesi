@@ -11,8 +11,8 @@ self.addEventListener('push', function(event) {
     const title = data.title || "Toplantı Hatırlatması";
     const options = {
         body: data.body || "Yaklaşan bir toplantınız var.",
-        icon: '/static/icons/icon-192x192.png',
-        badge: '/static/icons/icon-72x72.png',
+        icon: '/static/icon-192x192.png',
+        badge: '/static/icon-192x192.png',
         vibrate: [200, 100, 200, 100, 200, 100, 200],
         data: {
             url: data.url || '/dashboard'

@@ -45,20 +45,19 @@ class LoginForm(FlaskForm):
     submit = SubmitField(_l('Giriş Yap'))
 
 class RequestResetForm(FlaskForm):
-    email = StringField('E-Posta', validators=[DataRequired(), Email()])
-    submit = SubmitField('Şifre Sıfırlama Bağlantısı Gönder')
+    email = StringField(_l('E-Posta'), validators=[DataRequired(), Email()])
+    submit = SubmitField(_l('Şifre Sıfırlama Bağlantısı Gönder'))
 
     def validate_email(self, email):
         user = User.query.filter_by(email=email.data).first()
         if user is None:
-            raise ValidationError('Bu e-posta adresiyle kayıtlı bir hesap bulunamadı. Lütfen kayıt olun.')
+            from flask_babel import gettext
+            raise ValidationError(gettext('Bu e-posta adresiyle kayıtlı bir hesap bulunamadı. Lütfen kayıt olun.'))
 
 class ResetPasswordForm(FlaskForm):
-    password = PasswordField('Yeni Şifre', validators=[DataRequired(), Length(min=6)])
-    confirm_password = PasswordField('Yeni Şifreyi Onayla', validators=[DataRequired(), EqualTo('password')])
-    submit = SubmitField('Şifreyi Güncelle')
-
-from flask_babel import lazy_gettext as _l
+    password = PasswordField(_l('Yeni Şifre'), validators=[DataRequired(), Length(min=6)])
+    confirm_password = PasswordField(_l('Yeni Şifreyi Onayla'), validators=[DataRequired(), EqualTo('password')])
+    submit = SubmitField(_l('Şifreyi Güncelle'))
 
 class RoomForm(FlaskForm):
     name = StringField(_l('Oda İsmi'), validators=[DataRequired(), Length(min=2, max=50)])

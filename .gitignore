@@ -11,3 +11,5 @@ private_key.pem
 scratch/
 guncellenen_dosyalar/
 *.db
+*.lock
+.vs/
