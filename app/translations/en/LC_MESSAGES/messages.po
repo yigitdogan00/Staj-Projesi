@@ -1365,3 +1365,6 @@ msgstr "View All (Dashboard) ➔"
 
 msgid "Takvime Ekle"
 msgstr "Add to Calendar"
+
+msgid "Tüm hakları saklıdır."
+msgstr "All rights reserved."
