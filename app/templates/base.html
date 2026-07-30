@@ -94,6 +94,21 @@
             color: #334155 !important;
         }
 
+        [data-theme="light"] .profile-avatar-container span {
+            color: #0f172a !important;
+            font-weight: 600 !important;
+        }
+
+        [data-theme="light"] .profile-avatar-container,
+        [data-theme="light"] .lang-switcher,
+        [data-theme="light"] #notifDropdownContainer {
+            border-left: 1px solid rgba(0, 0, 0, 0.12) !important;
+        }
+
+        [data-theme="light"] #notifDropdownContainer button {
+            color: #334155 !important;
+        }
+
         [data-theme="light"] .navbar a:hover {
             color: var(--primary) !important;
         }
@@ -913,7 +928,7 @@
                     {% else %}
                     <div class="avatar" title="{{ current_user.username }}">{{ current_user.username[0] }}</div>
                     {% endif %}
-                    <span style="color: #cbd5e1; font-weight: 500; font-size: 0.875rem;">{{ current_user.username }}</span>
+                    <span style="color: var(--text-color); font-weight: 600; font-size: 0.875rem;">{{ current_user.username }}</span>
                 </div>
             </a>
             <!-- Notifications Toggle -->
