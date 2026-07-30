@@ -89,8 +89,8 @@ function filterRooms() {
             </span>
         </div>
         
-        <p style="font-size: 0.875rem; color: #94a3b8; margin-bottom: 0.5rem;">
-            <strong style="color: white;">{{ gettext('Bugünün Durumu') }}:</strong> 
+        <p style="font-size: 0.875rem; color: var(--text-color); margin-bottom: 0.5rem; opacity: 0.9;">
+            <strong style="color: var(--text-color); font-weight: 700;">{{ gettext('Bugünün Durumu') }}:</strong> 
             {% if stat.booked_minutes == 0 %}
                 {{ gettext('Hiç rezervasyon yok') }}
             {% else %}
@@ -98,11 +98,10 @@ function filterRooms() {
             {% endif %}
         </p>
         
-        <p style="font-size: 0.875rem; color: #94a3b8; margin-bottom: 0.5rem;"><strong style="color: white;">{{ gettext('Kapasite') }}:</strong> {{ room.capacity }} {{ gettext('Kişi') }}</p>
+        <p style="font-size: 0.875rem; color: var(--text-color); margin-bottom: 0.5rem; opacity: 0.9;"><strong style="color: var(--text-color); font-weight: 700;">{{ gettext('Kapasite') }}:</strong> {{ room.capacity }} {{ gettext('Kişi') }}</p>
         
 
-
-        <p style="font-size: 0.875rem; color: #cbd5e1; margin-bottom: 1.5rem; flex-grow: 1;">{{ gettext(room.description) }}</p>
+        <p style="font-size: 0.875rem; color: var(--text-color); opacity: 0.85; margin-bottom: 1.5rem; flex-grow: 1; line-height: 1.5;">{{ gettext(room.description) }}</p>
         <div style="display: flex; gap: 0.5rem; justify-content: center; flex-wrap: wrap;">
             <a href="{{ url_for('main.book_room', room_id=room.id) }}" class="btn" style="text-align: center; flex: 1;">{{ gettext('Takvimi Görüntüle') }}</a>
             {% if current_user.is_admin %}
