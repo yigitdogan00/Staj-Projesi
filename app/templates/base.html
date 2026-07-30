@@ -41,10 +41,16 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script>
         (function() {
-            const savedTheme = localStorage.getItem('app_theme') || 'dark';
-            if (savedTheme === 'light') {
-                document.documentElement.setAttribute('data-theme', 'light');
-            }
+            {% if request.endpoint in ('main.index', 'auth.login', 'auth.register', 'auth.verify_email') %}
+                document.documentElement.setAttribute('data-theme', 'dark');
+            {% else %}
+                const savedTheme = localStorage.getItem('app_theme') || 'dark';
+                if (savedTheme === 'light') {
+                    document.documentElement.setAttribute('data-theme', 'light');
+                } else {
+                    document.documentElement.setAttribute('data-theme', 'dark');
+                }
+            {% endif %}
         })();
     </script>
     <style>
@@ -915,12 +921,14 @@
                 style="background: rgba(245, 158, 11, 0.2); border: 1px solid #f59e0b; color: #f59e0b; font-size: 0.8rem; padding: 0.35rem 0.65rem; margin-left: 0.25rem; display: none; align-items: center; gap: 0.4rem; white-space: nowrap; width: auto;">
                 <i class="fas fa-bell"></i> {{ gettext('Bildirimleri Aç') }}
             </button>
-            <!-- Theme Toggle Button (Logged-in Users Only) -->
+            {% if request.endpoint not in ('main.index', 'auth.login', 'auth.register', 'auth.verify_email') %}
+            <!-- Theme Toggle Button (App Pages Only) -->
             <button id="themeToggleBtn" onclick="toggleTheme()" class="btn"
                 title="{{ gettext('Temayı Değiştir') }}"
                 style="background: rgba(255, 255, 255, 0.08); border: 1px solid var(--border-color); color: var(--text-color); font-size: 0.8rem; padding: 0.35rem 0.65rem; margin-left: 0.25rem; display: inline-flex; align-items: center; gap: 0.35rem; white-space: nowrap; width: auto; cursor: pointer; border-radius: 8px;">
                 <span id="themeToggleIcon">🌙</span> <span id="themeToggleText">{% if current_lang == 'en' %}Dark{% else %}Karanlık{% endif %}</span>
             </button>
+            {% endif %}
             <a href="{{ url_for('auth.logout') }}" style="color: #ef4444; margin-left: 0.25rem; white-space: nowrap;">{{ gettext('Çıkış Yap') }}</a>
             {% else %}
             <a href="{{ url_for('auth.login') }}">{{ gettext('Giriş Yap') }}</a>
