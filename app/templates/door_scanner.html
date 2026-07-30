@@ -1,6 +1,57 @@
 {% extends "base.html" %}
 
 {% block content %}
+<style>
+    /* QR Reader Generated Elements High Contrast Styling */
+    #reader {
+        background: #1e293b !important;
+        color: #f8fafc !important;
+        padding: 1.5rem 1rem !important;
+    }
+
+    #reader button,
+    #reader input[type="button"],
+    #reader input[type="file"] {
+        background: #4f46e5 !important;
+        color: #ffffff !important;
+        border: none !important;
+        padding: 0.65rem 1.25rem !important;
+        border-radius: 8px !important;
+        font-size: 0.9rem !important;
+        font-weight: 600 !important;
+        cursor: pointer !important;
+        margin: 0.5rem auto !important;
+        box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4) !important;
+        display: inline-block !important;
+        transition: all 0.2s ease !important;
+    }
+
+    #reader button:hover {
+        background: #4338ca !important;
+        transform: translateY(-1px) !important;
+    }
+
+    #reader a {
+        color: #38bdf8 !important;
+        font-weight: 600 !important;
+        font-size: 0.95rem !important;
+        text-decoration: underline !important;
+        display: inline-block !important;
+        margin-top: 0.75rem !important;
+        padding: 0.25rem 0.5rem !important;
+    }
+
+    #reader a:hover {
+        color: #7dd3fc !important;
+    }
+
+    #reader span,
+    #reader div,
+    #reader p {
+        color: #f8fafc !important;
+    }
+</style>
+
 <div class="container" style="max-width: 600px; margin: 0 auto; text-align: center; padding: 2rem 0;">
     <h2 style="margin-bottom: 1rem; color: #f8fafc;">{{ gettext('Sanal Kapı Okuyucu') }}</h2>
     <p style="color: #cbd5e1; margin-bottom: 2rem;">{{ gettext('Kameraya QR kodu göstererek veya aşağıdan rezervasyon seçerek kapı girişini simüle edin.') }}</p>
