@@ -1347,3 +1347,21 @@ msgstr "Make Admin"
 
 msgid "CSV Olarak İndir"
 msgstr "Export to CSV"
+
+msgid "Toplantılarım"
+msgstr "My Meetings"
+
+msgid "Yaklaşan Toplantılarım"
+msgstr "Upcoming Meetings"
+
+msgid "Yaklaşan toplantınız bulunmuyor."
+msgstr "You have no upcoming meetings."
+
+msgid "Yeni Rezervasyon Yap"
+msgstr "New Booking"
+
+msgid "Tümünü Gör (Kontrol Paneli) ➔"
+msgstr "View All (Dashboard) ➔"
+
+msgid "Takvime Ekle"
+msgstr "Add to Calendar"
