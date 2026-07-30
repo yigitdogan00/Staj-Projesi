@@ -927,22 +927,22 @@
             <a href="{{ url_for('auth.register') }}">{{ gettext('Kayıt Ol') }}</a>
             {% endif %}
 
-            <!-- Language Switcher & Round Theme Button -->
+            <!-- Language Switcher & Vector Sun/Moon Theme Button -->
             <div class="lang-switcher"
-                style="margin-left: 0.25rem; border-left: 1px solid rgba(255,255,255,0.2); padding-left: 0.75rem; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.35rem;">
-                <div style="display: flex; gap: 0.4rem; align-items: center;">
-                    <a href="{{ url_for('main.change_language', lang_code='tr') }}"
-                        style="color: {{ '#10b981' if current_lang == 'tr' else '#94a3b8' }}; font-weight: bold; text-decoration: none;">TR</a>
-                    <span style="color: #475569;">|</span>
-                    <a href="{{ url_for('main.change_language', lang_code='en') }}"
-                        style="color: {{ '#10b981' if current_lang == 'en' else '#94a3b8' }}; font-weight: bold; text-decoration: none;">EN</a>
-                </div>
+                style="margin-left: 0.5rem; border-left: 1px solid rgba(255,255,255,0.2); padding-left: 0.75rem; display: flex; gap: 0.5rem; align-items: center;">
+                <a href="{{ url_for('main.change_language', lang_code='tr') }}"
+                    style="color: {{ '#10b981' if current_lang == 'tr' else '#94a3b8' }}; font-weight: bold; text-decoration: none;">TR</a>
+                <span style="color: #475569;">|</span>
+                <a href="{{ url_for('main.change_language', lang_code='en') }}"
+                    style="color: {{ '#10b981' if current_lang == 'en' else '#94a3b8' }}; font-weight: bold; text-decoration: none;">EN</a>
+
                 {% if current_user.is_authenticated and request.endpoint not in ('main.index', 'auth.login', 'auth.register', 'auth.verify_email') %}
-                <!-- Circular Sun / Moon Theme Button under EN -->
+                <span style="color: rgba(255,255,255,0.2); margin: 0 0.1rem;">|</span>
+                <!-- Larger Vector Sun / Moon Icon Button -->
                 <button id="themeToggleBtn" onclick="toggleTheme()"
                     title="{{ gettext('Temayı Değiştir') }}"
-                    style="width: 32px; height: 32px; border-radius: 50%; background: rgba(255, 255, 255, 0.1); border: 1px solid var(--border-color); color: var(--text-color); font-size: 1rem; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s ease; padding: 0; outline: none; box-shadow: 0 0 10px rgba(99,102,241,0.3);">
-                    <span id="themeToggleIcon">🌙</span>
+                    style="width: 38px; height: 38px; border-radius: 50%; background: rgba(255, 255, 255, 0.08); border: 1px solid var(--border-color); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s ease; padding: 0; outline: none; box-shadow: 0 0 12px rgba(99,102,241,0.35);">
+                    <i id="themeToggleIcon" class="fas fa-moon" style="font-size: 1.15rem; color: #818cf8;"></i>
                 </button>
                 {% endif %}
             </div>
@@ -1570,11 +1570,18 @@
             const icon = document.getElementById('themeToggleIcon');
             const btn = document.getElementById('themeToggleBtn');
             if (icon) {
-                icon.textContent = theme === 'light' ? '☀️' : '🌙';
+                if (theme === 'light') {
+                    icon.className = 'fas fa-sun';
+                    icon.style.color = '#f59e0b';
+                } else {
+                    icon.className = 'fas fa-moon';
+                    icon.style.color = '#818cf8';
+                }
             }
             if (btn) {
-                btn.style.boxShadow = theme === 'light' ? '0 0 10px rgba(245, 158, 11, 0.4)' : '0 0 10px rgba(99, 102, 241, 0.4)';
-                btn.style.background = theme === 'light' ? 'rgba(245, 158, 11, 0.15)' : 'rgba(255, 255, 255, 0.1)';
+                btn.style.boxShadow = theme === 'light' ? '0 0 14px rgba(245, 158, 11, 0.45)' : '0 0 14px rgba(99, 102, 241, 0.45)';
+                btn.style.background = theme === 'light' ? 'rgba(245, 158, 11, 0.15)' : 'rgba(255, 255, 255, 0.08)';
+                btn.style.borderColor = theme === 'light' ? 'rgba(245, 158, 11, 0.4)' : 'rgba(255, 255, 255, 0.15)';
             }
         }
 
