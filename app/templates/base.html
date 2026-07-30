@@ -39,6 +39,14 @@
     <title>{% if page_title %}{{ page_title }} - {% endif %}{{ site_title }}</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        (function() {
+            const savedTheme = localStorage.getItem('app_theme') || 'dark';
+            if (savedTheme === 'light') {
+                document.documentElement.setAttribute('data-theme', 'light');
+            }
+        })();
+    </script>
     <style>
         :root {
             --primary: #4F46E5;
@@ -47,6 +55,96 @@
             --text-color: #f8fafc;
             --card-bg: rgba(30, 41, 59, 0.7);
             --border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Light Mode Theme Overrides */
+        [data-theme="light"] {
+            --primary: #4F46E5;
+            --primary-hover: #4338CA;
+            --bg-color: #f8fafc;
+            --text-color: #0f172a;
+            --card-bg: rgba(255, 255, 255, 0.92);
+            --border-color: rgba(0, 0, 0, 0.12);
+        }
+
+        [data-theme="light"] body {
+            background: linear-gradient(145deg, #f8fafc 0%, #e2e8f0 100%) !important;
+            color: #0f172a !important;
+        }
+
+        [data-theme="light"] .base-pattern {
+            background-image:
+                linear-gradient(rgba(0, 0, 0, 0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 0, 0, 0.04) 1px, transparent 1px) !important;
+        }
+
+        [data-theme="light"] .navbar {
+            background: rgba(255, 255, 255, 0.92) !important;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1) !important;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06) !important;
+        }
+
+        [data-theme="light"] .navbar a {
+            color: #334155 !important;
+        }
+
+        [data-theme="light"] .navbar a:hover {
+            color: var(--primary) !important;
+        }
+
+        [data-theme="light"] .glass-card {
+            background: rgba(255, 255, 255, 0.92) !important;
+            border: 1px solid rgba(0, 0, 0, 0.1) !important;
+            box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.08) !important;
+            color: #0f172a !important;
+        }
+
+        [data-theme="light"] h1, 
+        [data-theme="light"] h2, 
+        [data-theme="light"] h3, 
+        [data-theme="light"] h4, 
+        [data-theme="light"] h5, 
+        [data-theme="light"] h6 {
+            color: #0f172a !important;
+        }
+
+        [data-theme="light"] p, 
+        [data-theme="light"] label {
+            color: #334155;
+        }
+
+        [data-theme="light"] .admin-table th {
+            background: rgba(241, 245, 249, 0.95) !important;
+            color: #475569 !important;
+        }
+
+        [data-theme="light"] .admin-table td {
+            border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
+            color: #1e293b !important;
+        }
+
+        [data-theme="light"] input[type="text"],
+        [data-theme="light"] input[type="email"],
+        [data-theme="light"] input[type="password"],
+        [data-theme="light"] input[type="date"],
+        [data-theme="light"] select,
+        [data-theme="light"] textarea {
+            background: #ffffff !important;
+            color: #0f172a !important;
+            border: 1px solid #cbd5e1 !important;
+        }
+
+        [data-theme="light"] #notifMenu,
+        [data-theme="light"] #acceptedMenu {
+            background: rgba(255, 255, 255, 0.98) !important;
+            border: 1px solid rgba(0, 0, 0, 0.12) !important;
+            color: #0f172a !important;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15) !important;
+        }
+
+        [data-theme="light"] #notifMenu h4,
+        [data-theme="light"] #acceptedMenu h4 {
+            color: #0f172a !important;
         }
 
         html {
@@ -817,6 +915,12 @@
                 style="background: rgba(245, 158, 11, 0.2); border: 1px solid #f59e0b; color: #f59e0b; font-size: 0.8rem; padding: 0.35rem 0.65rem; margin-left: 0.25rem; display: none; align-items: center; gap: 0.4rem; white-space: nowrap; width: auto;">
                 <i class="fas fa-bell"></i> {{ gettext('Bildirimleri Aç') }}
             </button>
+            <!-- Theme Toggle Button (Logged-in Users Only) -->
+            <button id="themeToggleBtn" onclick="toggleTheme()" class="btn"
+                title="{{ gettext('Temayı Değiştir') }}"
+                style="background: rgba(255, 255, 255, 0.08); border: 1px solid var(--border-color); color: var(--text-color); font-size: 0.8rem; padding: 0.35rem 0.65rem; margin-left: 0.25rem; display: inline-flex; align-items: center; gap: 0.35rem; white-space: nowrap; width: auto; cursor: pointer; border-radius: 8px;">
+                <span id="themeToggleIcon">🌙</span> <span id="themeToggleText">{% if current_lang == 'en' %}Dark{% else %}Karanlık{% endif %}</span>
+            </button>
             <a href="{{ url_for('auth.logout') }}" style="color: #ef4444; margin-left: 0.25rem; white-space: nowrap;">{{ gettext('Çıkış Yap') }}</a>
             {% else %}
             <a href="{{ url_for('auth.login') }}">{{ gettext('Giriş Yap') }}</a>
@@ -1442,6 +1546,34 @@
                     });
                 });
             }
+        });
+        // Theme Switcher Functions (Logged-in Users)
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('app_theme', newTheme);
+            updateThemeUI(newTheme);
+        }
+
+        function updateThemeUI(theme) {
+            const icon = document.getElementById('themeToggleIcon');
+            const text = document.getElementById('themeToggleText');
+            const isEn = "{{ current_lang }}" === "en";
+            if (icon && text) {
+                if (theme === 'light') {
+                    icon.textContent = '☀️';
+                    text.textContent = isEn ? 'Light' : 'Aydınlık';
+                } else {
+                    icon.textContent = '🌙';
+                    text.textContent = isEn ? 'Dark' : 'Karanlık';
+                }
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const activeTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+            updateThemeUI(activeTheme);
         });
     </script>
 </body>
