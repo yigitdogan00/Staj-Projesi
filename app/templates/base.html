@@ -921,28 +921,30 @@
                 style="background: rgba(245, 158, 11, 0.2); border: 1px solid #f59e0b; color: #f59e0b; font-size: 0.8rem; padding: 0.35rem 0.65rem; margin-left: 0.25rem; display: none; align-items: center; gap: 0.4rem; white-space: nowrap; width: auto;">
                 <i class="fas fa-bell"></i> {{ gettext('Bildirimleri Aç') }}
             </button>
-            {% if request.endpoint not in ('main.index', 'auth.login', 'auth.register', 'auth.verify_email') %}
-            <!-- Theme Toggle Button (App Pages Only) -->
-            <button id="themeToggleBtn" onclick="toggleTheme()" class="btn"
-                title="{{ gettext('Temayı Değiştir') }}"
-                style="background: rgba(255, 255, 255, 0.08); border: 1px solid var(--border-color); color: var(--text-color); font-size: 0.8rem; padding: 0.35rem 0.65rem; margin-left: 0.25rem; display: inline-flex; align-items: center; gap: 0.35rem; white-space: nowrap; width: auto; cursor: pointer; border-radius: 8px;">
-                <span id="themeToggleIcon">🌙</span> <span id="themeToggleText">{% if current_lang == 'en' %}Dark{% else %}Karanlık{% endif %}</span>
-            </button>
-            {% endif %}
             <a href="{{ url_for('auth.logout') }}" style="color: #ef4444; margin-left: 0.25rem; white-space: nowrap;">{{ gettext('Çıkış Yap') }}</a>
             {% else %}
             <a href="{{ url_for('auth.login') }}">{{ gettext('Giriş Yap') }}</a>
             <a href="{{ url_for('auth.register') }}">{{ gettext('Kayıt Ol') }}</a>
             {% endif %}
 
-            <!-- Language Switcher -->
+            <!-- Language Switcher & Round Theme Button -->
             <div class="lang-switcher"
-                style="margin-left: 0.25rem; border-left: 1px solid rgba(255,255,255,0.2); padding-left: 0.75rem; display: flex; gap: 0.4rem; align-items: center;">
-                <a href="{{ url_for('main.change_language', lang_code='tr') }}"
-                    style="color: {{ '#10b981' if current_lang == 'tr' else '#94a3b8' }}; font-weight: bold; text-decoration: none;">TR</a>
-                <span style="color: #475569;">|</span>
-                <a href="{{ url_for('main.change_language', lang_code='en') }}"
-                    style="color: {{ '#10b981' if current_lang == 'en' else '#94a3b8' }}; font-weight: bold; text-decoration: none;">EN</a>
+                style="margin-left: 0.25rem; border-left: 1px solid rgba(255,255,255,0.2); padding-left: 0.75rem; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.35rem;">
+                <div style="display: flex; gap: 0.4rem; align-items: center;">
+                    <a href="{{ url_for('main.change_language', lang_code='tr') }}"
+                        style="color: {{ '#10b981' if current_lang == 'tr' else '#94a3b8' }}; font-weight: bold; text-decoration: none;">TR</a>
+                    <span style="color: #475569;">|</span>
+                    <a href="{{ url_for('main.change_language', lang_code='en') }}"
+                        style="color: {{ '#10b981' if current_lang == 'en' else '#94a3b8' }}; font-weight: bold; text-decoration: none;">EN</a>
+                </div>
+                {% if current_user.is_authenticated and request.endpoint not in ('main.index', 'auth.login', 'auth.register', 'auth.verify_email') %}
+                <!-- Circular Sun / Moon Theme Button under EN -->
+                <button id="themeToggleBtn" onclick="toggleTheme()"
+                    title="{{ gettext('Temayı Değiştir') }}"
+                    style="width: 32px; height: 32px; border-radius: 50%; background: rgba(255, 255, 255, 0.1); border: 1px solid var(--border-color); color: var(--text-color); font-size: 1rem; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s ease; padding: 0; outline: none; box-shadow: 0 0 10px rgba(99,102,241,0.3);">
+                    <span id="themeToggleIcon">🌙</span>
+                </button>
+                {% endif %}
             </div>
         </div>
     </nav>
@@ -1566,16 +1568,13 @@
 
         function updateThemeUI(theme) {
             const icon = document.getElementById('themeToggleIcon');
-            const text = document.getElementById('themeToggleText');
-            const isEn = "{{ current_lang }}" === "en";
-            if (icon && text) {
-                if (theme === 'light') {
-                    icon.textContent = '☀️';
-                    text.textContent = isEn ? 'Light' : 'Aydınlık';
-                } else {
-                    icon.textContent = '🌙';
-                    text.textContent = isEn ? 'Dark' : 'Karanlık';
-                }
+            const btn = document.getElementById('themeToggleBtn');
+            if (icon) {
+                icon.textContent = theme === 'light' ? '☀️' : '🌙';
+            }
+            if (btn) {
+                btn.style.boxShadow = theme === 'light' ? '0 0 10px rgba(245, 158, 11, 0.4)' : '0 0 10px rgba(99, 102, 241, 0.4)';
+                btn.style.background = theme === 'light' ? 'rgba(245, 158, 11, 0.15)' : 'rgba(255, 255, 255, 0.1)';
             }
         }
 
