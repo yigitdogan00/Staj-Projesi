@@ -244,6 +244,32 @@
             color: #0f172a !important;
         }
 
+        /* AI Assistant Window Contrast Fix */
+        #ai-chat-window,
+        #ai-chat-messages,
+        #ai-chat-messages div,
+        #ai-chat-messages p,
+        #ai-chat-messages span {
+            color: #f8fafc !important;
+        }
+
+        #ai-chat-messages button {
+            color: #ffffff !important;
+        }
+
+        [data-theme="light"] #ai-chat-window {
+            background: rgba(15, 23, 42, 0.98) !important;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4) !important;
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+        }
+
+        [data-theme="light"] #ai-chat-messages,
+        [data-theme="light"] #ai-chat-messages div,
+        [data-theme="light"] #ai-chat-messages p,
+        [data-theme="light"] #ai-chat-messages span {
+            color: #f8fafc !important;
+        }
+
         html {
             background-color: var(--bg-color);
             min-height: 100%;
