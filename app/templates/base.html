@@ -1435,11 +1435,14 @@
 
 
     <!-- AI Robot Widget -->
-    <div id="ai-robot-widget" style="position: fixed; bottom: 20px; right: 20px; z-index: 9999;">
+    <div id="ai-robot-widget" style="position: fixed; bottom: 20px; right: 20px; z-index: 9999; pointer-events: none;">
         <!-- Chat Window -->
-        <div id="ai-chat-window" style="display: none; width: 320px; max-width: calc(100vw - 30px); background: rgba(15, 23, 42, 0.96); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.15); border-radius: 14px; box-shadow: 0 12px 30px -5px rgba(0, 0, 0, 0.6); overflow: hidden; margin-bottom: 15px; flex-direction: column;">
-            <div style="background: var(--primary); padding: 10px 15px; color: white; font-weight: bold; display: flex; justify-content: space-between; align-items: center;">
-                <span>🤖 {% if current_lang == 'en' %}Smart Assistant{% else %}Akıllı Asistan{% endif %}</span>
+        <div id="ai-chat-window" style="display: none; width: 330px; max-width: calc(100vw - 30px); background: rgba(15, 23, 42, 0.96); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.15); border-radius: 14px; box-shadow: 0 12px 30px -5px rgba(0, 0, 0, 0.6); overflow: hidden; margin-bottom: 12px; flex-direction: column; pointer-events: auto;">
+            <div id="ai-chat-header" style="background: var(--primary); padding: 10px 15px; color: white; font-weight: bold; display: flex; justify-content: space-between; align-items: center; cursor: grab; user-select: none;" title="{% if current_lang == 'en' %}Drag to move chat window{% else %}Sohbet penceresini sürükleyebilirsiniz{% endif %}">
+                <span style="display: flex; align-items: center; gap: 8px;">
+                    <i class="fas fa-arrows-up-down-left-right" style="font-size: 0.85rem; opacity: 0.8;"></i>
+                    <span>🤖 {% if current_lang == 'en' %}Smart Assistant{% else %}Akıllı Asistan{% endif %}</span>
+                </span>
                 <div style="display: flex; gap: 8px; align-items: center;">
                     <button onclick="clearAiChat()" title="{% if current_lang == 'en' %}Clear History{% else %}Sohbet Geçmişini Temizle{% endif %}" style="background: none; border: none; color: #cbd5e1; cursor: pointer; font-size: 13px;">🗑️</button>
                     <button onclick="closeAiChat()" style="background: none; border: none; color: white; cursor: pointer; font-size: 16px;">✖</button>
@@ -1496,7 +1499,7 @@
                 background: linear-gradient(135deg, var(--primary) 0%, #312e81 100%);
                 width: 60px; height: 60px; border-radius: 50%; border: none; color: white;
                 cursor: pointer; display: flex; align-items: center; justify-content: center;
-                margin-left: auto; margin-bottom: 20px;
+                margin-left: auto; pointer-events: auto;
                 animation: robot-float 3s ease-in-out infinite;
                 transition: transform 0.3s, filter 0.3s;
             }
@@ -1541,15 +1544,30 @@
     </div>
 
     <script>
+        function resetAiChatPosition() {
+            const chat = document.getElementById('ai-chat-window');
+            if (chat) {
+                chat.style.position = '';
+                chat.style.top = '';
+                chat.style.left = '';
+                chat.style.bottom = '';
+                chat.style.right = '';
+                chat.style.margin = '';
+            }
+        }
+
         function toggleAiChat() {
             const chat = document.getElementById('ai-chat-window');
+            if (!chat) return;
             const isHidden = chat.style.display === 'none' || chat.style.display === '';
-            chat.style.display = isHidden ? 'flex' : 'none';
-            if (isHidden) {
-                sessionStorage.setItem('ai_chat_open', 'true');
-                document.getElementById('ai-chat-input').focus();
+            if (!isHidden) {
+                closeAiChat();
             } else {
-                sessionStorage.setItem('ai_chat_open', 'false');
+                resetAiChatPosition();
+                chat.style.display = 'flex';
+                sessionStorage.setItem('ai_chat_open', 'true');
+                const input = document.getElementById('ai-chat-input');
+                if (input) input.focus();
             }
         }
 
@@ -1557,6 +1575,7 @@
             const chat = document.getElementById('ai-chat-window');
             if (chat) {
                 chat.style.display = 'none';
+                resetAiChatPosition();
                 sessionStorage.setItem('ai_chat_open', 'false');
             }
         }
@@ -1680,6 +1699,92 @@
 
             if (sessionStorage.getItem('ai_chat_open') === 'true' && chat) {
                 chat.style.display = 'flex';
+            }
+
+            // Draggable AI Chat Window (Header drag only, resets position on close)
+            const chatWindow = document.getElementById('ai-chat-window');
+            const header = document.getElementById('ai-chat-header');
+
+            if (chatWindow && header) {
+                let isDragging = false;
+                let startX = 0, startY = 0;
+                let initialLeft = 0, initialTop = 0;
+
+                function onStart(e) {
+                    if (e.type === 'mousedown' && e.button !== 0) return;
+                    if (e.target.closest('button')) return;
+
+                    isDragging = true;
+
+                    const clientX = e.type.startsWith('touch') ? e.touches[0].clientX : e.clientX;
+                    const clientY = e.type.startsWith('touch') ? e.touches[0].clientY : e.clientY;
+
+                    startX = clientX;
+                    startY = clientY;
+
+                    const rect = chatWindow.getBoundingClientRect();
+                    initialLeft = rect.left;
+                    initialTop = rect.top;
+
+                    chatWindow.style.position = 'fixed';
+                    chatWindow.style.left = initialLeft + 'px';
+                    chatWindow.style.top = initialTop + 'px';
+                    chatWindow.style.bottom = 'auto';
+                    chatWindow.style.right = 'auto';
+                    chatWindow.style.margin = '0';
+
+                    header.style.cursor = 'grabbing';
+
+                    document.addEventListener('mousemove', onMove, { passive: false });
+                    document.addEventListener('mouseup', onEnd);
+                    document.addEventListener('touchmove', onMove, { passive: false });
+                    document.addEventListener('touchend', onEnd);
+                }
+
+                function onMove(e) {
+                    if (!isDragging) return;
+
+                    if (e.cancelable) e.preventDefault();
+
+                    const clientX = e.type.startsWith('touch') ? e.touches[0].clientX : e.clientX;
+                    const clientY = e.type.startsWith('touch') ? e.touches[0].clientY : e.clientY;
+
+                    const dx = clientX - startX;
+                    const dy = clientY - startY;
+
+                    const rect = chatWindow.getBoundingClientRect();
+                    const maxLeft = Math.max(0, window.innerWidth - rect.width - 5);
+                    const maxTop = Math.max(0, window.innerHeight - rect.height - 5);
+
+                    let newLeft = Math.max(5, Math.min(maxLeft, initialLeft + dx));
+                    let newTop = Math.max(5, Math.min(maxTop, initialTop + dy));
+
+                    chatWindow.style.left = newLeft + 'px';
+                    chatWindow.style.top = newTop + 'px';
+                }
+
+                function onEnd() {
+                    if (!isDragging) return;
+                    isDragging = false;
+                    header.style.cursor = 'grab';
+
+                    document.removeEventListener('mousemove', onMove);
+                    document.removeEventListener('mouseup', onEnd);
+                    document.removeEventListener('touchmove', onMove);
+                    document.removeEventListener('touchend', onEnd);
+                }
+
+                header.addEventListener('mousedown', onStart);
+                header.addEventListener('touchstart', onStart, { passive: true });
+
+                window.addEventListener('resize', function() {
+                    if (chatWindow.style.position !== 'fixed') return;
+                    const rect = chatWindow.getBoundingClientRect();
+                    const maxLeft = Math.max(5, window.innerWidth - rect.width - 5);
+                    const maxTop = Math.max(5, window.innerHeight - rect.height - 5);
+                    if (rect.left > maxLeft) chatWindow.style.left = maxLeft + 'px';
+                    if (rect.top > maxTop) chatWindow.style.top = maxTop + 'px';
+                });
             }
         });
 
