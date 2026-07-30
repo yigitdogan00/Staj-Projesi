@@ -90,17 +90,15 @@
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06) !important;
         }
 
-        [data-theme="light"] .navbar a {
+        [data-theme="light"] .navbar > .nav-links > a:not(.btn) {
             color: #334155 !important;
         }
 
-        [data-theme="light"] .navbar a[style*="background: #4f46e5"],
-        [data-theme="light"] .navbar a[style*="background:#4f46e5"],
-        [data-theme="light"] #acceptedMenu a[style*="background: #4f46e5"],
-        [data-theme="light"] #acceptedMenu a[style*="background:#4f46e5"],
-        [data-theme="light"] #notifMenu .btn,
-        [data-theme="light"] #acceptedMenu .btn {
+        [data-theme="light"] .dropdown-action-btn,
+        [data-theme="light"] #acceptedMenu .dropdown-action-btn,
+        [data-theme="light"] #notifMenu .dropdown-action-btn {
             color: #ffffff !important;
+            background-color: #4f46e5 !important;
             font-weight: 700 !important;
         }
 
@@ -1081,7 +1079,7 @@
                     </a>
                     {% else %}
                     <p style="font-size: 0.85rem; color: #334155; margin: 0.5rem 0 1rem 0; text-align: center; font-weight: 500;">{{ gettext('Yaklaşan toplantınız bulunmuyor.') }}</p>
-                    <a href="{{ url_for('main.rooms') }}" style="display: block; width: 100%; box-sizing: border-radius; box-sizing: border-box; text-align: center; font-size: 0.82rem; background: #4f46e5 !important; color: #ffffff !important; padding: 0.65rem 0.8rem; border-radius: 8px; text-decoration: none; font-weight: 700; border: none; letter-spacing: normal; text-transform: none; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.35);">
+                    <a href="{{ url_for('main.rooms') }}" class="dropdown-action-btn" style="display: block; width: 100%; box-sizing: border-box; text-align: center; font-size: 0.82rem; background: #4f46e5 !important; color: #ffffff !important; padding: 0.65rem 0.8rem; border-radius: 8px; text-decoration: none; font-weight: 700; border: none; letter-spacing: normal; text-transform: none; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.35);">
                         + {{ gettext('Yeni Rezervasyon Yap') }}
                     </a>
                     {% endif %}
