@@ -94,6 +94,22 @@
             color: #334155 !important;
         }
 
+        [data-theme="light"] .navbar a[style*="background: #4f46e5"],
+        [data-theme="light"] .navbar a[style*="background:#4f46e5"],
+        [data-theme="light"] #acceptedMenu a[style*="background: #4f46e5"],
+        [data-theme="light"] #acceptedMenu a[style*="background:#4f46e5"],
+        [data-theme="light"] #notifMenu .btn,
+        [data-theme="light"] #acceptedMenu .btn {
+            color: #ffffff !important;
+            font-weight: 700 !important;
+        }
+
+        [data-theme="light"] #acceptedMenu p,
+        [data-theme="light"] #notifMenu p {
+            color: #334155 !important;
+            font-weight: 500 !important;
+        }
+
         [data-theme="light"] .profile-avatar-container span {
             color: #0f172a !important;
             font-weight: 600 !important;
@@ -1064,8 +1080,8 @@
                         {{ gettext('Tümünü Gör (Kontrol Paneli) ➔') }}
                     </a>
                     {% else %}
-                    <p style="font-size: 0.8rem; color: #94a3b8; margin: 0.5rem 0; text-align: center;">{{ gettext('Yaklaşan toplantınız bulunmuyor.') }}</p>
-                    <a href="{{ url_for('main.rooms') }}" style="display: block; text-align: center; margin-top: 0.5rem; font-size: 0.75rem; background: #4f46e5; color: white; padding: 4px 8px; border-radius: 5px; text-decoration: none; font-weight: bold;">
+                    <p style="font-size: 0.85rem; color: #334155; margin: 0.75rem 0; text-align: center; font-weight: 500;">{{ gettext('Yaklaşan toplantınız bulunmuyor.') }}</p>
+                    <a href="{{ url_for('main.rooms') }}" class="btn" style="display: block; text-align: center; margin-top: 0.75rem; font-size: 0.8rem; background: #4f46e5 !important; color: #ffffff !important; padding: 8px 12px; border-radius: 8px; text-decoration: none; font-weight: bold; width: 100%;">
                         + {{ gettext('Yeni Rezervasyon Yap') }}
                     </a>
                     {% endif %}
