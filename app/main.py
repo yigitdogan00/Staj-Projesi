@@ -2332,7 +2332,10 @@ def delete_user(user_id):
     
     log_action(current_user.id, "KULLANICI_SİLİNDİ", f"{username} (ID: {user_id}) kullanıcısı silindi.")
     
-    flash(f'{username} kullanıcısı silindi.', 'success')
+    if session.get('lang', 'tr') == 'en':
+        flash(f"User '{username}' deleted.", 'success')
+    else:
+        flash(f'{username} kullanıcısı silindi.', 'success')
     return redirect(url_for('main.admin_panel'))
 
 @bp.route('/admin/room/<int:room_id>/delete', methods=['POST'])
@@ -2340,14 +2343,17 @@ def delete_user(user_id):
 def delete_room(room_id):
     room = Room.query.get_or_404(room_id)
     Reservation.query.filter_by(room_id=room.id).delete()
-    room_name = room.name
+    room_name = room.display_name
     db.session.delete(room)
     db.session.commit()
     
     log_action(current_user.id, "ODA_SİLİNDİ", f"{room_name} (ID: {room_id}) odası silindi.")
     
-    flash(f'{room_name} odası silindi.', 'success')
-    return redirect(url_for('main.admin_panel'))
+    if session.get('lang', 'tr') == 'en':
+        flash(f"Room '{room_name}' deleted.", 'success')
+    else:
+        flash(f'{room_name} odası silindi.', 'success')
+    return redirect(request.referrer or url_for('main.admin_panel'))
 
 @bp.route('/notification/<int:notif_id>/accept', methods=['POST'])
 @login_required
