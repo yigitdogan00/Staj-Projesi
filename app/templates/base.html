@@ -1342,28 +1342,28 @@
 
     {% if active_meeting %}
     <div id="activeMeetingBanner"
-        style="position: fixed; bottom: 2rem; right: 2rem; background: rgba(16, 185, 129, 0.9); border: 1px solid #059669; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.5); -webkit-backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); padding: 1rem 1.5rem; border-radius: 12px; color: white; z-index: 1000; display: flex; align-items: center; gap: 1rem; animation: slideIn 0.3s ease-out;">
+        style="position: fixed; bottom: 20px; left: 20px; background: rgba(16, 185, 129, 0.95); border: 1px solid #059669; box-shadow: 0 10px 25px -3px rgba(0,0,0,0.5); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); padding: 0.85rem 1.25rem; border-radius: 12px; color: white; z-index: 9998; display: flex; align-items: center; gap: 0.85rem; animation: slideIn 0.3s ease-out; max-width: calc(100vw - 100px);">
         <div
-            style="width: 12px; height: 12px; background: #fff; border-radius: 50%; box-shadow: 0 0 10px #fff; animation: pulse 1.5s infinite;">
+            style="width: 12px; height: 12px; background: #fff; border-radius: 50%; box-shadow: 0 0 10px #fff; animation: pulse 1.5s infinite; flex-shrink: 0;">
         </div>
         <div>
             <h4
-                style="margin: 0 0 0.25rem 0; font-size: 0.875rem; text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.9;">
+                style="margin: 0 0 0.2rem 0; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.9;">
                 {{ gettext('Şu an Toplantıdasınız') }}</h4>
-            <p style="margin: 0; font-size: 1.125rem; font-weight: bold;">{{ active_meeting.room.display_name }} {{ gettext('Odası') }} <span
-                    style="font-size: 0.875rem; font-weight: normal; opacity: 0.9; margin-left: 0.5rem;">({{ active_meeting.start_time }} - {{ active_meeting.end_time }})</span></p>
+            <p style="margin: 0; font-size: 1rem; font-weight: bold; white-space: nowrap;">{{ active_meeting.room.display_name }} {{ gettext('Odası') }} <span
+                    style="font-size: 0.8rem; font-weight: normal; opacity: 0.9; margin-left: 0.35rem;">({{ active_meeting.start_time }} - {{ active_meeting.end_time }})</span></p>
         </div>
     </div>
 
     <style>
         @keyframes slideIn {
             from {
-                transform: translateX(100%);
+                transform: translateY(100%);
                 opacity: 0;
             }
 
             to {
-                transform: translateX(0);
+                transform: translateY(0);
                 opacity: 1;
             }
         }
@@ -1382,6 +1382,15 @@
             100% {
                 transform: scale(0.95);
                 box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            #activeMeetingBanner {
+                bottom: 85px !important;
+                left: 15px !important;
+                right: 15px !important;
+                max-width: calc(100vw - 30px) !important;
             }
         }
     </style>
