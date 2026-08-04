@@ -212,8 +212,8 @@
 
 <div style="display: flex; flex-direction: column; gap: 1rem; margin-bottom: 2rem; text-align: center;">
     <div>
-        <h2 style="font-size: 2rem; margin: 0; color: #10b981;">{{ gettext('Aylık Doluluk & Günlük Genel Bakış') }}</h2>
-        <p style="color: #cbd5e1; margin-top: 0.5rem;">{{ gettext('Takvimden gün seçerek detayları aşağıdan inceleyebilir ve boş saatlere tıklayarak rezervasyon yapabilirsiniz.') }}</p>
+        <h2 style="font-size: 2rem; margin: 0; color: #10b981;">{% if current_lang == 'en' %}Monthly Occupancy & Daily Overview{% else %}Aylık Doluluk & Günlük Genel Bakış{% endif %}</h2>
+        <p style="color: #cbd5e1; margin-top: 0.5rem;">{% if current_lang == 'en' %}Select a day from the calendar to inspect details below and click available times to make a booking.{% else %}Takvimden gün seçerek detayları aşağıdan inceleyebilir ve boş saatlere tıklayarak rezervasyon yapabilirsiniz.{% endif %}</p>
     </div>
     <div style="display: none;">
         <label for="overview-date">Gizli Tarih:</label>
@@ -224,38 +224,38 @@
 <!-- Aylık Takvim -->
 <div class="calendar-container">
     <div class="calendar-header">
-        <button id="prevMonth" class="btn" style="width: auto; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1);">&laquo; {{ gettext('Önceki Ay') }}</button>
+        <button id="prevMonth" class="btn" style="width: auto; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1);">&laquo; {% if current_lang == 'en' %}Previous Month{% else %}Önceki Ay{% endif %}</button>
         <div id="calendarTitle" class="calendar-title">AY YIL</div>
-        <button id="nextMonth" class="btn" style="width: auto; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1);">{{ gettext('Sonraki Ay') }} &raquo;</button>
+        <button id="nextMonth" class="btn" style="width: auto; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1);">{% if current_lang == 'en' %}Next Month{% else %}Sonraki Ay{% endif %} &raquo;</button>
     </div>
     <div class="calendar-grid" id="calendarGrid">
-        <div class="calendar-day-header">{{ gettext('Pzt') }}</div>
-        <div class="calendar-day-header">{{ gettext('Sal') }}</div>
-        <div class="calendar-day-header">{{ gettext('Çar') }}</div>
-        <div class="calendar-day-header">{{ gettext('Per') }}</div>
-        <div class="calendar-day-header">{{ gettext('Cum') }}</div>
-        <div class="calendar-day-header">{{ gettext('Cmt') }}</div>
-        <div class="calendar-day-header">{{ gettext('Paz') }}</div>
+        <div class="calendar-day-header">{% if current_lang == 'en' %}Mon{% else %}Pzt{% endif %}</div>
+        <div class="calendar-day-header">{% if current_lang == 'en' %}Tue{% else %}Sal{% endif %}</div>
+        <div class="calendar-day-header">{% if current_lang == 'en' %}Wed{% else %}Çar{% endif %}</div>
+        <div class="calendar-day-header">{% if current_lang == 'en' %}Thu{% else %}Per{% endif %}</div>
+        <div class="calendar-day-header">{% if current_lang == 'en' %}Fri{% else %}Cum{% endif %}</div>
+        <div class="calendar-day-header">{% if current_lang == 'en' %}Sat{% else %}Cmt{% endif %}</div>
+        <div class="calendar-day-header">{% if current_lang == 'en' %}Sun{% else %}Paz{% endif %}</div>
         <!-- JS Dolduracak -->
     </div>
     <div class="legend-container">
-        <div style="display: flex; align-items: center; gap: 0.5rem;"><span class="legend-dot" style="background:#10b981; box-shadow: 0 0 10px rgba(16,185,129,0.5);"></span> {{ gettext('Tamamen Boş') }}</div>
-        <div style="display: flex; align-items: center; gap: 0.5rem;"><span class="legend-dot" style="background:#f59e0b; box-shadow: 0 0 10px rgba(245,158,11,0.5);"></span> {{ gettext('Kısmen Dolu') }}</div>
-        <div style="display: flex; align-items: center; gap: 0.5rem;"><span class="legend-dot" style="background:#ef4444; box-shadow: 0 0 10px rgba(239,68,68,0.5);"></span> {{ gettext('Tamamen Dolu') }}</div>
+        <div style="display: flex; align-items: center; gap: 0.5rem;"><span class="legend-dot" style="background:#10b981; box-shadow: 0 0 10px rgba(16,185,129,0.5);"></span> {% if current_lang == 'en' %}Completely Free{% else %}Tamamen Boş{% endif %}</div>
+        <div style="display: flex; align-items: center; gap: 0.5rem;"><span class="legend-dot" style="background:#f59e0b; box-shadow: 0 0 10px rgba(245,158,11,0.5);"></span> {% if current_lang == 'en' %}Partially Booked{% else %}Kısmen Dolu{% endif %}</div>
+        <div style="display: flex; align-items: center; gap: 0.5rem;"><span class="legend-dot" style="background:#ef4444; box-shadow: 0 0 10px rgba(239,68,68,0.5);"></span> {% if current_lang == 'en' %}Fully Booked{% else %}Tamamen Dolu{% endif %}</div>
     </div>
 </div>
 
 <div class="overview-container" style="margin-top: 2rem;">
     <h3 id="matrix-title" style="margin-bottom: 1rem; color: #f8fafc; font-size: 1.25rem; text-align: left;">
-        {{ gettext('Seçili Tarih:') }} <span id="matrix-date-text" style="color: #10b981;"></span>
+        {% if current_lang == 'en' %}Selected Date:{% else %}Seçili Tarih:{% endif %} <span id="matrix-date-text" style="color: #10b981;"></span>
     </h3>
-    <div id="loading" style="text-align: center; padding: 2rem; color: var(--primary); display: none;">{{ gettext('Veriler yükleniyor...') }}</div>
+    <div id="loading" style="text-align: center; padding: 2rem; color: var(--primary); display: none;">{% if current_lang == 'en' %}Loading data...{% else %}Veriler yükleniyor...{% endif %}</div>
 
     <div class="table-responsive">
         <table class="matrix-table" id="matrix-table">
             <thead>
                 <tr>
-                    <th style="width: 200px;">{{ gettext('Toplantı Odası') }}</th>
+                    <th style="width: 200px;">{% if current_lang == 'en' %}Meeting Room{% else %}Toplantı Odası{% endif %}</th>
                     <th>09:00</th>
                     <th>10:00</th>
                     <th>11:00</th>
@@ -270,8 +270,8 @@
             <tbody id="matrix-body">
                 {% for room in rooms %}
                 <tr data-room-id="{{ room.id }}">
-                    <td class="room-name">{{ room.display_name }} <br><span
-                            style="font-size: 0.75rem; color: #94a3b8; font-weight: normal;">{{ gettext('Kapasite') }}: {{ room.capacity }}</span></td>
+                    <td class="room-name">{{ room.name_en if current_lang == 'en' and room.name_en else room.display_name }} <br><span
+                            style="font-size: 0.75rem; color: #94a3b8; font-weight: normal;">{% if current_lang == 'en' %}Capacity{% else %}Kapasite{% endif %}: {{ room.capacity }}</span></td>
                     <!-- JS tarafından doldurulacak hücreler -->
                 </tr>
                 {% endfor %}

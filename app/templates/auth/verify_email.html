@@ -1,14 +1,17 @@
 {% extends "base.html" %}
 
-{% block meta_description %}{{ gettext('E-posta adresinizi doğrulayın.') }}{% endblock %}
+{% block meta_description %}{% if current_lang == 'en' %}Verify your email address.{% else %}E-posta adresinizi doğrulayın.{% endif %}{% endblock %}
 
 {% block content %}
 <div class="glass-card animation" style="--i:1; max-width: 480px; margin: 2rem auto; text-align: center;">
     <div style="font-size: 3rem; margin-bottom: 1rem;">✉️</div>
-    <h2 style="margin-bottom: 0.5rem;">{{ gettext('E-posta Adresinizi Doğrulayın') }}</h2>
+    <h2 style="margin-bottom: 0.5rem;">{% if current_lang == 'en' %}Verify Your Email Address{% else %}E-posta Adresinizi Doğrulayın{% endif %}</h2>
     <p style="color: #cbd5e1; font-size: 0.95rem; line-height: 1.5; margin-bottom: 2rem;">
-        {{ gettext('Lütfen %(email)s adresine gönderilen 6 haneli doğrulama kodunu girin.', email='<strong
-            style="color: var(--primary-light, #818cf8);">' ~ user.email ~ '</strong>')|safe }}
+        {% if current_lang == 'en' %}
+        Please enter the 6-digit verification code sent to <strong style="color: var(--primary-light, #818cf8);">{{ user.email }}</strong>.
+        {% else %}
+        Lütfen <strong style="color: var(--primary-light, #818cf8);">{{ user.email }}</strong> adresine gönderilen 6 haneli doğrulama kodunu girin.
+        {% endif %}
     </p>
 
     <form method="POST" action="{{ url_for('auth.verify_email') }}">
@@ -20,18 +23,18 @@
 
         <button type="submit" class="btn btn-primary"
             style="width: 100%; padding: 0.85rem; font-size: 1rem; font-weight: 600; border-radius: 10px; margin-bottom: 1.5rem;">
-            {{ gettext('Hesabı Doğrula ve Aktifleştir') }}
+            {% if current_lang == 'en' %}Verify and Activate Account{% else %}Hesabı Doğrula ve Aktifleştir{% endif %}
         </button>
     </form>
 
     <div style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1.5rem; margin-top: 1rem;">
         <p style="color: #94a3b8; font-size: 0.875rem; margin-bottom: 0.75rem;">
-            {{ gettext('Kod ulaşmadı mı veya süresi mi doldu?') }}
+            {% if current_lang == 'en' %}Didn't receive the code or link expired?{% else %}Kod ulaşmadı mı veya süresi mi doldu?{% endif %}
         </p>
         <form method="POST" action="{{ url_for('auth.resend_verification') }}" style="display: inline;">
             <button type="submit" class="btn"
                 style="background: rgba(255,255,255,0.08); color: #cbd5e1; border: 1px solid rgba(255,255,255,0.15); padding: 0.5rem 1.25rem; font-size: 0.875rem; border-radius: 8px; transition: all 0.2s;">
-                🔄 {{ gettext('Yeni Kod Gönder') }}
+                🔄 {% if current_lang == 'en' %}Resend New Code{% else %}Yeni Kod Gönder{% endif %}
             </button>
         </form>
     </div>
