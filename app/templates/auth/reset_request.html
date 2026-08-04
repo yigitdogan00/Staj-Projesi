@@ -3,35 +3,43 @@
 {% block content %}
 <div class="auth-container">
     <div class="auth-card">
-        <h2 class="auth-title">{% if current_lang == 'en' %}Forgot Your Password?{% else %}Şifrenizi Mi Unuttunuz?{% endif %}</h2>
-        <p style="color: #94a3b8; text-align: center; margin-bottom: 2rem;">{% if current_lang == 'en' %}Enter your registered email address. We will send you a password reset link.{% else %}Sisteme kayıtlı e-posta adresinizi girin. Size şifre sıfırlama bağlantısı göndereceğiz.{% endif %}</p>
-        
+        <h2 class="auth-title">{% if current_lang == 'en' %}Forgot Your Password?{% else %}Şifrenizi Mi Unuttunuz?{%
+            endif %}</h2>
+        <p style="color: #94a3b8; text-align: center; margin-bottom: 2rem;">{% if current_lang == 'en' %}Enter your
+            registered email address. We will send you a password reset link.{% else %}Sisteme kayıtlı e-posta
+            adresinizi girin. Size şifre sıfırlama bağlantısı göndereceğiz.{% endif %}</p>
+
         <form method="POST" action="">
             {{ form.hidden_tag() }}
-            
+
             <div class="form-group">
-                <label class="form-label" style="color: #cbd5e1; display: block; margin-bottom: 0.5rem; font-weight: bold;">{% if current_lang == 'en' %}EMAIL ADDRESS{% else %}E-POSTA ADRESİ{% endif %}</label>
+                <label class="form-label"
+                    style="color: #cbd5e1; display: block; margin-bottom: 0.5rem; font-weight: bold;">{% if current_lang
+                    == 'en' %}EMAIL ADDRESS{% else %}E-POSTA ADRESİ{% endif %}</label>
                 {% if form.email.errors %}
-                    {{ form.email(class="form-control", style="border-color: #ef4444;") }}
-                    <div style="color: #ef4444; font-size: 0.875rem; margin-top: 0.25rem;">
-                        {% for error in form.email.errors %}
-                            <span>{{ error }}</span>
-                        {% endfor %}
-                    </div>
+                {{ form.email(class="form-control", style="border-color: #ef4444;") }}
+                <div style="color: #ef4444; font-size: 0.875rem; margin-top: 0.25rem;">
+                    {% for error in form.email.errors %}
+                    <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
                 {% else %}
-                    {{ form.email(class="form-control", placeholder="name@example.com" if current_lang == 'en' else "E-posta adresiniz") }}
+                {{ form.email(class="form-control", placeholder="name@example.com" if current_lang == 'en' else "E-posta
+                adresiniz") }}
                 {% endif %}
             </div>
 
             <div class="form-group" style="margin-top: 2rem;">
-                <button type="submit" class="btn btn-primary" style="width: 100%; font-weight: bold; cursor: pointer; text-transform: uppercase;">
+                <button type="submit" class="btn btn-primary"
+                    style="width: 100%; font-weight: bold; cursor: pointer; text-transform: uppercase;">
                     {% if current_lang == 'en' %}SEND RESET LINK{% else %}ŞİFRE SIFIRLAMA BAĞLANTISI GÖNDER{% endif %}
                 </button>
             </div>
         </form>
-        
+
         <div style="text-align: center; margin-top: 1.5rem;">
-            <a href="{{ url_for('auth.login') }}" style="color: var(--primary); text-decoration: none; font-weight: 500;">
+            <a href="{{ url_for('auth.login') }}"
+                style="color: var(--primary); text-decoration: none; font-weight: 500;">
                 {% if current_lang == 'en' %}← Back to Login{% else %}← Giriş Sayfasına Dön{% endif %}
             </a>
         </div>
