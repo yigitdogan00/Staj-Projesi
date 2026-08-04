@@ -64,31 +64,39 @@
             --border-color: rgba(255, 255, 255, 0.1);
         }
 
-        /* Light Mode Theme Overrides - Glare-Free Low Brightness Slate Palette */
+        /* Light Mode Theme Overrides - Modern Vibrant Glassmorphic Palette */
         [data-theme="light"] {
             --primary: #4F46E5;
             --primary-hover: #4338CA;
-            --bg-color: #94a3b8;
+            --bg-color: #f8fafc;
             --text-color: #0f172a;
-            --card-bg: #e2e8f0;
-            --border-color: #cbd5e1;
+            --card-bg: rgba(255, 255, 255, 0.85);
+            --border-color: rgba(226, 232, 240, 0.8);
         }
 
         [data-theme="light"] body {
-            background: linear-gradient(135deg, #94a3b8 0%, #64748b 50%, #475569 100%) !important;
+            background: 
+                radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.12) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(168, 85, 247, 0.10) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(59, 130, 246, 0.12) 0px, transparent 50%),
+                radial-gradient(at 0% 100%, rgba(129, 140, 248, 0.10) 0px, transparent 50%),
+                linear-gradient(135deg, #f8fafc 0%, #f1f5f9 50%, #eef2ff 100%) !important;
+            background-attachment: fixed !important;
             color: #0f172a !important;
         }
 
         [data-theme="light"] .base-pattern {
             background-image:
-                linear-gradient(rgba(0, 0, 0, 0.08) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0, 0, 0, 0.08) 1px, transparent 1px) !important;
+                linear-gradient(rgba(79, 70, 229, 0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(79, 70, 229, 0.04) 1px, transparent 1px) !important;
         }
 
         [data-theme="light"] .navbar {
-            background: #e2e8f0 !important;
-            border-bottom: 1px solid #94a3b8 !important;
-            box-shadow: 0 4px 15px rgba(15, 23, 42, 0.08) !important;
+            background: rgba(255, 255, 255, 0.85) !important;
+            backdrop-filter: blur(16px) saturate(180%) !important;
+            -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
+            border-bottom: 1px solid rgba(226, 232, 240, 0.8) !important;
+            box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.05) !important;
         }
 
         [data-theme="light"] .navbar > .nav-links > a:not(.btn) {
@@ -130,7 +138,7 @@
         [data-theme="light"] .profile-avatar-container,
         [data-theme="light"] .lang-switcher,
         [data-theme="light"] #notifDropdownContainer {
-            border-left: 1px solid #cbd5e1 !important;
+            border-left: 1px solid #e2e8f0 !important;
         }
 
         [data-theme="light"] #notifDropdownContainer button {
@@ -142,9 +150,11 @@
         }
 
         [data-theme="light"] .glass-card {
-            background: #f1f5f9 !important;
-            border: 1px solid #cbd5e1 !important;
-            box-shadow: 0 8px 24px -4px rgba(15, 23, 42, 0.08) !important;
+            background: rgba(255, 255, 255, 0.85) !important;
+            backdrop-filter: blur(16px) saturate(180%) !important;
+            -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
+            border: 1px solid rgba(226, 232, 240, 0.9) !important;
+            box-shadow: 0 10px 30px -5px rgba(15, 23, 42, 0.05), 0 4px 6px -2px rgba(15, 23, 42, 0.02) !important;
             color: #0f172a !important;
         }
 
@@ -163,12 +173,12 @@
         }
 
         [data-theme="light"] .admin-table th {
-            background: #e2e8f0 !important;
+            background: #f1f5f9 !important;
             color: #1e293b !important;
         }
 
         [data-theme="light"] .admin-table td {
-            border-bottom: 1px solid #cbd5e1 !important;
+            border-bottom: 1px solid #e2e8f0 !important;
             color: #0f172a !important;
         }
 
@@ -178,17 +188,19 @@
         [data-theme="light"] input[type="date"],
         [data-theme="light"] select,
         [data-theme="light"] textarea {
-            background: #e2e8f0 !important;
+            background: #ffffff !important;
             color: #0f172a !important;
-            border: 1px solid #94a3b8 !important;
+            border: 1px solid #cbd5e1 !important;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03) !important;
         }
 
         [data-theme="light"] #notifMenu,
         [data-theme="light"] #acceptedMenu {
-            background: #f8fafc !important;
-            border: 1px solid #cbd5e1 !important;
+            background: rgba(255, 255, 255, 0.95) !important;
+            backdrop-filter: blur(16px) !important;
+            border: 1px solid rgba(226, 232, 240, 0.9) !important;
             color: #0f172a !important;
-            box-shadow: 0 12px 30px rgba(15, 23, 42, 0.12) !important;
+            box-shadow: 0 20px 40px -15px rgba(15, 23, 42, 0.12) !important;
         }
 
         [data-theme="light"] #notifMenu h4,
@@ -201,9 +213,11 @@
         [data-theme="light"] .overview-container,
         [data-theme="light"] .info-card,
         [data-theme="light"] .room-card-item {
-            background: #f1f5f9 !important;
-            border: 1px solid #cbd5e1 !important;
-            box-shadow: 0 8px 24px -4px rgba(15, 23, 42, 0.08) !important;
+            background: rgba(255, 255, 255, 0.85) !important;
+            backdrop-filter: blur(16px) saturate(180%) !important;
+            -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
+            border: 1px solid rgba(226, 232, 240, 0.9) !important;
+            box-shadow: 0 10px 30px -5px rgba(15, 23, 42, 0.05), 0 4px 6px -2px rgba(15, 23, 42, 0.02) !important;
         }
 
         [data-theme="light"] .room-card-item strong,
@@ -437,6 +451,13 @@
             will-change: opacity;
             pointer-events: none;
             transition: opacity 0.1s ease-out;
+        }
+
+        [data-theme="light"] .rnd-scroll-bg {
+            background:
+                radial-gradient(circle at 50% 100%, rgba(99, 102, 241, 0.25) 0%, rgba(79, 70, 229, 0.15) 50%, transparent 80%),
+                radial-gradient(circle at 20% 20%, rgba(168, 85, 247, 0.2), transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(59, 130, 246, 0.2), transparent 50%) !important;
         }
 
             {% if request.endpoint in ('main.index', 'auth.login', 'auth.register') %}
