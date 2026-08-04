@@ -2642,7 +2642,10 @@ def delete_document(doc_id):
     db.session.delete(doc)
     db.session.commit()
     
-    flash("Belge silindi.", "success")
+    if session.get('lang', 'tr') == 'en':
+        flash("Document deleted.", "success")
+    else:
+        flash("Belge silindi.", "success")
     return redirect(url_for('main.dashboard'))
 
 @bp.route('/api/push/vapid_public_key')
