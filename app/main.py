@@ -2336,6 +2336,9 @@ def delete_user(user_id):
         flash(f"User '{username}' deleted.", 'success')
     else:
         flash(f'{username} kullanıcısı silindi.', 'success')
+    ref = request.referrer
+    if ref and ref.strip():
+        return redirect(ref)
     return redirect(url_for('main.admin_panel'))
 
 @bp.route('/admin/room/<int:room_id>/delete', methods=['POST'])
@@ -2353,7 +2356,10 @@ def delete_room(room_id):
         flash(f"Room '{room_name}' deleted.", 'success')
     else:
         flash(f'{room_name} odası silindi.', 'success')
-    return redirect(request.referrer or url_for('main.admin_panel'))
+    ref = request.referrer
+    if ref and ref.strip():
+        return redirect(ref)
+    return redirect(url_for('main.rooms'))
 
 @bp.route('/notification/<int:notif_id>/accept', methods=['POST'])
 @login_required
