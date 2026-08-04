@@ -1794,6 +1794,24 @@ def book_room(room_id):
         attendee_ids = request.form.getlist('attendees')
         invited_users = User.query.filter(User.id.in_(attendee_ids)).all() if attendee_ids else []
 
+        # Check attendee conflicts and issue a warning flash if an invited user is already in another meeting
+        if invited_users:
+            overlapping_res = Reservation.query.filter(
+                Reservation.date == req_date,
+                Reservation.start_time < end_time,
+                Reservation.end_time > start_time
+            ).all()
+            
+            for user in invited_users:
+                for r_item in overlapping_res:
+                    if r_item.user_id == user.id or user in r_item.attendees:
+                        c_room = r_item.room.display_name
+                        if session.get('lang', 'tr') == 'en':
+                            flash(f"⚠️ Warning: {user.username} is already in another meeting ({c_room}, {r_item.start_time}-{r_item.end_time}). Invitation sent anyway.", 'warning')
+                        else:
+                            flash(f"⚠️ Uyarı: {user.username} bu saat diliminde ({r_item.start_time}-{r_item.end_time}) başka bir toplantıda ({c_room}) bulunuyor. Yine de davet gönderildi.", 'warning')
+                        break
+
         created_dates = []
         conflicting_dates = []
         base_date_obj = datetime.strptime(req_date, '%Y-%m-%d').date()
@@ -2497,6 +2515,82 @@ def door_scan_exit():
         return jsonify({'status': 'error', 'message': 'Rezervasyon zaten sona ermiş.'}), 400
     else:
         return jsonify({'status': 'error', 'message': 'Rezervasyon henüz başlamamış.'}), 400
+
+@bp.route('/api/check_attendees_conflict', methods=['POST'])
+@login_required
+def check_attendees_conflict():
+    data = request.get_json()
+    if not data:
+        return jsonify({'conflicts': []})
+        
+    req_date = data.get('date')
+    start_time = data.get('start_time')
+    duration = data.get('duration', 60)
+    attendee_ids = data.get('attendee_ids', [])
+    
+    if not req_date or not start_time or not attendee_ids:
+        return jsonify({'conflicts': []})
+
+    try:
+        duration = int(duration)
+    except (ValueError, TypeError):
+        duration = 60
+
+    from datetime import datetime, timedelta
+    start_dt = datetime.strptime(start_time, '%H:%M')
+    end_dt = start_dt + timedelta(minutes=duration)
+    end_time = end_dt.strftime('%H:%M')
+
+    overlapping_res = Reservation.query.filter(
+        Reservation.date == req_date,
+        Reservation.start_time < end_time,
+        Reservation.end_time > start_time
+    ).all()
+
+    conflicts = []
+    for user_id in attendee_ids:
+        try:
+            u_id = int(user_id)
+        except (ValueError, TypeError):
+            continue
+        user = User.query.get(u_id)
+        if not user:
+            continue
+            
+        for res in overlapping_res:
+            if res.user_id == u_id or user in res.attendees:
+                room_name = res.room.display_name
+                conflicts.append({
+                    'user_id': u_id,
+                    'username': user.username,
+                    'room_name': room_name,
+                    'time_slot': f"{res.start_time}-{res.end_time}"
+                })
+                break
+
+    return jsonify({'conflicts': conflicts})
+
+@bp.route('/reservation/<int:res_id>/end_early', methods=['POST'])
+@login_required
+def end_reservation_early(res_id):
+    from app.models import get_turkey_time
+    res = Reservation.query.get_or_404(res_id)
+    if current_user.id != res.user_id and not current_user.is_admin:
+        flash(gettext('Bu işlemi yapmaya yetkiniz yok.'), 'danger')
+        return redirect(request.referrer or url_for('main.dashboard'))
+        
+    now_str = get_turkey_time().strftime('%H:%M')
+    res.end_time = now_str
+    db.session.commit()
+    
+    log_action(current_user.id, "REZERVASYON_ERKEN_BİTİRİLDİ", f"{res.room.name} odasındaki rezervasyon erken sonlandırıldı.")
+    
+    if session.get('lang', 'tr') == 'en':
+        flash(f"Meeting ended early. Room '{res.room.display_name}' is now free!", 'success')
+    else:
+        flash(f"Toplantı erken sonlandırıldı. {res.room.display_name} odası boşa çıkarıldı!", 'success')
+        
+    return redirect(request.referrer or url_for('main.dashboard'))
 
 
 @bp.route('/api/door/scan', methods=['POST'])

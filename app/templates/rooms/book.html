@@ -263,6 +263,7 @@
 
             <div style="margin-top: 2rem;">
                 <label class="form-section-label" style="display: block; color: var(--text-color); margin-bottom: 0.5rem; font-weight: 600; font-size: 0.9rem;">{{ gettext('Kişileri Davet Et (Opsiyonel)') }}</label>
+                <div id="attendees-conflict-warning" style="display: none; margin-bottom: 0.5rem; padding: 0.5rem 0.75rem; background: rgba(245, 158, 11, 0.15); border: 1px solid #f59e0b; border-radius: 6px; color: #fbbf24; font-size: 0.8rem; line-height: 1.4;"></div>
                 <div class="attendees-list" style="max-height: 180px; min-height: 80px; overflow-y: auto; -webkit-overflow-scrolling: touch; background: rgba(0,0,0,0.1); border: 1px solid var(--border-color); border-radius: 0.5rem; padding: 0.35rem;">
                     {% for user in all_users %}
                     <label style="display: flex; align-items: center; padding: 0.35rem 0.5rem; cursor: pointer; border-bottom: 1px solid var(--border-color); color: var(--text-color); margin: 0; min-height: 32px; border-radius: 4px; transition: background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.background='transparent'">
@@ -380,6 +381,8 @@
                 submitBtn.disabled = false;
                 submitBtn.style.opacity = '1';
                 submitBtn.textContent = `{{ gettext('Seçimi Onayla') }} (${hour})`;
+                
+                checkAttendeesConflict();
             });
             
             // Otomatik seçim
@@ -391,6 +394,56 @@
         });
     }
 
+    async function checkAttendeesConflict() {
+        const warningDiv = document.getElementById('attendees-conflict-warning');
+        if (!warningDiv) return;
+
+        const reqDate = dateInput.value;
+        const startTime = startTimeInput.value;
+        const durationInput = document.querySelector('input[name="duration"]:checked');
+        const duration = durationInput ? durationInput.value : 60;
+        
+        const checkboxes = document.querySelectorAll('input[name="attendees"]:checked');
+        const attendeeIds = Array.from(checkboxes).map(cb => cb.value);
+
+        if (!reqDate || !startTime || attendeeIds.length === 0) {
+            warningDiv.style.display = 'none';
+            warningDiv.innerHTML = '';
+            return;
+        }
+
+        try {
+            const res = await fetch('/api/check_attendees_conflict', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    date: reqDate,
+                    start_time: startTime,
+                    duration: duration,
+                    attendee_ids: attendeeIds
+                })
+            });
+            const data = await res.json();
+            if (data.conflicts && data.conflicts.length > 0) {
+                let html = '{% if current_lang == "en" %}<strong>⚠️ Invitee Conflict Warning:</strong><br>' : '<strong>⚠️ Çakışan Davetli Uyarısı:</strong><br>';
+                data.conflicts.forEach(c => {
+                    html += `• ${c.username} (${c.time_slot} - ${c.room_name})<br>`;
+                });
+                warningDiv.innerHTML = html;
+                warningDiv.style.display = 'block';
+            } else {
+                warningDiv.style.display = 'none';
+                warningDiv.innerHTML = '';
+            }
+        } catch (e) {
+            console.error("Conflict check error:", e);
+        }
+    }
+
+    document.querySelectorAll('input[name="attendees"]').forEach(cb => {
+        cb.addEventListener('change', checkAttendeesConflict);
+    });
+
     // Süre (duration) değiştiğinde grid'i yeniden çiz
     document.querySelectorAll('input[name="duration"]').forEach(radio => {
         radio.addEventListener('change', () => {
@@ -400,6 +453,7 @@
                 submitBtn.disabled = true;
                 submitBtn.style.opacity = '0.5';
                 submitBtn.textContent = "{{ gettext('Lütfen Saat Seçin') }}";
+                checkAttendeesConflict();
                 
                 renderSlots(currentDate);
             }

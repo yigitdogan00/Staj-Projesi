@@ -73,17 +73,17 @@
                 <button type="button" class="btn" style="width: auto; padding: 0.5rem 1.5rem; font-size: 0.875rem; background: #8b5cf6; margin-right: 0.5rem;" onclick="showQrModal({{ res.id }})">{% if current_lang == 'en' %}Show QR{% else %}QR Göster{% endif %}</button>
                 <button type="button" class="btn btn-warning" style="width: auto; padding: 0.5rem 1.5rem; font-size: 0.875rem; background: #f59e0b; border: none; color: white; margin-right: 0.5rem;" onclick="showExitQrModal({{ res.id }})">{% if current_lang == 'en' %}Exit QR{% else %}Çıkış QR{% endif %}</button>
                 {% set is_active = (res.date == today and res.start_time <= current_hour and current_hour < res.end_time) %} 
+                {% if is_active %}
+                {% set end_early_confirm_msg = "Are you sure you want to end this meeting early and free up the room?" if current_lang == "en" else "Bu toplantıyı erken bitirip odayı boşa çıkarmak istediğinize emin misiniz?" %}
+                <form action="{{ url_for('main.end_reservation_early', res_id=res.id) }}" method="POST" style="display:inline;">
+                    <button type="submit" class="btn btn-warning" style="width: auto; padding: 0.5rem 1.2rem; font-size: 0.875rem; background: #ea580c; border: none; color: white; margin-right: 0.5rem;" onclick="return confirm('{{ end_early_confirm_msg }}');">{% if current_lang == 'en' %}⏹️ End Early{% else %}⏹️ Erken Bitir{% endif %}</button>
+                </form>
+                {% endif %}
                 {% if not is_active %} 
                 {% set cancel_confirm_msg = "Are you sure you want to cancel this reservation?" if current_lang == "en" else "Bu rezervasyonu iptal etmek istediğinize emin misiniz?" %}
                 <form action="{{ url_for('main.delete_reservation', res_id=res.id) }}" method="POST" style="display:inline;">
                     <button type="submit" class="btn btn-danger" style="width: auto; padding: 0.5rem 1.5rem; font-size: 0.875rem; background: #ef4444; border-color: #ef4444; color: white;" onclick="return confirm('{{ cancel_confirm_msg }}');">{% if current_lang == 'en' %}Cancel{% else %}İptal Et{% endif %}</button>
                 </form>
-                {% else %}
-                {% if current_user in res.active_users %}
-                <span style="font-size: 0.875rem; color: #10b981; font-weight: bold; margin-left: 0.5rem; align-self: center;">{% if current_lang == 'en' %}Scan QR to check out while in room{% else %}Odadayken Çıkış yapmak için QR okutun{% endif %}</span>
-                {% else %}
-                <span style="font-size: 0.875rem; color: #f59e0b; font-weight: bold; margin-left: 0.5rem; align-self: center;">{% if current_lang == 'en' %}Scan QR to enter room{% else %}Odaya girmek için QR okutun{% endif %}</span>
-                {% endif %}
                 {% endif %}
             </div>
         </div>
