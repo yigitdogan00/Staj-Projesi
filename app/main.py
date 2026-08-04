@@ -1616,8 +1616,16 @@ def api_overview(date_str):
         data[r.id] = {}
         
     from datetime import datetime, timedelta
+    from app.models import get_turkey_time
+    
+    now = get_turkey_time()
+    today_str = now.strftime('%Y-%m-%d')
+    current_time_str = now.strftime('%H:%M')
     
     for res in reservations:
+        if date_str == today_str and res.end_time <= current_time_str:
+            continue
+            
         if res.room_id in data:
             start_dt = datetime.strptime(res.start_time, '%H:%M')
             end_dt = datetime.strptime(res.end_time, '%H:%M')
@@ -1922,7 +1930,7 @@ def dashboard():
         res.cal_url = generate_google_calendar_url(res.room.name, res.date, res.start_time, res.end_time)
         invited_reservations.append(res)
         
-    return render_template('dashboard.html', title='Dashboard', reservations=reservations, invited_reservations=invited_reservations)
+    return render_template('dashboard.html', title='Dashboard', reservations=reservations, invited_reservations=invited_reservations, today=today_str, current_hour=time_str)
 
 @bp.route('/reservation/<int:res_id>/delete', methods=['POST'])
 @login_required

@@ -412,7 +412,10 @@
                             const div = document.createElement('div');
                             div.className = 'cell-slot booked';
 
-                            if (hour in bookedSlots) {
+                            if (isPast) {
+                                div.textContent = "{{ gettext('Geçmiş') }}";
+                                div.title = "{{ gettext('Bu saat geçmiş') }}";
+                            } else if (hour in bookedSlots) {
                                 const resData = bookedSlots[hour];
                                 div.textContent = "{{ gettext('Dolu') }}";
                                 div.title = `Rezerve eden: ${resData.username}`;
@@ -429,9 +432,6 @@
                                         }
                                     });
                                 }
-                            } else {
-                                div.textContent = "{{ gettext('Geçmiş') }}";
-                                div.title = "{{ gettext('Bu saat geçmiş') }}";
                             }
 
                             td.appendChild(div);
@@ -485,7 +485,10 @@
                                 const div = document.createElement('div');
                                 div.className = 'cell-slot booked';
                                 
-                                if (hour in bookedSlots) {
+                                if (isPast) {
+                                    div.textContent = "{{ gettext('Geçmiş') }}";
+                                    div.title = "{{ gettext('Bu saat geçmiş') }}";
+                                } else if (hour in bookedSlots) {
                                     const resData = bookedSlots[hour];
                                     div.textContent = "{{ gettext('Dolu') }}";
                                     div.title = `Rezerve eden: ${resData.username}`;
@@ -502,15 +505,22 @@
                                             }
                                         });
                                     }
-                                } else {
-                                    div.textContent = "{{ gettext('Geçmiş') }}";
-                                    div.title = "{{ gettext('Bu saat geçmiş') }}";
                                 }
 
                                 td.innerHTML = '';
                                 td.appendChild(div);
                             } else {
-                                if (hour in bookedSlots) {
+                                if (isPast) {
+                                    if (child.textContent !== "{{ gettext('Geçmiş') }}") {
+                                        child.textContent = "{{ gettext('Geçmiş') }}";
+                                        child.title = "{{ gettext('Bu saat geçmiş') }}";
+                                        child.style.cursor = 'not-allowed';
+                                        const newChild = child.cloneNode(true);
+                                        td.innerHTML = '';
+                                        td.appendChild(newChild);
+                                    }
+                                } else if (hour in bookedSlots) {
+                                    const resData = bookedSlots[hour];
                                     if (child.textContent !== "{{ gettext('Dolu') }}") {
                                         child.className = 'cell-slot booked';
                                         child.textContent = "{{ gettext('Dolu') }}";
@@ -535,15 +545,6 @@
                                             td.innerHTML = '';
                                             td.appendChild(div);
                                         }
-                                    }
-                                } else if (isPast) {
-                                    if (child.textContent !== "{{ gettext('Geçmiş') }}") {
-                                        child.textContent = "{{ gettext('Geçmiş') }}";
-                                        child.title = "{{ gettext('Bu saat geçmiş') }}";
-                                        child.style.cursor = 'not-allowed';
-                                        const newChild = child.cloneNode(true);
-                                        td.innerHTML = '';
-                                        td.appendChild(newChild);
                                     }
                                 }
                             }

@@ -68,22 +68,30 @@
             </div>
 
             <div class="res-actions">
+                {% set is_active = (res.date == today and res.start_time <= current_hour and current_hour < res.end_time) %} 
+                {% set is_past = (res.date < today or (res.date == today and res.end_time <= current_hour)) %}
+                {% set is_owner_or_admin = (current_user.id == res.user_id or current_user.is_admin) %}
+                
+                {% if is_past %}
+                <span class="badge" style="background: #10b981; color: white; padding: 0.5rem 1rem; border-radius: 0.5rem; font-weight: 600; font-size: 0.875rem; display: inline-flex; align-items: center; gap: 0.3rem;">✓ {% if current_lang == 'en' %}Completed{% else %}Tamamlandı{% endif %}</span>
+                {% else %}
                 <a href="{{ res.cal_url }}" target="_blank" class="btn" style="width: auto; padding: 0.5rem 1.5rem; font-size: 0.875rem; background: #3b82f6; margin-right: 0.5rem;">{% if current_lang == 'en' %}Add to Calendar{% else %}Takvime Ekle{% endif %}</a>
-
                 <button type="button" class="btn" style="width: auto; padding: 0.5rem 1.5rem; font-size: 0.875rem; background: #8b5cf6; margin-right: 0.5rem;" onclick="showQrModal({{ res.id }})">{% if current_lang == 'en' %}Show QR{% else %}QR Göster{% endif %}</button>
                 <button type="button" class="btn btn-warning" style="width: auto; padding: 0.5rem 1.5rem; font-size: 0.875rem; background: #f59e0b; border: none; color: white; margin-right: 0.5rem;" onclick="showExitQrModal({{ res.id }})">{% if current_lang == 'en' %}Exit QR{% else %}Çıkış QR{% endif %}</button>
-                {% set is_active = (res.date == today and res.start_time <= current_hour and current_hour < res.end_time) %} 
+                
                 {% if is_active %}
+                {% if is_owner_or_admin %}
                 {% set end_early_confirm_msg = "Are you sure you want to end this meeting early and free up the room?" if current_lang == "en" else "Bu toplantıyı erken bitirip odayı boşa çıkarmak istediğinize emin misiniz?" %}
                 <form action="{{ url_for('main.end_reservation_early', res_id=res.id) }}" method="POST" style="display:inline;">
                     <button type="submit" class="btn btn-warning" style="width: auto; padding: 0.5rem 1.2rem; font-size: 0.875rem; background: #ea580c; border: none; color: white; margin-right: 0.5rem;" onclick="return confirm('{{ end_early_confirm_msg }}');">{% if current_lang == 'en' %}⏹️ End Early{% else %}⏹️ Erken Bitir{% endif %}</button>
                 </form>
                 {% endif %}
-                {% if not is_active %} 
+                {% else %} 
                 {% set cancel_confirm_msg = "Are you sure you want to cancel this reservation?" if current_lang == "en" else "Bu rezervasyonu iptal etmek istediğinize emin misiniz?" %}
                 <form action="{{ url_for('main.delete_reservation', res_id=res.id) }}" method="POST" style="display:inline;">
                     <button type="submit" class="btn btn-danger" style="width: auto; padding: 0.5rem 1.5rem; font-size: 0.875rem; background: #ef4444; border-color: #ef4444; color: white;" onclick="return confirm('{{ cancel_confirm_msg }}');">{% if current_lang == 'en' %}Cancel{% else %}İptal Et{% endif %}</button>
                 </form>
+                {% endif %}
                 {% endif %}
             </div>
         </div>
@@ -151,6 +159,10 @@
             </div>
 
             <div class="res-actions">
+                {% set is_past_inv = (res.date < today or (res.date == today and res.end_time <= current_hour)) %}
+                {% if is_past_inv %}
+                <span class="badge" style="background: #10b981; color: white; padding: 0.5rem 1rem; border-radius: 0.5rem; font-weight: 600; font-size: 0.875rem; display: inline-flex; align-items: center; gap: 0.3rem;">✓ {% if current_lang == 'en' %}Completed{% else %}Tamamlandı{% endif %}</span>
+                {% else %}
                 <a href="{{ res.cal_url }}" target="_blank" class="btn" style="width: auto; padding: 0.5rem 1.5rem; font-size: 0.875rem; background: #3b82f6; margin-right: 0.5rem;">{% if current_lang == 'en' %}Add to Calendar{% else %}Takvime Ekle{% endif %}</a>
                 <button type="button" class="btn" style="width: auto; padding: 0.5rem 1.5rem; font-size: 0.875rem; background: #8b5cf6; margin-right: 0.5rem;" onclick="showQrModal({{ res.id }})">{% if current_lang == 'en' %}Show QR{% else %}QR Göster{% endif %}</button>
                 <button type="button" class="btn btn-warning" style="width: auto; padding: 0.5rem 1.5rem; font-size: 0.875rem; background: #f59e0b; border: none; color: white; margin-right: 0.5rem;" onclick="showExitQrModal({{ res.id }})">{% if current_lang == 'en' %}Exit QR{% else %}Çıkış QR{% endif %}</button>
@@ -158,6 +170,7 @@
                 <form action="{{ url_for('main.leave_reservation', res_id=res.id) }}" method="POST" style="display:inline;">
                     <button type="submit" class="btn btn-danger" style="width: auto; padding: 0.5rem 1.5rem; font-size: 0.875rem; background: #ef4444; border-color: #ef4444; color: white;" onclick="return confirm('{{ leave_confirm_msg }}');">{% if current_lang == 'en' %}Leave Meeting{% else %}Toplantıdan Ayrıl{% endif %}</button>
                 </form>
+                {% endif %}
             </div>
         </div>
     </div>

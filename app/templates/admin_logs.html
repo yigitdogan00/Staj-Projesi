@@ -68,14 +68,40 @@
                 </select>
             </div>
 
-            <div>
+            {% set default_user_label = "All Users" if current_lang == "en" else "Tüm Kullanıcılar" %}
+            <div style="position: relative; min-width: 240px;">
                 <label style="display: block; color: #94a3b8; font-size: 0.875rem; margin-bottom: 0.25rem;">{% if current_lang == 'en' %}User{% else %}Kullanıcı{% endif %}</label>
-                <select name="user_id" class="form-control" style="background: var(--bg-color); color: white; border: 1px solid var(--border-color); padding: 0.5rem; border-radius: 0.25rem; min-width: 140px;">
-                    <option value="">{% if current_lang == 'en' %}All Users{% else %}Tüm Kullanıcılar{% endif %}</option>
-                    {% for u in all_users %}
-                        <option value="{{ u.id }}" {% if user_id_filter == u.id %}selected{% endif %}>{{ u.full_name }} (@{{ u.username }})</option>
-                    {% endfor %}
-                </select>
+                <input type="hidden" name="user_id" id="user_id_input" value="{{ user_id_filter or '' }}">
+                <div id="user-select-btn" class="form-control" onclick="toggleUserDropdown(event)" style="background: var(--bg-color); color: white; border: 1px solid var(--border-color); padding: 0.375rem 0.75rem; border-radius: 0.25rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center; height: 38px; box-sizing: border-box;">
+                    <span id="selected-user-text" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px; line-height: 1; font-size: 0.95rem;">
+                        {% if user_id_filter %}
+                            {% set ns = namespace(found=false) %}
+                            {% for u in all_users %}{% if user_id_filter == u.id %}{% set ns.found = true %}{{ u.full_name }} (@{{ u.username }}){% endif %}{% endfor %}
+                            {% if not ns.found %}{{ default_user_label }}{% endif %}
+                        {% else %}
+                            {{ default_user_label }}
+                        {% endif %}
+                    </span>
+                    <small style="font-size: 0.7rem; color: #94a3b8; margin-left: 0.35rem; pointer-events: none;">▼</small>
+                </div>
+                
+                <div id="user-dropdown-menu" style="display: none; position: absolute; top: 100%; left: 0; min-width: 280px; width: max-content; max-width: 350px; background: #1e293b; border: 1px solid var(--border-color); border-radius: 0.375rem; z-index: 1000; box-shadow: 0 10px 25px rgba(0,0,0,0.5); padding: 0.5rem; margin-top: 0.25rem; box-sizing: border-box;">
+                    <div style="position: sticky; top: 0; background: #1e293b; z-index: 2; padding-bottom: 0.25rem; border-bottom: 1px solid #334155;">
+                        <input type="text" id="user-search-input" placeholder="🔍 {% if current_lang == 'en' %}Search user...{% else %}Kullanıcı ara...{% endif %}" onkeyup="filterUserDropdown()" onclick="event.stopPropagation();" style="width: 100%; padding: 0.4rem 0.6rem; background: #0f172a; color: white; border: 1px solid #334155; border-radius: 0.25rem; font-size: 0.85rem; margin-bottom: 0.35rem; outline: none; box-sizing: border-box;">
+                        
+                        <div class="user-option-all" onclick="selectUser('', '{{ default_user_label }}')" style="padding: 0.4rem 0.6rem; cursor: pointer; border-radius: 0.25rem; color: #60a5fa; font-size: 0.85rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" onmouseover="this.style.background='#334155'" onmouseout="this.style.background='transparent'">
+                            🔍 {{ default_user_label }}
+                        </div>
+                    </div>
+                    
+                    <div id="user-list-container" style="max-height: 180px; overflow-y: auto; overflow-x: hidden; margin-top: 0.35rem; padding-right: 0.2rem;">
+                        {% for u in all_users %}
+                        <div class="user-option-item" data-search="{{ u.full_name|lower }} {{ u.username|lower }}" onclick="selectUser('{{ u.id }}', '{{ u.full_name }} (@{{ u.username }})')" style="padding: 0.4rem 0.6rem; cursor: pointer; border-radius: 0.25rem; color: white; font-size: 0.85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="{{ u.full_name }} (@{{ u.username }})" onmouseover="this.style.background='#334155'" onmouseout="this.style.background='transparent'">
+                            👤 {{ u.full_name }} <span style="color: #94a3b8; font-size: 0.75rem;">(@{{ u.username }})</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
             </div>
 
             <div>
@@ -228,6 +254,47 @@
         
         window.location.href = "{{ url_for('main.admin_logs') }}?start_date=" + targetDateStr + "&end_date=" + targetDateStr + "&action={{ action_filter }}&user_id={{ user_id_filter }}&per_page={{ per_page }}";
     }
+
+    function toggleUserDropdown(e) {
+        if (e) e.stopPropagation();
+        const menu = document.getElementById('user-dropdown-menu');
+        const input = document.getElementById('user-search-input');
+        if (menu.style.display === 'none' || menu.style.display === '') {
+            menu.style.display = 'block';
+            input.value = '';
+            filterUserDropdown();
+            setTimeout(() => input.focus(), 50);
+        } else {
+            menu.style.display = 'none';
+        }
+    }
+
+    function filterUserDropdown() {
+        const filter = document.getElementById('user-search-input').value.toLowerCase().trim();
+        const options = document.querySelectorAll('#user-dropdown-menu .user-option-item');
+        options.forEach(opt => {
+            const text = opt.getAttribute('data-search');
+            if (!text || text.includes(filter)) {
+                opt.style.display = 'block';
+            } else {
+                opt.style.display = 'none';
+            }
+        });
+    }
+
+    function selectUser(id, text) {
+        document.getElementById('user_id_input').value = id;
+        document.getElementById('selected-user-text').innerText = text;
+        document.getElementById('user-dropdown-menu').style.display = 'none';
+    }
+
+    document.addEventListener('click', function(e) {
+        const menu = document.getElementById('user-dropdown-menu');
+        const btn = document.getElementById('user-select-btn');
+        if (menu && btn && !menu.contains(e.target) && !btn.contains(e.target)) {
+            menu.style.display = 'none';
+        }
+    });
 
     // Keyboard Shortcuts: Sol/Sağ Ok tuşları ile gün değiştirme
     document.addEventListener('keydown', function(e) {
