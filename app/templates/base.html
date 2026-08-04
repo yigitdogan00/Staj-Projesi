@@ -594,10 +594,10 @@
             white-space: nowrap;
         }
 
-        @keyframes navSlideDown {
+        @keyframes mobileMenuAccordion {
             0% {
                 opacity: 0;
-                transform: translateY(-15px);
+                transform: translateY(-8px);
             }
             100% {
                 opacity: 1;
@@ -617,49 +617,87 @@
                 touch-action: manipulation;
             }
 
+            .navbar {
+                flex-wrap: wrap !important;
+                padding: 0.85rem 1.25rem !important;
+                position: sticky !important;
+                top: 0 !important;
+                z-index: 1000 !important;
+            }
+
             .mobile-menu-btn {
-                display: block;
+                display: flex !important;
+                align-items: center;
+                justify-content: center;
                 min-height: 44px;
                 min-width: 44px;
+                padding: 0.5rem 0.85rem;
+                background: rgba(255, 255, 255, 0.08);
+                border: 1px solid var(--border-color);
+                border-radius: 8px;
+                color: var(--text-color);
+                font-size: 1.4rem;
+                cursor: pointer;
+                transition: all 0.2s ease;
+            }
+
+            .mobile-menu-btn:active {
+                transform: scale(0.94);
             }
 
             .nav-links {
                 display: none;
-                position: absolute;
-                top: 100%;
-                left: 0;
-                right: 0;
-                width: 100%;
-                background: rgba(15, 23, 42, 0.98);
-                -webkit-backdrop-filter: blur(16px);
-                backdrop-filter: blur(16px);
-                flex-direction: column;
-                align-items: stretch;
-                padding: 1.25rem 1.5rem;
-                border-bottom: 1px solid var(--border-color);
-                box-shadow: 0 15px 30px -5px rgba(0, 0, 0, 0.5);
-                z-index: 999;
-                max-height: 85vh;
-                overflow-y: auto;
-                box-sizing: border-box;
-                transform-origin: top center;
+                flex-basis: 100% !important;
+                width: 100% !important;
+                flex-direction: column !important;
+                align-items: stretch !important;
+                gap: 0.5rem !important;
+                margin-top: 0.85rem !important;
+                padding-top: 0.85rem !important;
+                border-top: 1px solid var(--border-color) !important;
+                background: transparent !important;
+                position: static !important;
+                box-shadow: none !important;
             }
 
             .nav-links.active {
-                display: flex;
-                animation: navSlideDown 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+                display: flex !important;
+                animation: mobileMenuAccordion 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
             }
 
             .nav-links > a {
-                margin-left: 0 !important;
-                margin-bottom: 0.75rem;
-                width: 100%;
-                padding: 0.75rem 0;
+                width: 100% !important;
+                margin: 0 !important;
+                padding: 0.85rem 1rem !important;
                 min-height: 44px;
-                display: flex;
-                align-items: center;
-                border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-                box-sizing: border-box;
+                display: flex !important;
+                align-items: center !important;
+                border-radius: 8px !important;
+                background: rgba(255, 255, 255, 0.05) !important;
+                border: 1px solid rgba(255, 255, 255, 0.08) !important;
+                box-sizing: border-box !important;
+                font-size: 0.95rem !important;
+                font-weight: 600 !important;
+                color: var(--text-color) !important;
+                transition: all 0.2s ease !important;
+            }
+
+            .nav-links > a:hover, .nav-links > a:active {
+                background: rgba(79, 70, 229, 0.2) !important;
+                border-color: rgba(79, 70, 229, 0.4) !important;
+                transform: translateX(4px);
+            }
+
+            [data-theme="light"] .nav-links > a {
+                background: #ffffff !important;
+                border: 1px solid #e2e8f0 !important;
+                color: #0f172a !important;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important;
+            }
+
+            [data-theme="light"] .nav-links > a:hover {
+                background: rgba(79, 70, 229, 0.08) !important;
+                color: var(--primary) !important;
             }
 
             #notifDropdownContainer,
@@ -1045,7 +1083,7 @@
             <img src="https://www.rndecommerce.com/wp-content/uploads/2025/04/RND-Logo-V1.png" alt="RND E-Ticaret"
                 style="height: 45px; transition: transform 0.3s ease;">
         </a>
-        <button class="mobile-menu-btn" onclick="document.getElementById('navLinks').classList.toggle('active')">
+        <button class="mobile-menu-btn" onclick="this.classList.toggle('open'); document.getElementById('navLinks').classList.toggle('active'); this.innerText = this.classList.contains('open') ? '✖' : '☰';">
             ☰
         </button>
         <div class="nav-links" id="navLinks">
