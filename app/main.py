@@ -1489,6 +1489,14 @@ def add_room():
     from app.utils import auto_translate_to_english
     form = RoomForm()
     if form.validate_on_submit():
+        existing = Room.query.filter_by(name=form.name.data).first()
+        if existing:
+            if session.get('lang', 'tr') == 'en':
+                flash(f"A room named '{form.name.data}' already exists.", 'danger')
+            else:
+                flash(f"'{form.name.data}' isimli bir oda zaten var.", 'danger')
+            return render_template('rooms/add.html', title='Oda Ekle', form=form)
+
         en_name = form.english_name.data.strip() if form.english_name.data else ""
         if not en_name:
             en_name = auto_translate_to_english(form.name.data)
@@ -1497,19 +1505,27 @@ def add_room():
         if not en_desc and form.description.data:
             en_desc = auto_translate_to_english(form.description.data)
 
-        room = Room(
-            name=form.name.data,
-            english_name=en_name,
-            capacity=form.capacity.data,
-            description=form.description.data,
-            english_description=en_desc
-        )
-        db.session.add(room)
-        db.session.commit()
-        log_action(current_user.id, "ODA_EKLENDİ", f"{room.name} odası eklendi.")
-        from flask_babel import gettext
-        flash(gettext('Yeni oda başarıyla eklendi!'), 'success')
-        return redirect(url_for('main.rooms'))
+        try:
+            room = Room(
+                name=form.name.data,
+                english_name=en_name,
+                capacity=form.capacity.data,
+                description=form.description.data,
+                english_description=en_desc
+            )
+            db.session.add(room)
+            db.session.commit()
+            log_action(current_user.id, "ODA_EKLENDİ", f"{room.name} odası eklendi.")
+            from flask_babel import gettext
+            flash(gettext('Yeni oda başarıyla eklendi!'), 'success')
+            return redirect(url_for('main.rooms'))
+        except Exception:
+            db.session.rollback()
+            if session.get('lang', 'tr') == 'en':
+                flash(f"A room named '{form.name.data}' already exists.", 'danger')
+            else:
+                flash(f"'{form.name.data}' isimli bir oda zaten var.", 'danger')
+
     return render_template('rooms/add.html', title='Oda Ekle', form=form)
 
 @bp.route('/rooms/edit/<int:room_id>', methods=['GET', 'POST'])
@@ -1523,8 +1539,10 @@ def edit_room(room_id):
     if form.validate_on_submit():
         existing = Room.query.filter_by(name=form.name.data).first()
         if existing and existing.id != room.id:
-            from flask_babel import gettext
-            flash(gettext('Bu isimde başka bir oda zaten var.'), 'danger')
+            if session.get('lang', 'tr') == 'en':
+                flash(f"A room named '{form.name.data}' already exists.", 'danger')
+            else:
+                flash(f"'{form.name.data}' isimli bir oda zaten var.", 'danger')
         else:
             en_name = form.english_name.data.strip() if form.english_name.data else ""
             if not en_name:
