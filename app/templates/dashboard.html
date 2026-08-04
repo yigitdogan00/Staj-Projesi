@@ -1,215 +1,298 @@
 {% extends "base.html" %}
 
-{% block meta_description %}{{ gettext('Yaklaşan ve geçmiş toplantılarınızı, davet edildiğiniz rezervasyonları kişisel kontrol panelinizden inceleyin ve yönetin.') }}{% endblock %}
+{% block meta_description %}{{ gettext('Yaklaşan ve geçmiş toplantılarınızı, davet edildiğiniz rezervasyonları kişisel
+kontrol panelinizden inceleyin ve yönetin.') }}{% endblock %}
 
 {% block content %}
-<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+<div
+    style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
     <h2 style="font-size: 2rem; margin: 0;">{{ gettext('Rezervasyonlarım') }}</h2>
-    <a href="{{ url_for('main.rooms') }}" class="btn" style="width: auto; white-space: nowrap;">{{ gettext('Yeni Rezervasyon') }}</a>
+    <a href="{{ url_for('main.rooms') }}" class="btn" style="width: auto; white-space: nowrap;">{{ gettext('Yeni
+        Rezervasyon') }}</a>
 </div>
 
 {% if reservations %}
-    <div class="dashboard-grid">
-        {% for res in reservations %}
-        <div class="res-card">
-            <div class="res-header">
-                <h3>{{ res.room.display_name }} {{ gettext('Odası') }}</h3>
-                <span class="res-date">{{ res.date }}</span>
+<div class="dashboard-grid">
+    {% for res in reservations %}
+    <div class="res-card">
+        <div class="res-header">
+            <h3>{{ res.room.display_name }} {{ gettext('Odası') }}</h3>
+            <span class="res-date">{{ res.date }}</span>
+        </div>
+        <div class="res-body">
+            <div style="font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem; color: #f8fafc;">
+                {{ res.start_time }} - {{ res.end_time }}
             </div>
-            <div class="res-body">
-                <div style="font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem; color: #f8fafc;">
-                    {{ res.start_time }} - {{ res.end_time }}
+
+            {% if res.attendees %}
+            <div style="margin-bottom: 1rem; font-size: 0.875rem;">
+                <strong style="color: #cbd5e1;">{{ gettext('Davetliler') }}:</strong>
+                <div style="display: flex; flex-wrap: wrap; gap: 0.25rem; margin-top: 0.5rem;">
+                    {% for attendee in res.attendees %}
+                    <span
+                        style="background: rgba(79, 70, 229, 0.2); padding: 0.25rem 0.5rem; border-radius: 4px; color: #a5b4fc;">{{
+                        attendee.username }}</span>
+                    {% endfor %}
                 </div>
-                
-                {% if res.attendees %}
-                <div style="margin-bottom: 1rem; font-size: 0.875rem;">
-                    <strong style="color: #cbd5e1;">{{ gettext('Davetliler') }}:</strong>
-                    <div style="display: flex; flex-wrap: wrap; gap: 0.25rem; margin-top: 0.5rem;">
-                        {% for attendee in res.attendees %}
-                            <span style="background: rgba(79, 70, 229, 0.2); padding: 0.25rem 0.5rem; border-radius: 4px; color: #a5b4fc;">{{ attendee.username }}</span>
-                        {% endfor %}
+            </div>
+            {% endif %}
+
+            {% if res.documents %}
+            <div style="margin-bottom: 1rem;">
+                <strong style="color: #cbd5e1; font-size: 0.875rem;">{{ gettext('📄 Dökümanlar') }}:</strong>
+                <div style="display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.5rem;">
+                    {% for doc in res.documents %}
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.05); padding: 0.5rem; border-radius: 4px;">
+                        <span
+                            style="font-size: 0.875rem; color: #f8fafc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 60%;"
+                            title="{{ doc.filename }}">{{ doc.filename }}</span>
+                        <div style="display: flex; gap: 0.5rem; align-items: center;">
+                            <a href="{{ url_for('main.download_document', doc_id=doc.id) }}"
+                                style="color: #3b82f6; font-size: 0.75rem; text-decoration: none;">{{ gettext('İndir')
+                                }}</a>
+                            {% if current_user.id == doc.user_id or current_user.id == res.user_id or
+                            current_user.is_admin %}
+                            <form action="{{ url_for('main.delete_document', doc_id=doc.id) }}" method="POST"
+                                style="margin: 0; padding: 0;"
+                                onsubmit="return confirm('{{ gettext('Bu belgeyi silmek istediğinize emin misiniz?') }}');">
+                                <button type="submit"
+                                    style="background: none; border: none; color: #ef4444; font-size: 0.875rem; cursor: pointer; padding: 0; margin-left: 0.25rem;"
+                                    title="{{ gettext('Sil') }}">✖</button>
+                            </form>
+                            {% endif %}
+                        </div>
                     </div>
+                    {% endfor %}
                 </div>
-                {% endif %}
-                
-                {% if res.documents %}
-                <div style="margin-bottom: 1rem;">
-                    <strong style="color: #cbd5e1; font-size: 0.875rem;">{{ gettext('📄 Dökümanlar') }}:</strong>
-                    <div style="display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.5rem;">
-                        {% for doc in res.documents %}
-                            <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.05); padding: 0.5rem; border-radius: 4px;">
-                                <span style="font-size: 0.875rem; color: #f8fafc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 60%;" title="{{ doc.filename }}">{{ doc.filename }}</span>
-                                <div style="display: flex; gap: 0.5rem; align-items: center;">
-                                    <a href="{{ url_for('main.download_document', doc_id=doc.id) }}" style="color: #3b82f6; font-size: 0.75rem; text-decoration: none;">{{ gettext('İndir') }}</a>
-                                    {% if current_user.id == doc.user_id or current_user.id == res.user_id or current_user.is_admin %}
-                                    <form action="{{ url_for('main.delete_document', doc_id=doc.id) }}" method="POST" style="margin: 0; padding: 0;" onsubmit="return confirm('{{ gettext('Bu belgeyi silmek istediğinize emin misiniz?') }}');">
-                                        <button type="submit" style="background: none; border: none; color: #ef4444; font-size: 0.875rem; cursor: pointer; padding: 0; margin-left: 0.25rem;" title="{{ gettext('Sil') }}">✖</button>
-                                    </form>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        {% endfor %}
-                    </div>
-                </div>
-                {% endif %}
-                
-                <div style="margin-bottom: 1.5rem;">
-                    <form action="{{ url_for('main.upload_document', res_id=res.id) }}" method="POST" enctype="multipart/form-data" style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
-                        <label class="custom-file-upload" style="display: flex; align-items: center; max-width: 250px; border: 1px solid #334155; padding: 0.25rem 0.5rem; cursor: pointer; border-radius: 4px; font-size: 0.75rem; color: #cbd5e1; background: #1e293b; margin: 0;">
-                            <input type="file" name="document" required style="display: none;" onchange='this.parentElement.querySelector("span.file-name").innerText = this.files[0] ? this.files[0].name : "{{ gettext("Dosya seçilmedi") }}"'>
-                            <span class="file-btn" style="background: #334155; padding: 0.15rem 0.4rem; border-radius: 3px; margin-right: 0.5rem; color: #fff; white-space: nowrap; flex-shrink: 0;">{{ gettext('Dosya Seç') }}</span>
-                            <span class="file-name" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ gettext('Dosya seçilmedi') }}</span>
-                        </label>
-                        <button type="submit" class="btn btn-primary" style="padding: 0.25rem 0.5rem; font-size: 0.75rem; width: auto; margin: 0;">{{ gettext('Yükle') }}</button>
-                    </form>
-                </div>
-                
-                <div class="res-actions">
-                    <a href="{{ res.cal_url }}" target="_blank" class="btn" style="width: auto; padding: 0.5rem 1.5rem; font-size: 0.875rem; background: #3b82f6; margin-right: 0.5rem;">{{ gettext('Takvime Ekle') }}</a>
-                    
-                    <button type="button" class="btn" style="width: auto; padding: 0.5rem 1.5rem; font-size: 0.875rem; background: #8b5cf6; margin-right: 0.5rem;" onclick="showQrModal({{ res.id }})">{{ gettext('QR Göster') }}</button>
-                    <button type="button" class="btn btn-warning" style="width: auto; padding: 0.5rem 1.5rem; font-size: 0.875rem; background: #f59e0b; border: none; color: white; margin-right: 0.5rem;" onclick="showExitQrModal({{ res.id }})">{{ gettext('Çıkış QR') }}</button>
-                    {% set is_active = (res.date == today and res.start_time <= current_hour and current_hour < res.end_time) %}
-                    {% if not is_active %}
-                    <form action="{{ url_for('main.delete_reservation', res_id=res.id) }}" method="POST" style="display:inline;">
-                        <button type="submit" class="btn btn-danger" style="width: auto; padding: 0.5rem 1.5rem; font-size: 0.875rem; background: #ef4444; border-color: #ef4444; color: white;" onclick="return confirm('{{ gettext('Bu rezervasyonu iptal etmek istediğinize emin misiniz?') }}');">{{ gettext('İptal Et') }}</button>
+            </div>
+            {% endif %}
+
+            <div style="margin-bottom: 1.5rem;">
+                <form action="{{ url_for('main.upload_document', res_id=res.id) }}" method="POST"
+                    enctype="multipart/form-data"
+                    style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+                    <label class="custom-file-upload"
+                        style="display: flex; align-items: center; max-width: 250px; border: 1px solid #334155; padding: 0.25rem 0.5rem; cursor: pointer; border-radius: 4px; font-size: 0.75rem; color: #cbd5e1; background: #1e293b; margin: 0;">
+                        <input type="file" name="document" required style="display: none;"
+                            onchange='this.parentElement.querySelector("span.file-name").innerText = this.files[0] ? this.files[0].name : "{{ gettext("Dosya seçilmedi") }}"'>
+                        <span class="file-btn"
+                            style="background: #334155; padding: 0.15rem 0.4rem; border-radius: 3px; margin-right: 0.5rem; color: #fff; white-space: nowrap; flex-shrink: 0;">{{
+                            gettext('Dosya Seç') }}</span>
+                        <span class="file-name"
+                            style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ gettext('Dosya
+                            seçilmedi') }}</span>
+                    </label>
+                    <button type="submit" class="btn btn-primary"
+                        style="padding: 0.25rem 0.5rem; font-size: 0.75rem; width: auto; margin: 0;">{{ gettext('Yükle')
+                        }}</button>
+                </form>
+            </div>
+
+            <div class="res-actions">
+                <a href="{{ res.cal_url }}" target="_blank" class="btn"
+                    style="width: auto; padding: 0.5rem 1.5rem; font-size: 0.875rem; background: #3b82f6; margin-right: 0.5rem;">{{
+                    gettext('Takvime Ekle') }}</a>
+
+                <button type="button" class="btn"
+                    style="width: auto; padding: 0.5rem 1.5rem; font-size: 0.875rem; background: #8b5cf6; margin-right: 0.5rem;"
+                    onclick="showQrModal({{ res.id }})">{{ gettext('QR Göster') }}</button>
+                <button type="button" class="btn btn-warning"
+                    style="width: auto; padding: 0.5rem 1.5rem; font-size: 0.875rem; background: #f59e0b; border: none; color: white; margin-right: 0.5rem;"
+                    onclick="showExitQrModal({{ res.id }})">{{ gettext('Çıkış QR') }}</button>
+                {% set is_active = (res.date == today and res.start_time <= current_hour and current_hour <
+                    res.end_time) %} {% if not is_active %} <form
+                    action="{{ url_for('main.delete_reservation', res_id=res.id) }}" method="POST"
+                    style="display:inline;">
+                    <button type="submit" class="btn btn-danger"
+                        style="width: auto; padding: 0.5rem 1.5rem; font-size: 0.875rem; background: #ef4444; border-color: #ef4444; color: white;"
+                        onclick="return confirm('{{ gettext('Bu rezervasyonu iptal etmek istediğinize emin misiniz?') }}');">{{
+                        gettext('İptal Et') }}</button>
                     </form>
                     {% else %}
-                        {% if current_user in res.active_users %}
-                            <span style="font-size: 0.875rem; color: #10b981; font-weight: bold; margin-left: 0.5rem; align-self: center;">{{ gettext('Odadayken Çıkış yapmak için QR okutun') }}</span>
-                        {% else %}
-                            <span style="font-size: 0.875rem; color: #f59e0b; font-weight: bold; margin-left: 0.5rem; align-self: center;">{{ gettext('Odaya girmek için QR okutun') }}</span>
-                        {% endif %}
+                    {% if current_user in res.active_users %}
+                    <span
+                        style="font-size: 0.875rem; color: #10b981; font-weight: bold; margin-left: 0.5rem; align-self: center;">{{
+                        gettext('Odadayken Çıkış yapmak için QR okutun') }}</span>
+                    {% else %}
+                    <span
+                        style="font-size: 0.875rem; color: #f59e0b; font-weight: bold; margin-left: 0.5rem; align-self: center;">{{
+                        gettext('Odaya girmek için QR okutun') }}</span>
                     {% endif %}
-                </div>
+                    {% endif %}
             </div>
         </div>
-        {% endfor %}
     </div>
+    {% endfor %}
+</div>
 {% else %}
-    <div style="text-align: center; padding: 4rem 2rem; background: var(--card-bg); border-radius: 1rem; border: 1px solid var(--border-color);">
-        <h3 style="color: #94a3b8; font-weight: 400; margin-bottom: 1rem;">{{ gettext('Henüz bir rezervasyonunuz bulunmuyor.') }}</h3>
-        <a href="{{ url_for('main.rooms') }}" class="btn btn-primary">{{ gettext('Hemen Oda Rezervasyonu Yap') }}</a>
-    </div>
+<div
+    style="text-align: center; padding: 4rem 2rem; background: var(--card-bg); border-radius: 1rem; border: 1px solid var(--border-color);">
+    <h3 style="color: #94a3b8; font-weight: 400; margin-bottom: 1rem;">{{ gettext('Henüz bir rezervasyonunuz
+        bulunmuyor.') }}</h3>
+    <a href="{{ url_for('main.rooms') }}" class="btn btn-primary">{{ gettext('Hemen Oda Rezervasyonu Yap') }}</a>
+</div>
 {% endif %}
 
 <h2 style="margin-top: 3rem; margin-bottom: 1.5rem; color: #10b981;">{{ gettext('Davet Edildiğim Toplantılar') }}</h2>
 {% if invited_reservations %}
-    <div class="dashboard-grid">
-        {% for res in invited_reservations %}
-        <div class="res-card" style="border-left: 4px solid #10b981;">
-            <div class="res-header">
-                <h3>{{ res.room.display_name }} {{ gettext('Odası') }}</h3>
-                <span class="res-date">{{ res.date }}</span>
+<div class="dashboard-grid">
+    {% for res in invited_reservations %}
+    <div class="res-card" style="border-left: 4px solid #10b981;">
+        <div class="res-header">
+            <h3>{{ res.room.display_name }} {{ gettext('Odası') }}</h3>
+            <span class="res-date">{{ res.date }}</span>
+        </div>
+        <div class="res-body">
+            <div style="font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem; color: #f8fafc;">
+                {{ res.start_time }} - {{ res.end_time }}
             </div>
-            <div class="res-body">
-                <div style="font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem; color: #f8fafc;">
-                    {{ res.start_time }} - {{ res.end_time }}
-                </div>
-                
-                <div style="margin-bottom: 1rem; font-size: 0.875rem; color: #cbd5e1;">
-                    <strong>{{ gettext('Oluşturan') }}:</strong> <span style="color: white;">{{ res.user.username }}</span>
-                </div>
-                
-                {% if res.documents %}
-                <div style="margin-bottom: 1rem;">
-                    <strong style="color: #cbd5e1; font-size: 0.875rem;">{{ gettext('📄 Dökümanlar') }}:</strong>
-                    <div style="display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.5rem;">
-                        {% for doc in res.documents %}
-                            <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.05); padding: 0.5rem; border-radius: 4px;">
-                                <span style="font-size: 0.875rem; color: #f8fafc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 60%;" title="{{ doc.filename }}">{{ doc.filename }}</span>
-                                <div style="display: flex; gap: 0.5rem; align-items: center;">
-                                    <a href="{{ url_for('main.download_document', doc_id=doc.id) }}" style="color: #3b82f6; font-size: 0.75rem; text-decoration: none;">{{ gettext('İndir') }}</a>
-                                    {% if current_user.id == doc.user_id or current_user.id == res.user_id or current_user.is_admin %}
-                                    <form action="{{ url_for('main.delete_document', doc_id=doc.id) }}" method="POST" style="margin: 0; padding: 0;" onsubmit="return confirm('{{ gettext('Bu belgeyi silmek istediğinize emin misiniz?') }}');">
-                                        <button type="submit" style="background: none; border: none; color: #ef4444; font-size: 0.875rem; cursor: pointer; padding: 0; margin-left: 0.25rem;" title="{{ gettext('Sil') }}">✖</button>
-                                    </form>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        {% endfor %}
+
+            <div style="margin-bottom: 1rem; font-size: 0.875rem; color: #cbd5e1;">
+                <strong>{{ gettext('Oluşturan') }}:</strong> <span style="color: white;">{{ res.user.username }}</span>
+            </div>
+
+            {% if res.documents %}
+            <div style="margin-bottom: 1rem;">
+                <strong style="color: #cbd5e1; font-size: 0.875rem;">{{ gettext('📄 Dökümanlar') }}:</strong>
+                <div style="display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.5rem;">
+                    {% for doc in res.documents %}
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.05); padding: 0.5rem; border-radius: 4px;">
+                        <span
+                            style="font-size: 0.875rem; color: #f8fafc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 60%;"
+                            title="{{ doc.filename }}">{{ doc.filename }}</span>
+                        <div style="display: flex; gap: 0.5rem; align-items: center;">
+                            <a href="{{ url_for('main.download_document', doc_id=doc.id) }}"
+                                style="color: #3b82f6; font-size: 0.75rem; text-decoration: none;">{{ gettext('İndir')
+                                }}</a>
+                            {% if current_user.id == doc.user_id or current_user.id == res.user_id or
+                            current_user.is_admin %}
+                            <form action="{{ url_for('main.delete_document', doc_id=doc.id) }}" method="POST"
+                                style="margin: 0; padding: 0;"
+                                onsubmit="return confirm('{{ gettext('Bu belgeyi silmek istediğinize emin misiniz?') }}');">
+                                <button type="submit"
+                                    style="background: none; border: none; color: #ef4444; font-size: 0.875rem; cursor: pointer; padding: 0; margin-left: 0.25rem;"
+                                    title="{{ gettext('Sil') }}">✖</button>
+                            </form>
+                            {% endif %}
+                        </div>
                     </div>
+                    {% endfor %}
                 </div>
-                {% endif %}
-                
-                <div style="margin-bottom: 1.5rem;">
-                    <form action="{{ url_for('main.upload_document', res_id=res.id) }}" method="POST" enctype="multipart/form-data" style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
-                        <label class="custom-file-upload" style="display: flex; align-items: center; max-width: 250px; border: 1px solid #334155; padding: 0.25rem 0.5rem; cursor: pointer; border-radius: 4px; font-size: 0.75rem; color: #cbd5e1; background: #1e293b; margin: 0;">
-                            <input type="file" name="document" required style="display: none;" onchange='this.parentElement.querySelector("span.file-name").innerText = this.files[0] ? this.files[0].name : "{{ gettext("Dosya seçilmedi") }}"'>
-                            <span class="file-btn" style="background: #334155; padding: 0.15rem 0.4rem; border-radius: 3px; margin-right: 0.5rem; color: #fff; white-space: nowrap; flex-shrink: 0;">{{ gettext('Dosya Seç') }}</span>
-                            <span class="file-name" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ gettext('Dosya seçilmedi') }}</span>
-                        </label>
-                        <button type="submit" class="btn btn-primary" style="padding: 0.25rem 0.5rem; font-size: 0.75rem; width: auto; margin: 0;">{{ gettext('Yükle') }}</button>
-                    </form>
-                </div>
-                
-                <div class="res-actions">
-                    <a href="{{ res.cal_url }}" target="_blank" class="btn" style="width: auto; padding: 0.5rem 1.5rem; font-size: 0.875rem; background: #3b82f6; margin-right: 0.5rem;">{{ gettext('Takvime Ekle') }}</a>
-                    <button type="button" class="btn" style="width: auto; padding: 0.5rem 1.5rem; font-size: 0.875rem; background: #8b5cf6; margin-right: 0.5rem;" onclick="showQrModal({{ res.id }})">{{ gettext('QR Göster') }}</button>
-                    <button type="button" class="btn btn-warning" style="width: auto; padding: 0.5rem 1.5rem; font-size: 0.875rem; background: #f59e0b; border: none; color: white; margin-right: 0.5rem;" onclick="showExitQrModal({{ res.id }})">{{ gettext('Çıkış QR') }}</button>
-                    <form action="{{ url_for('main.leave_reservation', res_id=res.id) }}" method="POST" style="display:inline;">
-                        <button type="submit" class="btn btn-danger" style="width: auto; padding: 0.5rem 1.5rem; font-size: 0.875rem; background: #ef4444; border-color: #ef4444; color: white;" onclick="return confirm('{{ gettext('Bu toplantıdan ayrılmak istediğinize emin misiniz?') }}');">{{ gettext('Toplantıdan Ayrıl') }}</button>
-                    </form>
-                </div>
+            </div>
+            {% endif %}
+
+            <div style="margin-bottom: 1.5rem;">
+                <form action="{{ url_for('main.upload_document', res_id=res.id) }}" method="POST"
+                    enctype="multipart/form-data"
+                    style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+                    <label class="custom-file-upload"
+                        style="display: flex; align-items: center; max-width: 250px; border: 1px solid #334155; padding: 0.25rem 0.5rem; cursor: pointer; border-radius: 4px; font-size: 0.75rem; color: #cbd5e1; background: #1e293b; margin: 0;">
+                        <input type="file" name="document" required style="display: none;"
+                            onchange='this.parentElement.querySelector("span.file-name").innerText = this.files[0] ? this.files[0].name : "{{ gettext("Dosya seçilmedi") }}"'>
+                        <span class="file-btn"
+                            style="background: #334155; padding: 0.15rem 0.4rem; border-radius: 3px; margin-right: 0.5rem; color: #fff; white-space: nowrap; flex-shrink: 0;">{{
+                            gettext('Dosya Seç') }}</span>
+                        <span class="file-name"
+                            style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ gettext('Dosya
+                            seçilmedi') }}</span>
+                    </label>
+                    <button type="submit" class="btn btn-primary"
+                        style="padding: 0.25rem 0.5rem; font-size: 0.75rem; width: auto; margin: 0;">{{ gettext('Yükle')
+                        }}</button>
+                </form>
+            </div>
+
+            <div class="res-actions">
+                <a href="{{ res.cal_url }}" target="_blank" class="btn"
+                    style="width: auto; padding: 0.5rem 1.5rem; font-size: 0.875rem; background: #3b82f6; margin-right: 0.5rem;">{{
+                    gettext('Takvime Ekle') }}</a>
+                <button type="button" class="btn"
+                    style="width: auto; padding: 0.5rem 1.5rem; font-size: 0.875rem; background: #8b5cf6; margin-right: 0.5rem;"
+                    onclick="showQrModal({{ res.id }})">{{ gettext('QR Göster') }}</button>
+                <button type="button" class="btn btn-warning"
+                    style="width: auto; padding: 0.5rem 1.5rem; font-size: 0.875rem; background: #f59e0b; border: none; color: white; margin-right: 0.5rem;"
+                    onclick="showExitQrModal({{ res.id }})">{{ gettext('Çıkış QR') }}</button>
+                <form action="{{ url_for('main.leave_reservation', res_id=res.id) }}" method="POST"
+                    style="display:inline;">
+                    <button type="submit" class="btn btn-danger"
+                        style="width: auto; padding: 0.5rem 1.5rem; font-size: 0.875rem; background: #ef4444; border-color: #ef4444; color: white;"
+                        onclick="return confirm('{{ gettext('Bu toplantıdan ayrılmak istediğinize emin misiniz?') }}');">{{
+                        gettext('Toplantıdan Ayrıl') }}</button>
+                </form>
             </div>
         </div>
-        {% endfor %}
     </div>
+    {% endfor %}
+</div>
 {% else %}
-    <div style="text-align: center; padding: 3rem 2rem; background: var(--card-bg); border-radius: 1rem; border: 1px dashed rgba(16, 185, 129, 0.3);">
-        <h3 style="color: #94a3b8; font-weight: 400; font-size: 1rem;">{{ gettext('Şu an için davet edildiğiniz bir toplantı bulunmuyor.') }}</h3>
-    </div>
+<div
+    style="text-align: center; padding: 3rem 2rem; background: var(--card-bg); border-radius: 1rem; border: 1px dashed rgba(16, 185, 129, 0.3);">
+    <h3 style="color: #94a3b8; font-weight: 400; font-size: 1rem;">{{ gettext('Şu an için davet edildiğiniz bir toplantı
+        bulunmuyor.') }}</h3>
+</div>
 {% endif %}
 
 
 <!-- QR Modal (Giriş) -->
-<div id="qrModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2000; align-items: center; justify-content: center; -webkit-backdrop-filter: blur(5px); backdrop-filter: blur(5px);">
-    <div style="background: var(--card-bg); padding: 2rem; border-radius: 1rem; border: 1px solid var(--border-color); text-align: center; max-width: 400px; width: 90%;">
+<div id="qrModal"
+    style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2000; align-items: center; justify-content: center; -webkit-backdrop-filter: blur(5px); backdrop-filter: blur(5px);">
+    <div
+        style="background: var(--card-bg); padding: 2rem; border-radius: 1rem; border: 1px solid var(--border-color); text-align: center; max-width: 400px; width: 90%;">
         <h3 style="margin-top: 0; margin-bottom: 1.5rem; color: #f8fafc;">{{ gettext('Oda Giriş QR Kodu') }}</h3>
-        <p style="font-size: 0.875rem; color: #cbd5e1; margin-bottom: 1.5rem;">{{ gettext('Kapıdaki okuyucuya bu QR kodu okutarak odaya giriş yapabilirsiniz.') }}</p>
-        <div style="background: white; padding: 1rem; border-radius: 0.5rem; display: inline-block; margin-bottom: 1.5rem; min-width: 200px; min-height: 200px;">
+        <p style="font-size: 0.875rem; color: #cbd5e1; margin-bottom: 1.5rem;">{{ gettext('Kapıdaki okuyucuya bu QR kodu
+            okutarak odaya giriş yapabilirsiniz.') }}</p>
+        <div
+            style="background: white; padding: 1rem; border-radius: 0.5rem; display: inline-block; margin-bottom: 1.5rem; min-width: 200px; min-height: 200px;">
             <img id="qrImage" src="" alt="QR Kod" style="max-width: 100%; height: auto; display: block;" />
         </div>
         <div>
-            <button type="button" class="btn" style="background: #64748b; width: 100%;" onclick="closeQrModal()">{{ gettext('Kapat') }}</button>
+            <button type="button" class="btn" style="background: #64748b; width: 100%;" onclick="closeQrModal()">{{
+                gettext('Kapat') }}</button>
         </div>
     </div>
 </div>
 
 <!-- QR Modal (Çıkış) -->
-<div id="exitQrModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2000; align-items: center; justify-content: center; -webkit-backdrop-filter: blur(5px); backdrop-filter: blur(5px);">
-    <div style="background: var(--card-bg); padding: 2rem; border-radius: 1rem; border: 1px solid #f59e0b; text-align: center; max-width: 400px; width: 90%;">
+<div id="exitQrModal"
+    style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2000; align-items: center; justify-content: center; -webkit-backdrop-filter: blur(5px); backdrop-filter: blur(5px);">
+    <div
+        style="background: var(--card-bg); padding: 2rem; border-radius: 1rem; border: 1px solid #f59e0b; text-align: center; max-width: 400px; width: 90%;">
         <h3 style="margin-top: 0; margin-bottom: 1.5rem; color: #f59e0b;">{{ gettext('Oda Çıkış QR Kodu') }}</h3>
-        <p style="font-size: 0.875rem; color: #cbd5e1; margin-bottom: 1.5rem;">{{ gettext('Erken ayrılıyorsanız, bu QR kodu okutarak odayı başkaları için anında boşa çıkarabilirsiniz.') }}</p>
-        <div style="background: white; padding: 1rem; border-radius: 0.5rem; display: inline-block; margin-bottom: 1.5rem; min-width: 200px; min-height: 200px;">
+        <p style="font-size: 0.875rem; color: #cbd5e1; margin-bottom: 1.5rem;">{{ gettext('Erken ayrılıyorsanız, bu QR
+            kodu okutarak odayı başkaları için anında boşa çıkarabilirsiniz.') }}</p>
+        <div
+            style="background: white; padding: 1rem; border-radius: 0.5rem; display: inline-block; margin-bottom: 1.5rem; min-width: 200px; min-height: 200px;">
             <img id="exitQrImage" src="" alt="Çıkış QR Kod" style="max-width: 100%; height: auto; display: block;" />
         </div>
         <div>
-            <button type="button" class="btn" style="background: #64748b; width: 100%;" onclick="closeExitQrModal()">{{ gettext('Kapat') }}</button>
+            <button type="button" class="btn" style="background: #64748b; width: 100%;" onclick="closeExitQrModal()">{{
+                gettext('Kapat') }}</button>
         </div>
     </div>
 </div>
 
 <script>
-function showQrModal(resId) {
-    const modal = document.getElementById('qrModal');
-    const img = document.getElementById('qrImage');
-    img.src = '/reservation/' + resId + '/qr';
-    modal.style.display = 'flex';
-}
-function closeQrModal() {
-    document.getElementById('qrModal').style.display = 'none';
-}
+    function showQrModal(resId) {
+        const modal = document.getElementById('qrModal');
+        const img = document.getElementById('qrImage');
+        img.src = '/reservation/' + resId + '/qr';
+        modal.style.display = 'flex';
+    }
+    function closeQrModal() {
+        document.getElementById('qrModal').style.display = 'none';
+    }
 
-function showExitQrModal(resId) {
-    const modal = document.getElementById('exitQrModal');
-    const img = document.getElementById('exitQrImage');
-    img.src = '/reservation/' + resId + '/qr/exit';
-    modal.style.display = 'flex';
-}
-function closeExitQrModal() {
-    document.getElementById('exitQrModal').style.display = 'none';
-}
+    function showExitQrModal(resId) {
+        const modal = document.getElementById('exitQrModal');
+        const img = document.getElementById('exitQrImage');
+        img.src = '/reservation/' + resId + '/qr/exit';
+        modal.style.display = 'flex';
+    }
+    function closeExitQrModal() {
+        document.getElementById('exitQrModal').style.display = 'none';
+    }
 </script>
 
 {% endblock %}

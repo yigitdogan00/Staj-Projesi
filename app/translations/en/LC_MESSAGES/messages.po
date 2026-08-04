@@ -1635,3 +1635,15 @@ msgstr "Sign Up with Google"
 
 msgid "Veriler yükleniyor..."
 msgstr "Loading data..."
+
+msgid "Tarih Sıralaması"
+msgstr "Date Sorting"
+
+msgid "Sıralama"
+msgstr "Sorting"
+
+msgid "Şimdiden Önceki Tarihe (↓)"
+msgstr "Newest → Oldest (↓)"
+
+msgid "Önceki Tarihten Şimdiki Tarihe (↑)"
+msgstr "Oldest → Newest (↑)"

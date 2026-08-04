@@ -87,8 +87,16 @@
                 </select>
             </div>
 
+            <div>
+                <label style="display: block; color: #94a3b8; font-size: 0.875rem; margin-bottom: 0.25rem;">{% if current_lang == 'en' %}Sorting{% else %}Sıralama{% endif %}</label>
+                <select name="sort_order" onchange="this.form.submit()" class="form-control" style="background: var(--bg-color); color: white; border: 1px solid var(--border-color); padding: 0.5rem; border-radius: 0.25rem; cursor: pointer; min-width: 175px;">
+                    <option value="desc" {% if sort_order == 'desc' %}selected{% endif %}>{% if current_lang == 'en' %}Newest → Oldest{% else %}Şimdiden Önceki Tarihe (↓){% endif %}</option>
+                    <option value="asc" {% if sort_order == 'asc' %}selected{% endif %}>{% if current_lang == 'en' %}Oldest → Newest{% else %}Önceki Tarihten Şimdiki Tarihe (↑){% endif %}</option>
+                </select>
+            </div>
+
             <button type="submit" class="btn btn-primary" style="padding: 0.5rem 1.25rem;">{% if current_lang == 'en' %}FILTER{% else %}FİLTRELE{% endif %}</button>
-            {% if start_date or end_date or action_filter or user_id_filter %}
+            {% if start_date or end_date or action_filter or user_id_filter or sort_order != 'desc' %}
             <a href="{{ url_for('main.admin_logs') }}" class="btn" style="background: #334155; color: white; padding: 0.5rem 1rem; border-radius: 0.25rem; text-decoration: none;">{% if current_lang == 'en' %}Clear{% else %}Temizle{% endif %}</a>
             {% endif %}
         </div>
@@ -107,7 +115,7 @@
 </div>
 
 <!-- Seçili Logları Silme Formu -->
-<form action="{{ url_for('main.delete_selected_logs') }}?page={{ logs.page }}&start_date={{ start_date }}&end_date={{ end_date }}&action={{ action_filter }}&user_id={{ user_id_filter }}&per_page={{ per_page }}" method="POST" id="delete-selected-form">
+<form action="{{ url_for('main.delete_selected_logs') }}?page={{ logs.page }}&start_date={{ start_date }}&end_date={{ end_date }}&action={{ action_filter }}&user_id={{ user_id_filter }}&per_page={{ per_page }}&sort_order={{ sort_order }}" method="POST" id="delete-selected-form">
     
     <div style="margin-bottom: 1rem; display: flex; justify-content: flex-end;">
         <button type="submit" id="delete-selected-btn" class="btn btn-danger" style="background: #ef4444; color: white; padding: 0.5rem 1rem; border-radius: 0.25rem; font-weight: bold; border: none; cursor: pointer;">{{ gettext('Seçili Logları Temizle') }}</button>
@@ -239,10 +247,10 @@
 <div style="margin-top: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
     <!-- Gün Değiştirme Butonları (Önceki Gün / Sonraki Gün) -->
     <div style="flex: 1; display: flex; gap: 0.5rem; align-items: center; min-width: 240px;">
-        <a href="{{ url_for('main.admin_logs', start_date=prev_date, end_date=prev_date, action=action_filter, user_id=user_id_filter, per_page=per_page) }}" onclick="navigateDay(-1); return false;" class="btn" style="background: #334155; color: white; padding: 0.5rem 1rem; border-radius: 0.25rem; text-decoration: none; font-size: 0.875rem; display: inline-flex; align-items: center; gap: 0.35rem; transition: background 0.2s;" onmouseover="this.style.background='#475569'" onmouseout="this.style.background='#334155'" title="Klavyedeki ← ok tuşunu kullanabilirsiniz">
+        <a href="{{ url_for('main.admin_logs', start_date=prev_date, end_date=prev_date, action=action_filter, user_id=user_id_filter, per_page=per_page, sort_order=sort_order) }}" onclick="navigateDay(-1); return false;" class="btn" style="background: #334155; color: white; padding: 0.5rem 1rem; border-radius: 0.25rem; text-decoration: none; font-size: 0.875rem; display: inline-flex; align-items: center; gap: 0.35rem; transition: background 0.2s;" onmouseover="this.style.background='#475569'" onmouseout="this.style.background='#334155'" title="Klavyedeki ← ok tuşunu kullanabilirsiniz">
             &laquo; {{ gettext('Önceki Gün') }}
         </a>
-        <a href="{{ url_for('main.admin_logs', start_date=next_date, end_date=next_date, action=action_filter, user_id=user_id_filter, per_page=per_page) }}" onclick="navigateDay(1); return false;" class="btn" style="background: #4f46e5; color: white; padding: 0.5rem 1rem; border-radius: 0.25rem; text-decoration: none; font-weight: bold; font-size: 0.875rem; display: inline-flex; align-items: center; gap: 0.35rem; transition: background 0.2s; box-shadow: 0 2px 4px rgba(79, 70, 229, 0.3);" onmouseover="this.style.background='#4338ca'" onmouseout="this.style.background='#4f46e5'" title="Klavyedeki → ok tuşunu kullanabilirsiniz">
+        <a href="{{ url_for('main.admin_logs', start_date=next_date, end_date=next_date, action=action_filter, user_id=user_id_filter, per_page=per_page, sort_order=sort_order) }}" onclick="navigateDay(1); return false;" class="btn" style="background: #4f46e5; color: white; padding: 0.5rem 1rem; border-radius: 0.25rem; text-decoration: none; font-weight: bold; font-size: 0.875rem; display: inline-flex; align-items: center; gap: 0.35rem; transition: background 0.2s; box-shadow: 0 2px 4px rgba(79, 70, 229, 0.3);" onmouseover="this.style.background='#4338ca'" onmouseout="this.style.background='#4f46e5'" title="Klavyedeki → ok tuşunu kullanabilirsiniz">
             {{ gettext('Sonraki Gün') }} &raquo;
         </a>
     </div>
@@ -250,7 +258,7 @@
     <!-- Sayfa Navigasyonu -->
     <div style="display: flex; justify-content: center; align-items: center; gap: 1rem; flex: 1;">
         {% if logs.has_prev %}
-        <a href="{{ url_for('main.admin_logs', page=logs.prev_num, start_date=start_date, end_date=end_date, action=action_filter, user_id=user_id_filter, per_page=per_page) }}" style="background: #334155; color: white; padding: 0.5rem 1rem; border-radius: 0.25rem; text-decoration: none; font-size: 0.875rem;">&laquo; {{ gettext('Önceki') }}</a>
+        <a href="{{ url_for('main.admin_logs', page=logs.prev_num, start_date=start_date, end_date=end_date, action=action_filter, user_id=user_id_filter, per_page=per_page, sort_order=sort_order) }}" style="background: #334155; color: white; padding: 0.5rem 1rem; border-radius: 0.25rem; text-decoration: none; font-size: 0.875rem;">&laquo; {{ gettext('Önceki') }}</a>
         {% endif %}
         
         {% if logs.pages > 0 %}
@@ -258,7 +266,7 @@
         {% endif %}
 
         {% if logs.has_next %}
-        <a href="{{ url_for('main.admin_logs', page=logs.next_num, start_date=start_date, end_date=end_date, action=action_filter, user_id=user_id_filter, per_page=per_page) }}" style="background: #334155; color: white; padding: 0.5rem 1rem; border-radius: 0.25rem; text-decoration: none; font-size: 0.875rem;">{{ gettext('Sonraki') }} &raquo;</a>
+        <a href="{{ url_for('main.admin_logs', page=logs.next_num, start_date=start_date, end_date=end_date, action=action_filter, user_id=user_id_filter, per_page=per_page, sort_order=sort_order) }}" style="background: #334155; color: white; padding: 0.5rem 1rem; border-radius: 0.25rem; text-decoration: none; font-size: 0.875rem;">{{ gettext('Sonraki') }} &raquo;</a>
         {% endif %}
     </div>
 

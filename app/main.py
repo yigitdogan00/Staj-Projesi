@@ -1985,6 +1985,9 @@ def admin_logs():
 
     action_filter = request.args.get('action', '')
     user_id_filter = request.args.get('user_id', type=int)
+    sort_order = request.args.get('sort_order', 'desc')
+    if sort_order not in ['asc', 'desc']:
+        sort_order = 'desc'
 
     prev_date = ''
     next_date = ''
@@ -2026,7 +2029,12 @@ def admin_logs():
         if user_id_filter:
             query = query.filter(AuditLog.user_id == user_id_filter)
             
-        logs = query.order_by(AuditLog.timestamp.desc()).paginate(page=page, per_page=per_page, error_out=False)
+        if sort_order == 'asc':
+            query = query.order_by(AuditLog.timestamp.asc())
+        else:
+            query = query.order_by(AuditLog.timestamp.desc())
+
+        logs = query.paginate(page=page, per_page=per_page, error_out=False)
         
         all_actions = [a[0] for a in db.session.query(AuditLog.action).distinct().all() if a[0]]
         all_users = User.query.all()
@@ -2041,6 +2049,7 @@ def admin_logs():
     return render_template('admin_logs.html', title='Log Yönetimi', logs=logs, 
                            start_date=start_date, end_date=end_date, date_filter=date_filter, 
                            action_filter=action_filter, user_id_filter=user_id_filter, per_page=per_page,
+                           sort_order=sort_order,
                            prev_date=prev_date, next_date=next_date,
                            all_actions=all_actions, all_users=all_users)
 
