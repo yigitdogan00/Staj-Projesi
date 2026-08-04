@@ -425,7 +425,7 @@
             });
             const data = await res.json();
             if (data.conflicts && data.conflicts.length > 0) {
-                let html = '{% if current_lang == "en" %}<strong>⚠️ Invitee Conflict Warning:</strong><br>' : '<strong>⚠️ Çakışan Davetli Uyarısı:</strong><br>';
+                let html = {% if current_lang == 'en' %}'<strong>⚠️ Invitee Conflict Warning:</strong><br>'{% else %}'<strong>⚠️ Çakışan Davetli Uyarısı:</strong><br>'{% endif %};
                 data.conflicts.forEach(c => {
                     html += `• ${c.username} (${c.time_slot} - ${c.room_name})<br>`;
                 });
