@@ -94,7 +94,6 @@ python run.py
 
 Tarayıcınızdan aşağıdaki adreslere giderek uygulamaya erişebilirsiniz:
 - **Ana Uygulama:** `http://localhost:5000`
-`
 
 ## Sık Karşılaşılan Sorunlar
 
