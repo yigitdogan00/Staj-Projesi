@@ -66,8 +66,11 @@ class Room(db.Model):
         lang = 'tr'
         if has_request_context():
             lang = session.get('lang', 'tr')
-        if lang == 'en' and self.english_name:
-            return self.english_name
+        if lang == 'en':
+            if self.english_name:
+                return self.english_name
+            from app.utils import auto_translate_to_english
+            return auto_translate_to_english(self.name)
         from flask_babel import gettext
         return gettext(self.name)
 
@@ -77,8 +80,13 @@ class Room(db.Model):
         lang = 'tr'
         if has_request_context():
             lang = session.get('lang', 'tr')
-        if lang == 'en' and self.english_description:
-            return self.english_description
+        if lang == 'en':
+            if self.english_description:
+                return self.english_description
+            if self.description:
+                from app.utils import auto_translate_to_english
+                return auto_translate_to_english(self.description)
+            return ''
         return self.description or ''
 
     def __repr__(self):

@@ -1486,14 +1486,23 @@ def rooms():
 def add_room():
     from app.forms import RoomForm
     from app.models import Room
+    from app.utils import auto_translate_to_english
     form = RoomForm()
     if form.validate_on_submit():
+        en_name = form.english_name.data.strip() if form.english_name.data else ""
+        if not en_name:
+            en_name = auto_translate_to_english(form.name.data)
+            
+        en_desc = form.english_description.data.strip() if form.english_description.data else ""
+        if not en_desc and form.description.data:
+            en_desc = auto_translate_to_english(form.description.data)
+
         room = Room(
             name=form.name.data,
-            english_name=form.english_name.data,
+            english_name=en_name,
             capacity=form.capacity.data,
             description=form.description.data,
-            english_description=form.english_description.data
+            english_description=en_desc
         )
         db.session.add(room)
         db.session.commit()
@@ -1508,6 +1517,7 @@ def add_room():
 def edit_room(room_id):
     from app.forms import EditRoomForm
     from app.models import Room
+    from app.utils import auto_translate_to_english
     room = Room.query.get_or_404(room_id)
     form = EditRoomForm()
     if form.validate_on_submit():
@@ -1516,11 +1526,19 @@ def edit_room(room_id):
             from flask_babel import gettext
             flash(gettext('Bu isimde başka bir oda zaten var.'), 'danger')
         else:
+            en_name = form.english_name.data.strip() if form.english_name.data else ""
+            if not en_name:
+                en_name = auto_translate_to_english(form.name.data)
+                
+            en_desc = form.english_description.data.strip() if form.english_description.data else ""
+            if not en_desc and form.description.data:
+                en_desc = auto_translate_to_english(form.description.data)
+
             room.name = form.name.data
-            room.english_name = form.english_name.data
+            room.english_name = en_name
             room.capacity = form.capacity.data
             room.description = form.description.data
-            room.english_description = form.english_description.data
+            room.english_description = en_desc
             db.session.commit()
             log_action(current_user.id, "ODA_GÜNCELLENDİ", f"{room.name} odası güncellendi.")
             from flask_babel import gettext

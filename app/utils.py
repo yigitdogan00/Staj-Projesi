@@ -305,3 +305,70 @@ def verify_exit_qr_token(token):
         return data.get('reservation_id'), data.get('user_id')
     except Exception:
         return None, None
+
+
+ROOM_NAME_MAP = {
+    "inovasyon": "Innovation",
+    "sinerji": "Synergy",
+    "vizyon": "Vision",
+    "strateji": "Strategy",
+    "dinamik": "Dynamic",
+    "toplantı": "Meeting",
+    "odası": "Room",
+    "oda": "Room",
+    "konferans": "Conference",
+    "yönetim": "Executive",
+    "çalışma": "Workspace"
+}
+
+FEATURE_TERM_MAP = {
+    "klima": "AC",
+    "beyaz tahta": "Whiteboard",
+    "akıllı tahta": "Smart Board",
+    "kablosuz yansıtma": "Wireless Mirroring",
+    "yansıtma": "Screen Mirroring",
+    "video konferans": "Video Conference",
+    "ses yalıtımı": "Soundproofing",
+    "dinlenme alanı": "Lounge Area",
+    "ergonomik koltuklar": "Ergonomic Chairs",
+    "toplantı masası": "Meeting Table",
+    "çift tv": "Dual TV Display",
+    "geniş ekran": "Large Screen",
+    "özelliği": "Feature"
+}
+
+def auto_translate_to_english(text):
+    import urllib.request
+    import urllib.parse
+    import json
+    import re
+
+    if not text or not str(text).strip():
+        return ""
+    
+    text = str(text).strip()
+    text_lower = text.lower()
+    if text_lower in ROOM_NAME_MAP:
+        return ROOM_NAME_MAP[text_lower]
+
+    try:
+        url = "https://translate.googleapis.com/translate_a/single?client=gtx&sl=tr&tl=en&dt=t&q=" + urllib.parse.quote(text)
+        req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+        with urllib.request.urlopen(req, timeout=3) as response:
+            res_data = json.loads(response.read().decode('utf-8'))
+            if res_data and res_data[0]:
+                translated = "".join([part[0] for part in res_data[0] if part[0]])
+                if translated and translated.strip():
+                    return translated.strip()
+    except Exception:
+        pass
+
+    res = text
+    for tr_term, en_term in FEATURE_TERM_MAP.items():
+        pattern = re.compile(re.escape(tr_term), re.IGNORECASE)
+        res = pattern.sub(en_term, res)
+    for tr_term, en_term in ROOM_NAME_MAP.items():
+        pattern = re.compile(r'\b' + re.escape(tr_term) + r'\b', re.IGNORECASE)
+        res = pattern.sub(en_term, res)
+
+    return res
