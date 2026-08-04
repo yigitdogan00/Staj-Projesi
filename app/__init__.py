@@ -110,6 +110,7 @@ def create_app(config_class=Config):
                 ('user', 'first_name', 'VARCHAR(50)'),
                 ('user', 'last_name', 'VARCHAR(50)'),
                 ('room', 'english_name', 'VARCHAR(50)'),
+                ('room', 'english_description', 'VARCHAR(200)'),
                 ('reservation', 'checked_in', 'BOOLEAN DEFAULT FALSE'),
                 ('audit_log', 'is_hidden', 'BOOLEAN DEFAULT FALSE')
             ]
@@ -144,17 +145,33 @@ def create_app(config_class=Config):
                 db.session.add(test_user)
 
             # Seed Default Meeting Rooms if no rooms exist
+            room_en_desc_map = {
+                "İnovasyon": ("Innovation", "TV, AC, Wireless Mirroring, Whiteboard and Video Conference System."),
+                "Sinerji": ("Synergy", "TV, AC, HDMI Screen Projection, Meeting Table and Ergonomic Chairs."),
+                "Vizyon": ("Vision", "Smart Board, AC, Projection Screen Feature and Apple TV."),
+                "Strateji": ("Strategy", "Dual TV Display, AC, Screen Mirroring and Sound Insulation."),
+                "Dinamik": ("Dynamic", "Large Screen TV, AC, Screen Mirroring and Lounge Area.")
+            }
+
             if Room.query.count() == 0:
                 rooms_data = [
-                    {"name": "İnovasyon", "capacity": 12, "description": "TV, Klima, Kablosuz Yansıtma Özelliği, Beyaz Tahta ve Video Konferans Sistemi."},
-                    {"name": "Sinerji", "capacity": 12, "description": "TV, Klima, HDMI Yansıtma, Toplantı Masası ve Ergonomik Koltuklar."},
-                    {"name": "Vizyon", "capacity": 12, "description": "Akıllı Tahta, Klima, Projeksiyon ile Yansıtma Özelliği ve Apple TV."},
-                    {"name": "Strateji", "capacity": 12, "description": "Çift TV Ekranı, Klima, Yansıtma Özelliği ve Ses Yalıtımı."},
-                    {"name": "Dinamik", "capacity": 12, "description": "Geniş Ekran TV, Klima, Yansıtma Özelliği ve Dinlenme Alanı."}
+                    {"name": "İnovasyon", "english_name": "Innovation", "capacity": 12, "description": "TV, Klima, Kablosuz Yansıtma Özelliği, Beyaz Tahta ve Video Konferans Sistemi.", "english_description": "TV, AC, Wireless Mirroring, Whiteboard and Video Conference System."},
+                    {"name": "Sinerji", "english_name": "Synergy", "capacity": 12, "description": "TV, Klima, HDMI Yansıtma, Toplantı Masası ve Ergonomik Koltuklar.", "english_description": "TV, AC, HDMI Screen Projection, Meeting Table and Ergonomic Chairs."},
+                    {"name": "Vizyon", "english_name": "Vision", "capacity": 12, "description": "Akıllı Tahta, Klima, Projeksiyon ile Yansıtma Özelliği ve Apple TV.", "english_description": "Smart Board, AC, Projection Screen Feature and Apple TV."},
+                    {"name": "Strateji", "english_name": "Strategy", "capacity": 12, "description": "Çift TV Ekranı, Klima, Yansıtma Özelliği ve Ses Yalıtımı.", "english_description": "Dual TV Display, AC, Screen Mirroring and Sound Insulation."},
+                    {"name": "Dinamik", "english_name": "Dynamic", "capacity": 12, "description": "Geniş Ekran TV, Klima, Yansıtma Özelliği ve Dinlenme Alanı.", "english_description": "Large Screen TV, AC, Screen Mirroring and Lounge Area."}
                 ]
                 for r_data in rooms_data:
-                    new_room = Room(name=r_data["name"], capacity=r_data["capacity"], description=r_data["description"])
+                    new_room = Room(name=r_data["name"], english_name=r_data["english_name"], capacity=r_data["capacity"], description=r_data["description"], english_description=r_data["english_description"])
                     db.session.add(new_room)
+            else:
+                for r in Room.query.all():
+                    if r.name in room_en_desc_map:
+                        en_name, en_desc = room_en_desc_map[r.name]
+                        if not r.english_name:
+                            r.english_name = en_name
+                        if not r.english_description:
+                            r.english_description = en_desc
 
             db.session.commit()
         except Exception as e:

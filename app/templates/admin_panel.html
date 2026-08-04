@@ -251,7 +251,7 @@
             <td>{{ room.id }}</td>
             <td style="color: var(--primary); font-weight: bold;">{{ room.display_name }}</td>
             <td>{{ room.capacity }} {{ gettext('Kişi') }}</td>
-            <td style="font-size: 0.875rem; color: #cbd5e1;">{{ gettext(room.description) }}</td>
+            <td style="font-size: 0.875rem; color: #cbd5e1;">{{ room.display_description }}</td>
             <td>
                 <form action="{{ url_for('main.delete_room', room_id=room.id) }}" method="POST" style="display:inline;"
                     onsubmit="return confirm('{{ gettext('Bu odayı ve bu odaya ait tüm geçmiş/gelecek rezervasyonları silmek istediğinize emin misiniz?') }}');">

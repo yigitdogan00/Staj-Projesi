@@ -81,7 +81,7 @@ function filterRooms() {
 <div class="rooms-grid">
     {% for stat in room_stats %}
     {% set room = stat.room %}
-    <div class="glass-card room-card-item" data-name="{{ room.display_name|lower }}" data-desc="{{ gettext(room.description)|lower }}" data-capacity="{{ room.capacity }}" data-status="{{ 'free' if stat.booked_minutes == 0 else 'busy' }}" style="margin: 0; padding: 1.5rem; text-align: left; display: flex; flex-direction: column;">
+    <div class="glass-card room-card-item" data-name="{{ room.display_name|lower }}" data-desc="{{ room.display_description|lower }}" data-capacity="{{ room.capacity }}" data-status="{{ 'free' if stat.booked_minutes == 0 else 'busy' }}" style="margin: 0; padding: 1.5rem; text-align: left; display: flex; flex-direction: column;">
         <div class="room-card-header" style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
             <h3 style="margin-top: 0; color: var(--primary); font-size: 1.5rem; margin-bottom: 0; word-break: break-word;">{{ room.display_name }}</h3>
             <span style="background-color: {{ stat.color }}; color: white; padding: 0.25rem 0.75rem; border-radius: 999px; font-size: 0.75rem; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.2); white-space: nowrap;">
@@ -101,7 +101,7 @@ function filterRooms() {
         <p style="font-size: 0.875rem; color: var(--text-color); margin-bottom: 0.5rem; opacity: 0.9;"><strong style="color: var(--text-color); font-weight: 700;">{{ gettext('Kapasite') }}:</strong> {{ room.capacity }} {{ gettext('Kişi') }}</p>
         
 
-        <p style="font-size: 0.875rem; color: var(--text-color); opacity: 0.85; margin-bottom: 1.5rem; flex-grow: 1; line-height: 1.5;">{{ gettext(room.description) }}</p>
+        <p style="font-size: 0.875rem; color: var(--text-color); opacity: 0.85; margin-bottom: 1.5rem; flex-grow: 1; line-height: 1.5;">{{ room.display_description }}</p>
         <div style="display: flex; gap: 0.5rem; justify-content: center; flex-wrap: wrap;">
             <a href="{{ url_for('main.book_room', room_id=room.id) }}" class="btn" style="text-align: center; flex: 1;">{{ gettext('Takvimi Görüntüle') }}</a>
             {% if current_user.is_admin %}

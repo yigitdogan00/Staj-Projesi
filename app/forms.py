@@ -63,6 +63,7 @@ class RoomForm(FlaskForm):
     english_name = StringField(_('İngilizce Oda İsmi'), validators=[Length(max=50)])
     capacity = StringField(_('Kişi Sayısı (Kapasite)'), validators=[DataRequired()])
     description = StringField(_('Özellikler / Açıklama'), validators=[Length(max=200)])
+    english_description = StringField(_('İngilizce Özellikler / Açıklama'), validators=[Length(max=200)])
     submit = SubmitField(_('Oda Ekle'))
 
 class EditRoomForm(FlaskForm):
@@ -70,4 +71,5 @@ class EditRoomForm(FlaskForm):
     english_name = StringField(_('İngilizce Oda İsmi'), validators=[Length(max=50)])
     capacity = StringField(_('Kişi Sayısı (Kapasite)'), validators=[DataRequired()])
     description = StringField(_('Özellikler / Açıklama'), validators=[Length(max=200)])
+    english_description = StringField(_('İngilizce Özellikler / Açıklama'), validators=[Length(max=200)])
     submit = SubmitField(_('Değişiklikleri Kaydet'))

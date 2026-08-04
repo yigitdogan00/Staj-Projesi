@@ -15,8 +15,8 @@
 
 <div class="form-card">
     <div style="text-align: center; margin-bottom: 2rem;">
-        <h2 style="font-size: 1.8rem; margin: 0; color: #f8fafc;">{{ gettext('Yeni Toplantı Odası Ekle') }}</h2>
-        <p style="color: #94a3b8; margin-top: 0.5rem;">{{ gettext('Lütfen oda özelliklerini girin.') }}</p>
+        <h2 style="font-size: 1.8rem; margin: 0; color: #f8fafc;">{% if current_lang == 'en' %}Add New Meeting Room{% else %}Yeni Toplantı Odası Ekle{% endif %}</h2>
+        <p style="color: #94a3b8; margin-top: 0.5rem;">{% if current_lang == 'en' %}Please enter room details and features.{% else %}Lütfen oda özelliklerini girin.{% endif %}</p>
     </div>
 
     <form method="POST" action="">
@@ -64,8 +64,8 @@
             {% endif %}
         </div>
         
-        <div class="form-group" style="margin-bottom: 2rem;">
-            <label class="form-label" style="color: #cbd5e1; display: block; margin-bottom: 0.5rem; font-weight: bold;">{% if current_lang == 'en' %}FEATURES / DESCRIPTION{% else %}ÖZELLİKLER / AÇIKLAMA{% endif %}</label>
+        <div class="form-group" style="margin-bottom: 1.5rem;">
+            <label class="form-label" style="color: #cbd5e1; display: block; margin-bottom: 0.5rem; font-weight: bold;">{% if current_lang == 'en' %}FEATURES / DESCRIPTION (TURKISH){% else %}ÖZELLİKLER / AÇIKLAMA (TÜRKÇE){% endif %}</label>
             {% if form.description.errors %}
                 {{ form.description(class="form-control", style="border-color: #ef4444;") }}
                 <div style="color: #ef4444; font-size: 0.875rem; margin-top: 0.25rem;">
@@ -75,6 +75,20 @@
                 </div>
             {% else %}
                 {{ form.description(class="form-control") }}
+            {% endif %}
+        </div>
+
+        <div class="form-group" style="margin-bottom: 2rem;">
+            <label class="form-label" style="color: #cbd5e1; display: block; margin-bottom: 0.5rem; font-weight: bold;">{% if current_lang == 'en' %}ENGLISH FEATURES / DESCRIPTION{% else %}İNGİLİZCE ÖZELLİKLER / AÇIKLAMA{% endif %}</label>
+            {% if form.english_description.errors %}
+                {{ form.english_description(class="form-control", style="border-color: #ef4444;") }}
+                <div style="color: #ef4444; font-size: 0.875rem; margin-top: 0.25rem;">
+                    {% for error in form.english_description.errors %}
+                        <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+            {% else %}
+                {{ form.english_description(class="form-control") }}
             {% endif %}
         </div>
 

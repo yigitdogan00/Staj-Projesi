@@ -227,7 +227,7 @@
     <div class="info-card">
         <h2 style="margin-top: 0; color: var(--primary);">{{ room.display_name }}</h2>
         <p><strong>{{ gettext('Kapasite') }}:</strong> {{ room.capacity }} {{ gettext('Kişi') }}</p>
-        <p style="color: #cbd5e1; font-size: 0.875rem; margin-bottom: 2rem;">{{ gettext(room.description) }}</p>
+        <p style="color: #cbd5e1; font-size: 0.875rem; margin-bottom: 2rem;">{{ room.display_description }}</p>
         
         <form id="booking-form" method="POST" action="{{ url_for('main.book_room', room_id=room.id) }}">
             <div class="form-group" style="display: none;">

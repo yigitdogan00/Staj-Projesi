@@ -1492,7 +1492,8 @@ def add_room():
             name=form.name.data,
             english_name=form.english_name.data,
             capacity=form.capacity.data,
-            description=form.description.data
+            description=form.description.data,
+            english_description=form.english_description.data
         )
         db.session.add(room)
         db.session.commit()
@@ -1519,6 +1520,7 @@ def edit_room(room_id):
             room.english_name = form.english_name.data
             room.capacity = form.capacity.data
             room.description = form.description.data
+            room.english_description = form.english_description.data
             db.session.commit()
             log_action(current_user.id, "ODA_GÜNCELLENDİ", f"{room.name} odası güncellendi.")
             from flask_babel import gettext
@@ -1529,6 +1531,7 @@ def edit_room(room_id):
         form.english_name.data = room.english_name
         form.capacity.data = room.capacity
         form.description.data = room.description
+        form.english_description.data = room.english_description
     return render_template('rooms/edit.html', title='Odayı Düzenle', form=form, room=room)
 
 @bp.route('/api/reservations/<int:room_id>/<date_str>')

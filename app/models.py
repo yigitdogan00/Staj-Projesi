@@ -57,6 +57,7 @@ class Room(db.Model):
     english_name = db.Column(db.String(50), nullable=True)
     capacity = db.Column(db.Integer, nullable=False, default=10)
     description = db.Column(db.String(200), nullable=True)
+    english_description = db.Column(db.String(200), nullable=True)
     reservations = db.relationship('Reservation', backref='room', lazy=True)
     
     @property
@@ -69,6 +70,16 @@ class Room(db.Model):
             return self.english_name
         from flask_babel import gettext
         return gettext(self.name)
+
+    @property
+    def display_description(self):
+        from flask import session, has_request_context
+        lang = 'tr'
+        if has_request_context():
+            lang = session.get('lang', 'tr')
+        if lang == 'en' and self.english_description:
+            return self.english_description
+        return self.description or ''
 
     def __repr__(self):
         return f"Room('{self.name}')"
