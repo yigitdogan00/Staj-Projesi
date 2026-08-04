@@ -722,8 +722,8 @@ def ai_command():
             'Giriş için kullanacağınız QR kodunu, rezervasyon işleminizi tamamladıktan sonra "Genel Bakış" (Takvim) sayfasındaki kendi randevunuzun detaylarına tıklayarak görüntüleyebilirsiniz.',
             'You can view your login QR code by clicking on your reservation details on the "Overview" (Calendar) page after completing your booking.'
         )})
-    elif norm_cmd == "5" or "kendini kapat" in norm_cmd or "close yourself" in norm_cmd or "kapat" in norm_cmd:
-        return jsonify({'success': True, 'reload': False, 'close_chat': True, 'message': msg('Görüşmek üzere, sohbeti kapatıyorum!', 'See you later, closing chat!')})
+    elif norm_cmd == "5" or any(k in norm_cmd for k in ["kendini kapat", "close yourself", "kapat", "sohbeti kapat", "sohbet kapat", "asistani kapat", "asistanı kapat", "sohbeti sonlandir", "sohbeti sonlandır", "sohbeti temizle", "sohbeti sifirla", "sohbeti sıfırla", "close chat", "exit", "cikis", "çıkış"]):
+        return jsonify({'success': True, 'reload': False, 'close_chat': True, 'message': msg('Görüşmek üzere, sohbeti temizleyip kapatıyorum! 👋', 'See you later, clearing and closing chat! 👋')})
     
     # 1. Ajanda kontrolü
     if any(k in norm_cmd for k in ["toplantim var mi", "toplantim varmi", "ajandam", "toplantilarim"]):

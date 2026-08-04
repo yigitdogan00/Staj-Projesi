@@ -1592,18 +1592,53 @@
             }
         }
 
+        function getInitialAiChatHtml() {
+            {% if current_lang == 'en' %}
+            return `<div style="background: rgba(255,255,255,0.1); padding: 12px 14px; border-radius: 10px; align-self: flex-start; max-width: 92%;">
+                Hello! I am your smart assistant. You can perform actions by typing a natural sentence or click below to see quick options:<br><br>
+                <button type="button" onclick="sendQuickChoice('menu', '⚡ Quick Menu Options')" style="background: var(--primary); color: white; border: none; padding: 8px 14px; border-radius: 8px; font-weight: bold; font-size: 0.8rem; cursor: pointer; width: 100%; transition: all 0.2s; box-shadow: 0 4px 10px rgba(79, 70, 229, 0.4);">⚡ Click for Quick Menu Options</button>
+            </div>`;
+            {% else %}
+            return `<div style="background: rgba(255,255,255,0.1); padding: 12px 14px; border-radius: 10px; align-self: flex-start; max-width: 92%;">
+                Merhaba! Ben akıllı asistanınız. İstediğiniz bir odayı doğal bir cümle kurarak rezerve edebilir veya hızlı menüyü açmak için tıklayabilirsiniz:<br><br>
+                <button type="button" onclick="sendQuickChoice('menu', '⚡ Hızlı Menü')" style="background: var(--primary); color: white; border: none; padding: 8px 14px; border-radius: 8px; font-weight: bold; font-size: 0.8rem; cursor: pointer; width: 100%; transition: all 0.2s; box-shadow: 0 4px 10px rgba(79, 70, 229, 0.4);">⚡ Hızlı Butonlara Erişim İçin Tıklayın</button>
+            </div>`;
+            {% endif %}
+        }
+
         function closeAiChat() {
             const chat = document.getElementById('ai-chat-window');
+            const msgs = document.getElementById('ai-chat-messages');
+            const input = document.getElementById('ai-chat-input');
+            
             if (chat) {
                 chat.style.display = 'none';
                 resetAiChatPosition();
                 sessionStorage.setItem('ai_chat_open', 'false');
             }
+
+            sessionStorage.removeItem('ai_chat_messages_html');
+            if (msgs) {
+                msgs.innerHTML = getInitialAiChatHtml();
+            }
+            if (input) {
+                input.value = '';
+            }
+            if (typeof stopListeningUI === 'function') {
+                stopListeningUI();
+            }
         }
 
         function clearAiChat() {
             sessionStorage.removeItem('ai_chat_messages_html');
-            window.location.reload();
+            const msgs = document.getElementById('ai-chat-messages');
+            const input = document.getElementById('ai-chat-input');
+            if (msgs) {
+                msgs.innerHTML = getInitialAiChatHtml();
+            }
+            if (input) {
+                input.value = '';
+            }
         }
 
         let voiceRecognition = null;
