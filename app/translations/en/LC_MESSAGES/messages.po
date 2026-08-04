@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-07-22 13:59+0300\n"
+"POT-Creation-Date: 2026-08-04 11:08+0300\n"
 "PO-Revision-Date: 2026-07-01 11:45+0300\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: en <LL@li.org>\n"
@@ -18,11 +18,15 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "Generated-By: Babel 2.18.0\n"
 
-#: app/auth.py:21
-msgid "Hesabınız başarıyla oluşturuldu! Şimdi giriş yapabilirsiniz."
-msgstr "Your account has been successfully created! You can now log in."
+#: app/auth.py:36
+msgid ""
+"Kayıt başarılı! Lütfen e-posta adresinize gönderilen 6 haneli doğrulama "
+"kodunu girin."
+msgstr ""
+"Registration successful! Please enter the 6-digit verification code sent to "
+"your email address."
 
-#: app/auth.py:25
+#: app/auth.py:41
 msgid ""
 "Kayıt işlemi sırasında bir hata oluştu. Bu e-posta zaten kayıtlı olabilir "
 "veya butona çift tıklamış olabilirsiniz."
@@ -30,45 +34,67 @@ msgstr ""
 "An error occurred during registration. This email might already be "
 "registered or you may have double-clicked the button."
 
-#: app/auth.py:50 app/auth.py:105
+#: app/auth.py:49
+msgid "Lütfen önce kayıt olun veya giriş yapın."
+msgstr "Please register or log in first."
+
+#: app/auth.py:55
+#, fuzzy
+msgid "Hesabınız zaten doğrulanmış. Giriş yapabilirsiniz."
+msgstr "Your account has been successfully created! You can now log in."
+
+#: app/auth.py:68
+#, fuzzy
+msgid "E-posta adresiniz başarıyla doğrulandı! Şimdi giriş yapabilirsiniz."
+msgstr "Your account has been successfully created! You can now log in."
+
+#: app/auth.py:71
+msgid "Girdiğiniz doğrulama kodu hatalı veya süresi dolmuş."
+msgstr "The verification code you entered is invalid or expired."
+
+#: app/auth.py:79
+#, fuzzy
+msgid "Kullanıcı oturumu bulunamadı."
+msgstr "Failed to retrieve user information."
+
+#: app/auth.py:92
+msgid "Yeni doğrulama kodu e-posta adresinize gönderildi."
+msgstr "A new verification code has been sent to your email address."
+
+#: app/auth.py:132
+msgid ""
+"Hesabınız henüz doğrulanmamış. Lütfen e-posta adresinize gönderilen "
+"doğrulama kodunu girin."
+msgstr ""
+"Your account is not verified yet. Please enter the verification code sent to"
+" your email address."
+
+#: app/auth.py:146
 msgid "Giriş başarılı!"
 msgstr "Login successful!"
 
-#: app/auth.py:60
+#: app/auth.py:159
 msgid "Giriş başarısız. Lütfen e-posta ve şifrenizi kontrol edin."
 msgstr "Login failed. Please check your email and password."
 
-#: app/auth.py:79
-#, python-format
-msgid "Google ile giriş başarısız oldu: %(error)s"
+#: app/auth.py:184
+msgid ""
+"Google ile giriş başarısız oldu: Kullanıcı bilgileri veya e-posta adresi "
+"alınamadı."
+msgstr ""
+"Google login failed: Failed to retrieve user information or email address."
+
+#: app/auth.py:226
+#, fuzzy, python-format
+msgid "Google ile giriş başarılı! Hoş geldiniz %(name)s"
 msgstr "Google login failed: %(error)s"
 
-#: app/auth.py:85
-msgid "Kullanıcı bilgileri alınamadı."
-msgstr "Failed to retrieve user information."
+#: app/auth.py:231
+#, fuzzy, python-format
+msgid "Google ile giriş yapılırken bir hata oluştu: %(error)s"
+msgstr "Google login failed: %(error)s"
 
-#: app/auth.py:91
-msgid "E-posta adresi alınamadı."
-msgstr "Failed to retrieve email address."
-
-#: app/auth.py:99
-msgid ""
-"Sistemimizde bu Google e-posta adresiyle eşleşen bir kayıt bulunamadı. "
-"Lütfen sisteme giriş yapabilmek için önce Kayıt Ol sayfasından kayıt "
-"işleminizi tamamlayın."
-msgstr ""
-"No matching account found with this Google email address. Please register "
-"first on the Sign Up page to log in."
-
-#: app/auth.py:133
-msgid ""
-"Güvenlik uyarısı: Son 1 saat içinde çok fazla şifre sıfırlama talebinde "
-"bulundunuz. Lütfen hesabınızın güvenliği için daha sonra tekrar deneyin."
-msgstr ""
-"Security warning: Too many password reset requests in the last hour. Please "
-"try again later for your account security."
-
-#: app/auth.py:141
+#: app/auth.py:259
 msgid ""
 "Eğer sistemimizde böyle bir kayıt varsa, şifre sıfırlama bağlantısı e-posta "
 "adresinize gönderildi."
@@ -76,26 +102,126 @@ msgstr ""
 "If such an account exists in our system, a password reset link has been sent"
 " to your email address."
 
-#: app/auth.py:151
+#: app/auth.py:269
 msgid "Sıfırlama bağlantısı geçersiz veya süresi dolmuş."
 msgstr "The reset link is invalid or has expired."
 
-#: app/auth.py:162
+#: app/auth.py:280
 msgid ""
 "Şifreniz başarıyla güncellendi! Artık yeni şifrenizle giriş yapabilirsiniz."
 msgstr ""
 "Your password has been successfully updated! You can now log in with your "
 "new password."
 
-#: app/main.py:47
+#: app/forms.py:10 app/forms.py:25
+msgid "Ad"
+msgstr "First Name"
+
+#: app/forms.py:11 app/forms.py:26
+msgid "Soyad"
+msgstr "Last Name"
+
+#: app/forms.py:12 app/forms.py:27 app/templates/admin_panel.html:175
+msgid "Kullanıcı Adı"
+msgstr "Username"
+
+#: app/forms.py:13 app/forms.py:47 app/templates/admin_panel.html:176
+msgid "E-Posta"
+msgstr "Email"
+
+#: app/forms.py:14
+#, fuzzy
+msgid "Profil Fotoğrafını Güncelle"
+msgstr "Profile Picture"
+
+#: app/forms.py:15
+msgid "Güncelle"
+msgstr ""
+
+#: app/forms.py:28 app/forms.py:41
+#, fuzzy
+msgid "E-posta"
+msgstr "Email"
+
+#: app/forms.py:29 app/forms.py:42
+msgid "Şifre"
+msgstr ""
+
+#: app/forms.py:30
+#, fuzzy
+msgid "Şifreyi Onayla"
+msgstr "Confirm Selection"
+
+#: app/forms.py:31 app/templates/auth/register.html:7
+#: app/templates/base.html:1142 app/templates/index.html:206
+msgid "Kayıt Ol"
+msgstr "Sign Up"
+
+#: app/forms.py:43 app/templates/auth/login.html:38
+msgid "Beni Hatırla"
+msgstr "Remember Me"
+
+#: app/forms.py:44 app/templates/auth/login.html:7
+#: app/templates/base.html:1141
+msgid "Giriş Yap"
+msgstr "Login"
+
+#: app/forms.py:48
+msgid "Şifre Sıfırlama Bağlantısı Gönder"
+msgstr "Send Password Reset Link"
+
+#: app/forms.py:54
+msgid "Bu e-posta adresiyle kayıtlı bir hesap bulunamadı. Lütfen kayıt olun."
+msgstr "No account found with this email address. Please register."
+
+#: app/forms.py:57
+msgid "Yeni Şifre"
+msgstr "New Password"
+
+#: app/forms.py:58
+#, fuzzy
+msgid "Yeni Şifreyi Onayla"
+msgstr "Confirm New Password"
+
+#: app/forms.py:59
+msgid "Şifreyi Güncelle"
+msgstr "Update Password"
+
+#: app/forms.py:62 app/forms.py:69
+#, fuzzy
+msgid "Oda İsmi"
+msgstr "Delete Room"
+
+#: app/forms.py:63 app/forms.py:70
+msgid "İngilizce Oda İsmi"
+msgstr "English Room Name"
+
+#: app/forms.py:64 app/forms.py:71
+msgid "Kişi Sayısı (Kapasite)"
+msgstr ""
+
+#: app/forms.py:65 app/forms.py:72
+msgid "Özellikler / Açıklama"
+msgstr ""
+
+#: app/forms.py:66
+#, fuzzy
+msgid "Oda Ekle"
+msgstr "Add New Room"
+
+#: app/forms.py:73
+msgid "Değişiklikleri Kaydet"
+msgstr ""
+
+#: app/main.py:50
 msgid "Hesabınız başarıyla güncellendi!"
 msgstr "Your account has been successfully updated!"
 
-#: app/main.py:208
+#: app/main.py:231
 msgid "Geçmiş (veya iptal edilmiş) bir toplantı davetiniz vardı."
 msgstr "You had a past (or cancelled) meeting invitation."
 
-#: app/main.py:211
+#: app/main.py:234
 #, python-format
 msgid ""
 "'%(room)s' odasındaki toplantınız %(mins)s dakika içinde başlıyor. Lütfen "
@@ -104,7 +230,7 @@ msgstr ""
 "Your meeting in room '%(room)s' starts in %(mins)s minutes. Please proceed "
 "to the room."
 
-#: app/main.py:214
+#: app/main.py:237
 #, python-format
 msgid ""
 "%(user)s sizi %(date)s tarihinde %(start)s-%(end)s saatleri arasında "
@@ -113,24 +239,24 @@ msgstr ""
 "%(user)s invited you to a meeting in room '%(room)s' on %(date)s between "
 "%(start)s-%(end)s."
 
-#: app/main.py:217
+#: app/main.py:240
 #, python-format
 msgid ""
 "%(user)s, %(date)s tarihindeki %(start)s-%(end)s toplantı davetini reddetti."
 msgstr ""
 "%(user)s rejected the meeting invitation on %(date)s at %(start)s-%(end)s."
 
-#: app/main.py:220
+#: app/main.py:243
 #, python-format
 msgid "'%(room)s' odasındaki toplantınız için zaman doldu."
 msgstr "Time is up for your meeting in room '%(room)s'."
 
-#: app/main.py:223
+#: app/main.py:246
 #, python-format
 msgid "'%(room)s' odasındaki toplantınız başlamak üzere."
 msgstr "Your meeting in room '%(room)s' is about to start."
 
-#: app/main.py:226
+#: app/main.py:249
 #, python-format
 msgid ""
 "Yönetici tarafından %(date)s tarihindeki %(start)s-%(end)s saatleri "
@@ -139,62 +265,100 @@ msgstr ""
 "Your reservation for the %(room)s room on %(date)s between %(start)s-%(end)s"
 " was cancelled by an admin."
 
-#: app/main.py:716 app/templates/overview.html:415
-#: app/templates/overview.html:488 app/templates/overview.html:512
-#: app/templates/overview.html:514 app/templates/overview.html:521
+#: app/main.py:1437 app/templates/overview.html:418
+#: app/templates/overview.html:491 app/templates/overview.html:515
+#: app/templates/overview.html:517 app/templates/overview.html:524
 msgid "Dolu"
 msgstr "Full"
 
-#: app/main.py:720 app/templates/overview.html:440
-#: app/templates/overview.html:553
+#: app/main.py:1441 app/templates/overview.html:443
+#: app/templates/overview.html:556
 msgid "Boş"
 msgstr "Empty"
 
-#: app/main.py:724
+#: app/main.py:1445
 msgid "Çoğunluğu Dolu"
 msgstr "Mostly Full"
 
-#: app/main.py:728 app/templates/overview.html:241
-#: app/templates/rooms/book.html:218
+#: app/main.py:1449 app/templates/overview.html:243
+#: app/templates/rooms/book.html:220
 msgid "Kısmen Dolu"
 msgstr "Partially Full"
 
-#: app/main.py:759
+#: app/main.py:1480
+msgid ""
+"Oda verileri yüklenirken bir veritabanı hatası oluştu. Lütfen sayfayı "
+"yenileyin."
+msgstr ""
+"A database error occurred while loading room data. Please refresh the page."
+
+#: app/main.py:1501
 msgid "Yeni oda başarıyla eklendi!"
 msgstr "Your account has been successfully updated!"
 
-#: app/main.py:774
+#: app/main.py:1516
 msgid "Bu isimde başka bir oda zaten var."
 msgstr "Another room with this name already exists."
 
-#: app/main.py:783
+#: app/main.py:1525
 msgid "Oda başarıyla güncellendi!"
 msgstr "Your account has been successfully updated!"
 
-#: app/main.py:1083
+#: app/main.py:1834
 #, python-format
 msgid "%(room)s için rezervasyonunuz onaylandı!"
 msgstr "Your reservation for %(room)s is confirmed!"
 
-#: app/main.py:1086
+#: app/main.py:1837
 #, python-format
 msgid "%(room_name)s Rezervasyon"
 msgstr "Booking for %(room_name)s"
 
-#: app/main.py:1154
+#: app/main.py:1905
 msgid "Rezervasyon başarıyla iptal edildi."
 msgstr "Reservation successfully cancelled."
 
-#: app/main.py:1251
+#: app/main.py:1919
+#, fuzzy
+msgid "Toplantıdan başarıyla ayrıldınız."
+msgstr "Meeting Rooms"
+
+#: app/main.py:1921
+msgid "Bu toplantıya zaten katılmıyorsunuz."
+msgstr "You are not attending this meeting anyway."
+
+#: app/main.py:2098 app/templates/admin_logs.html:126
+#: app/templates/admin_panel.html:132
+msgid "Tarih"
+msgstr "Date"
+
+#: app/main.py:2099 app/templates/admin_logs.html:127
+msgid "İşlem Türü"
+msgstr "Action Type"
+
+#: app/main.py:2100 app/templates/admin_logs.html:128
+#: app/templates/admin_panel.html:129 app/templates/admin_panel.html:193
+msgid "Kullanıcı"
+msgstr "User"
+
+#: app/main.py:2101 app/templates/admin_logs.html:129
+msgid "Detaylar"
+msgstr "Details"
+
+#: app/main.py:2117 app/templates/admin_logs.html:152
+msgid "Sistem"
+msgstr "System"
+
+#: app/main.py:2146
 msgid "Silinecek tarihi seçmeniz gerekiyor."
 msgstr "You must select a date to delete."
 
-#: app/main.py:1263
+#: app/main.py:2158
 #, python-format
 msgid "%(date)s tarihi için silinecek log bulunamadı."
 msgstr "No logs found to delete for the date %(date)s."
 
-#: app/main.py:1270
+#: app/main.py:2165
 #, python-format
 msgid ""
 "%(date)s tarihine ait %(count)s log kaydı veritabanından kalıcı olarak "
@@ -203,36 +367,36 @@ msgstr ""
 "%(count)s log entries for the date %(date)s were permanently deleted from "
 "the database."
 
-#: app/main.py:1273
+#: app/main.py:2168
 msgid "Geçersiz tarih formatı."
 msgstr "Invalid date format."
 
-#: app/main.py:1286
+#: app/main.py:2181
 msgid "Silmek için hiçbir log seçmediniz."
 msgstr "You have not selected any logs to delete."
 
-#: app/main.py:1301
+#: app/main.py:2196
 #, python-format
 msgid "Seçilen %(count)s adet log başarıyla silindi."
 msgstr "%(count)s selected logs were successfully deleted."
 
-#: app/main.py:1303
+#: app/main.py:2198
 msgid "Seçilen loglar bulunamadı."
 msgstr "Selected logs could not be found."
 
-#: app/main.py:1305
+#: app/main.py:2200
 msgid "Loglar silinirken bir hata oluştu."
 msgstr "An error occurred while deleting logs."
 
-#: app/main.py:1405 app/main.py:1425
+#: app/main.py:2329 app/main.py:2349
 msgid "Bu işlemi yapmaya yetkiniz yok."
 msgstr "You are not authorized to perform this action."
 
-#: app/main.py:1413 app/main.py:1415
+#: app/main.py:2337 app/main.py:2339
 msgid "Daveti kabul ettiniz."
 msgstr "You have accepted the invitation."
 
-#: app/main.py:1445 app/main.py:1447
+#: app/main.py:2369 app/main.py:2371
 msgid "Daveti reddettiniz."
 msgstr "You have rejected the invitation."
 
@@ -244,208 +408,172 @@ msgstr "Advanced Log Management"
 msgid "Admin Paneline Dön"
 msgstr "Back to Admin Panel"
 
-#: app/templates/admin_logs.html:52
-msgid "Tarih Seçin"
-msgstr "Date"
-
-#: app/templates/admin_logs.html:55
-msgid "Getir"
-msgstr "Fetch"
-
-#: app/templates/admin_logs.html:57
-msgid "Temizle"
-msgstr "Clear"
-
-#: app/templates/admin_logs.html:62
-msgid ""
-"Dikkat: Seçilen tarihe ait TÜM log kayıtları kalıcı olarak silinecektir. "
-"Emin misiniz?"
-msgstr ""
-"Warning: ALL log entries for the selected date will be permanently deleted."
-
-#: app/templates/admin_logs.html:64
-msgid "Tarihe Göre Sil"
-msgstr "Delete by Date"
-
-#: app/templates/admin_logs.html:67 app/templates/dashboard.html:44
-#: app/templates/dashboard.html:119 app/templates/rooms/list.html:61
-msgid "Sil"
-msgstr "Delete"
-
-#: app/templates/admin_logs.html:70
-msgid ""
-"Dikkat: Seçilen tarihe ait TÜM log kayıtları kalıcı olarak silinecektir."
-msgstr ""
-"Warning: ALL log entries for the selected date will be permanently deleted."
-
-#: app/templates/admin_logs.html:81
+#: app/templates/admin_logs.html:113
 msgid "Seçili Logları Temizle"
 msgstr "Clear Selected Logs"
 
-#: app/templates/admin_logs.html:90
+#: app/templates/admin_logs.html:123
 msgid "Tümünü Seç"
 msgstr "Select All"
 
-#: app/templates/admin_logs.html:93 app/templates/admin_panel.html:130
-msgid "Tarih"
-msgstr "Date"
-
-#: app/templates/admin_logs.html:94
-msgid "İşlem Türü"
-msgstr "Action Type"
-
-#: app/templates/admin_logs.html:95 app/templates/admin_panel.html:127
-msgid "Kullanıcı"
-msgstr "User"
-
-#: app/templates/admin_logs.html:96
-msgid "Detaylar"
-msgstr "Details"
-
-#: app/templates/admin_logs.html:106
+#: app/templates/admin_logs.html:139
 msgid "GİRİŞ"
 msgstr "LOGIN"
 
-#: app/templates/admin_logs.html:108
+#: app/templates/admin_logs.html:141
 msgid "REZERVASYON"
 msgstr "RESERVATION"
 
-#: app/templates/admin_logs.html:110
+#: app/templates/admin_logs.html:143
 msgid "İPTAL/SİLME"
 msgstr "CANCEL/DELETE"
 
-#: app/templates/admin_logs.html:115
-msgid "Sistem"
-msgstr "System"
-
-#: app/templates/admin_logs.html:121
+#: app/templates/admin_logs.html:160
 msgid "Belirtilen kriterlere uygun log kaydı bulunamadı."
 msgstr "No log entries found matching the specified criteria."
 
-#: app/templates/admin_logs.html:162
+#: app/templates/admin_logs.html:243
+#, fuzzy
+msgid "Önceki Gün"
+msgstr "Previous Month"
+
+#: app/templates/admin_logs.html:246
+#, fuzzy
+msgid "Sonraki Gün"
+msgstr "Next Month"
+
+#: app/templates/admin_logs.html:253 app/templates/admin_panel.html:224
 msgid "Önceki"
 msgstr "Previous Month"
 
-#: app/templates/admin_logs.html:166
+#: app/templates/admin_logs.html:257 app/templates/admin_panel.html:228
 msgid "Sayfa"
 msgstr "Home"
 
-#: app/templates/admin_logs.html:170
+#: app/templates/admin_logs.html:261 app/templates/admin_panel.html:232
 msgid "Sonraki"
 msgstr "Next Month"
 
-#: app/templates/admin_panel.html:67
+#: app/templates/admin_logs.html:268
+msgid "CSV Olarak İndir"
+msgstr "Export to CSV"
+
+#: app/templates/admin_panel.html:3
+msgid ""
+"Sistem yöneticisi paneli. Kullanıcıları, toplantı odalarını ve tüm sistem "
+"rezervasyonlarını yönetin."
+msgstr ""
+"System admin panel. Manage users, meeting rooms, and all system "
+"reservations."
+
+#: app/templates/admin_panel.html:69
 msgid "Kapsamlı Admin Paneli"
 msgstr "Comprehensive Admin Panel"
 
-#: app/templates/admin_panel.html:73
+#: app/templates/admin_panel.html:75
 msgid "Toplam Kullanıcı"
 msgstr "Total Users"
 
-#: app/templates/admin_panel.html:77
+#: app/templates/admin_panel.html:79
 msgid "Toplam Oda"
 msgstr "Total Rooms"
 
-#: app/templates/admin_panel.html:81 app/templates/admin_panel.html:116
+#: app/templates/admin_panel.html:83 app/templates/admin_panel.html:118
 msgid "Tüm Rezervasyonlar"
 msgstr "All Reservations"
 
-#: app/templates/admin_panel.html:85
+#: app/templates/admin_panel.html:87
 msgid "Bugünkü Rezervasyonlar"
 msgstr "Today's Reservations"
 
-#: app/templates/admin_panel.html:91
+#: app/templates/admin_panel.html:93
 msgid "Şu Anki Aktif Toplantılar (Canlı)"
 msgstr "Current Active Meetings (Live)"
 
-#: app/templates/admin_panel.html:98
+#: app/templates/admin_panel.html:100
 msgid "Düzenleyen"
 msgstr "Organizer"
 
-#: app/templates/admin_panel.html:99
+#: app/templates/admin_panel.html:101
 msgid "Süre"
 msgstr "Duration"
 
-#: app/templates/admin_panel.html:101 app/templates/dashboard.html:24
+#: app/templates/admin_panel.html:103 app/templates/dashboard.html:26
 msgid "Davetliler"
 msgstr "Attendees"
 
-#: app/templates/admin_panel.html:105
+#: app/templates/admin_panel.html:107
 msgid "Ek katılımcı yok"
 msgstr "No additional attendees"
 
-#: app/templates/admin_panel.html:111
+#: app/templates/admin_panel.html:113
 msgid "Şu anda devam eden herhangi bir toplantı bulunmuyor."
 msgstr "There are no active meetings at the moment."
 
-#: app/templates/admin_panel.html:117
+#: app/templates/admin_panel.html:119
 msgid ""
 "Tüm eski rezervasyonları kalıcı olarak silmek istediğinize emin misiniz? Bu "
 "işlem geri alınamaz."
 msgstr "Are you sure you want to cancel this reservation?"
 
-#: app/templates/admin_panel.html:119
+#: app/templates/admin_panel.html:121
 msgid "Geçmiş Rezervasyonları Temizle"
 msgstr "Clear Past Reservations"
 
-#: app/templates/admin_panel.html:128
+#: app/templates/admin_panel.html:130
 msgid "Katılımcılar"
 msgstr "No additional attendees"
 
-#: app/templates/admin_panel.html:129
+#: app/templates/admin_panel.html:131
 msgid "Oda"
 msgstr "Room"
 
-#: app/templates/admin_panel.html:131
+#: app/templates/admin_panel.html:133
 msgid "Saat"
 msgstr "Time"
 
-#: app/templates/admin_panel.html:132
+#: app/templates/admin_panel.html:134
 msgid "Oluşturulma"
 msgstr "Created At"
 
-#: app/templates/admin_panel.html:133 app/templates/admin_panel.html:176
-#: app/templates/admin_panel.html:219
+#: app/templates/admin_panel.html:135 app/templates/admin_panel.html:178
+#: app/templates/admin_panel.html:245
 msgid "İşlem"
 msgstr "Action"
 
-#: app/templates/admin_panel.html:154
+#: app/templates/admin_panel.html:156
 msgid "Bu rezervasyonu silmek istediğinize emin misiniz?"
 msgstr "Are you sure you want to cancel this reservation?"
 
-#: app/templates/admin_panel.html:156 app/templates/dashboard.html:69
+#: app/templates/admin_panel.html:158 app/templates/dashboard.html:75
 msgid "İptal Et"
 msgstr "Cancel"
 
-#: app/templates/admin_panel.html:164
+#: app/templates/admin_panel.html:166
 msgid "Sistemde henüz hiçbir rezervasyon bulunmuyor."
 msgstr "No reservations exist in the system yet."
 
-#: app/templates/admin_panel.html:167 app/templates/admin_panel.html:168
+#: app/templates/admin_panel.html:169 app/templates/admin_panel.html:170
 msgid "Kullanıcı Yönetimi"
 msgstr "User Management"
 
-#: app/templates/admin_panel.html:173
-msgid "Kullanıcı Adı"
-msgstr "Username"
-
-#: app/templates/admin_panel.html:174
-msgid "E-Posta"
-msgstr "Email"
-
-#: app/templates/admin_panel.html:175
+#: app/templates/admin_panel.html:177
 msgid "Rol"
 msgstr "Role"
 
-#: app/templates/admin_panel.html:188
-msgid "Admin"
+#: app/templates/admin_panel.html:190
+msgid "Yönetici"
 msgstr "Admin"
 
-#: app/templates/admin_panel.html:191
-msgid "User"
-msgstr "User"
+#: app/templates/admin_panel.html:201
+msgid "Yetkiyi Al"
+msgstr "Revoke Admin"
 
-#: app/templates/admin_panel.html:197
+#: app/templates/admin_panel.html:204
+msgid "Yönetici Yap"
+msgstr "Make Admin"
+
+#: app/templates/admin_panel.html:208
 msgid ""
 "Bu kullanıcıyı ve tüm rezervasyonlarını tamamen silmek istediğinize emin "
 "misiniz?"
@@ -453,51 +581,51 @@ msgstr ""
 "Are you sure you want to permanently delete this user and all their "
 "reservations?"
 
-#: app/templates/admin_panel.html:199
+#: app/templates/admin_panel.html:210
 msgid "Kullanıcıyı Sil"
 msgstr "Delete User"
 
-#: app/templates/admin_panel.html:202
+#: app/templates/admin_panel.html:213
 msgid "Kendiniz"
 msgstr "Yourself"
 
-#: app/templates/admin_panel.html:211
+#: app/templates/admin_panel.html:237
 msgid "Oda Yönetimi"
 msgstr "Room Management"
 
-#: app/templates/admin_panel.html:216
+#: app/templates/admin_panel.html:242
 msgid "Oda Adı"
 msgstr "Room Name"
 
-#: app/templates/admin_panel.html:217 app/templates/overview.html:272
-#: app/templates/rooms/book.html:227 app/templates/rooms/list.html:54
+#: app/templates/admin_panel.html:243 app/templates/overview.html:275
+#: app/templates/rooms/book.html:229 app/templates/rooms/list.html:101
 msgid "Kapasite"
 msgstr "Capacity"
 
-#: app/templates/admin_panel.html:218
+#: app/templates/admin_panel.html:244
 msgid "Açıklama"
 msgstr "Description"
 
-#: app/templates/admin_panel.html:227 app/templates/rooms/book.html:227
-#: app/templates/rooms/list.html:54
+#: app/templates/admin_panel.html:253 app/templates/rooms/book.html:229
+#: app/templates/rooms/list.html:101
 msgid "Kişi"
 msgstr "Person"
 
-#: app/templates/admin_panel.html:231
+#: app/templates/admin_panel.html:257
 msgid ""
 "Bu odayı ve bu odaya ait tüm geçmiş/gelecek rezervasyonları silmek "
 "istediğinize emin misiniz?"
 msgstr "Are you sure you want to cancel this reservation?"
 
-#: app/templates/admin_panel.html:233
+#: app/templates/admin_panel.html:259
 msgid "Odayı Sil"
 msgstr "Delete Room"
 
-#: app/templates/admin_panel.html:243
+#: app/templates/admin_panel.html:269
 msgid "Sistem Logları (Gelişmiş Yönetim)"
 msgstr "System Logs (Advanced Management)"
 
-#: app/templates/admin_panel.html:245
+#: app/templates/admin_panel.html:271
 msgid ""
 "Kullanıcı işlemlerini takip etmek, tarihe göre logları listelemek ve "
 "veritabanı loglarını site üzerinden güvenli bir şekilde silmek için Gelişmiş"
@@ -506,11 +634,11 @@ msgstr ""
 "Use the Advanced Log Management page to track user actions, list logs by "
 "date, and securely delete database logs via the interface."
 
-#: app/templates/admin_panel.html:248
+#: app/templates/admin_panel.html:274
 msgid "Gelişmiş Log Yönetimine Git"
 msgstr "Go to Advanced Log Management"
 
-#: app/templates/admin_panel.html:253
+#: app/templates/admin_panel.html:279
 msgid ""
 "Not: Hızlı iptal işlemleri için \"Günlük Durum\" sekmesine gidip kırmızı "
 "kutulara tıklayabilirsiniz."
@@ -518,168 +646,200 @@ msgstr ""
 "Note: For quick cancellation operations, you can go to the \"Daily "
 "Overview\" tab and click on the red boxes."
 
-#: app/templates/base.html:12
-msgid "Rezervasyon Sistemi"
-msgstr "Booking System"
-
-#: app/templates/base.html:625
+#: app/templates/base.html:1015
 msgid "Günlük Durum"
 msgstr "Daily Overview"
 
-#: app/templates/base.html:626 app/templates/index.html:197
+#: app/templates/base.html:1016 app/templates/index.html:218
 msgid "Odalar"
 msgstr "Rooms"
 
-#: app/templates/base.html:627 app/templates/index.html:198
+#: app/templates/base.html:1017 app/templates/index.html:219
 msgid "Kontrol Paneli"
 msgstr "Dashboard"
 
-#: app/templates/base.html:628
+#: app/templates/base.html:1018
 msgid "Sanal Kapı (Test)"
 msgstr "Virtual Door (Test)"
 
-#: app/templates/base.html:630
+#: app/templates/base.html:1020
 msgid "Admin Panel"
 msgstr "Admin Panel"
 
-#: app/templates/base.html:649
+#: app/templates/base.html:1038
 msgid "Bildirimler"
 msgstr "Notifications"
 
-#: app/templates/base.html:665
+#: app/templates/base.html:1052
 msgid "Onayla"
 msgstr "Accept"
 
-#: app/templates/base.html:668
+#: app/templates/base.html:1054
 msgid "Reddet"
 msgstr "Reject"
 
-#: app/templates/base.html:673
+#: app/templates/base.html:1058
 msgid "Okundu İşaretle"
 msgstr "Mark as Read"
 
-#: app/templates/base.html:678 app/templates/base.html:824
+#: app/templates/base.html:1063 app/templates/base.html:1232
 msgid "Yeni bildiriminiz yok."
 msgstr "You have no new notifications."
 
-#: app/templates/base.html:690
-msgid "Kabul Edilen Toplantılar"
-msgstr "Accepted Meetings"
+#: app/templates/base.html:1075
+msgid "Toplantılarım"
+msgstr "My Meetings"
 
-#: app/templates/base.html:696
-msgid "Yaklaşan Toplantılar"
+#: app/templates/base.html:1084
+msgid "Yaklaşan Toplantılarım"
 msgstr "Upcoming Meetings"
 
-#: app/templates/base.html:700 app/templates/base.html:864
-#: app/templates/dashboard.html:14 app/templates/dashboard.html:96
+#: app/templates/base.html:1091 app/templates/base.html:1271
+#: app/templates/dashboard.html:16 app/templates/dashboard.html:102
 msgid "Odası"
 msgstr "Room"
 
-#: app/templates/base.html:714 app/templates/dashboard.html:62
-#: app/templates/dashboard.html:137
+#: app/templates/base.html:1104 app/templates/dashboard.html:68
+#: app/templates/dashboard.html:147
 msgid "Takvime Ekle"
 msgstr "Add to Calendar"
 
-#: app/templates/base.html:734
+#: app/templates/base.html:1109
+msgid "Tümünü Gör (Kontrol Paneli) ➔"
+msgstr "View All (Dashboard) ➔"
+
+#: app/templates/base.html:1112
+msgid "Yaklaşan toplantınız bulunmuyor."
+msgstr "You have no upcoming meetings."
+
+#: app/templates/base.html:1115
+msgid "Yeni Rezervasyon Yap"
+msgstr "New Booking"
+
+#: app/templates/base.html:1137
+#, fuzzy
+msgid "Bildirimleri Aç"
+msgstr "Notifications"
+
+#: app/templates/base.html:1139
 msgid "Çıkış Yap"
 msgstr "Logout"
 
-#: app/templates/auth/login.html:5 app/templates/auth/login_register.html:254
-#: app/templates/base.html:737 app/templates/index.html:184
-msgid "Giriş Yap"
-msgstr "Login"
+#: app/templates/base.html:1158
+msgid "Temayı Değiştir"
+msgstr "Toggle Theme"
 
-#: app/templates/auth/login_register.html:307
-#: app/templates/auth/register.html:5 app/templates/base.html:738
-#: app/templates/index.html:185
-msgid "Kayıt Ol"
-msgstr "Sign Up"
+#: app/templates/base.html:1176
+msgid "Tüm hakları saklıdır."
+msgstr "All rights reserved."
 
-#: app/templates/base.html:862
+#: app/templates/base.html:1270
 msgid "Şu an Toplantıdasınız"
 msgstr "You are currently in a meeting"
 
-#: app/templates/dashboard.html:5
+#: app/templates/dashboard.html:3
+msgid ""
+"Yaklaşan ve geçmiş toplantılarınızı, davet edildiğiniz rezervasyonları "
+"kişisel kontrol panelinizden inceleyin ve yönetin."
+msgstr ""
+"Review and manage your upcoming and past meetings, and invited reservations "
+"from your personal dashboard."
+
+#: app/templates/dashboard.html:7
 msgid "Rezervasyonlarım"
 msgstr "My Reservations"
 
-#: app/templates/dashboard.html:6
+#: app/templates/dashboard.html:8
 msgid "Yeni Rezervasyon"
 msgstr "New Reservation"
 
-#: app/templates/dashboard.html:35 app/templates/dashboard.html:110
+#: app/templates/dashboard.html:37 app/templates/dashboard.html:116
 msgid "📄 Dökümanlar"
 msgstr "📄 Documents"
 
-#: app/templates/dashboard.html:41 app/templates/dashboard.html:116
+#: app/templates/dashboard.html:43 app/templates/dashboard.html:122
 msgid "İndir"
 msgstr "Download"
 
-#: app/templates/dashboard.html:43 app/templates/dashboard.html:118
+#: app/templates/dashboard.html:45 app/templates/dashboard.html:124
 msgid "Bu belgeyi silmek istediğinize emin misiniz?"
 msgstr "Are you sure you want to cancel this reservation?"
 
-#: app/templates/dashboard.html:57 app/templates/dashboard.html:132
+#: app/templates/dashboard.html:46 app/templates/dashboard.html:125
+#: app/templates/rooms/list.html:110
+msgid "Sil"
+msgstr "Delete"
+
+#: app/templates/dashboard.html:59 app/templates/dashboard.html:61
+#: app/templates/dashboard.html:138 app/templates/dashboard.html:140
+msgid "Dosya seçilmedi"
+msgstr "No file chosen"
+
+#: app/templates/dashboard.html:60 app/templates/dashboard.html:139
+msgid "Dosya Seç"
+msgstr "Choose File"
+
+#: app/templates/dashboard.html:63 app/templates/dashboard.html:142
 msgid "Yükle"
 msgstr "UPLOAD"
 
-#: app/templates/dashboard.html:64 app/templates/dashboard.html:138
+#: app/templates/dashboard.html:70 app/templates/dashboard.html:148
 msgid "QR Göster"
 msgstr "Show QR"
 
-#: app/templates/dashboard.html:65 app/templates/dashboard.html:139
+#: app/templates/dashboard.html:71 app/templates/dashboard.html:149
 msgid "Çıkış QR"
 msgstr "Exit QR"
 
-#: app/templates/dashboard.html:69
+#: app/templates/dashboard.html:75
 msgid "Bu rezervasyonu iptal etmek istediğinize emin misiniz?"
 msgstr "Are you sure you want to cancel this reservation?"
 
-#: app/templates/dashboard.html:85
+#: app/templates/dashboard.html:91
 msgid "Henüz bir rezervasyonunuz bulunmuyor."
 msgstr "You have no reservations yet."
 
-#: app/templates/dashboard.html:86
+#: app/templates/dashboard.html:92
 msgid "Hemen Oda Rezervasyonu Yap"
 msgstr "Book a Room Now"
 
-#: app/templates/dashboard.html:90
+#: app/templates/dashboard.html:96
 msgid "Davet Edildiğim Toplantılar"
 msgstr "Meetings I Am Invited To"
 
-#: app/templates/dashboard.html:105
+#: app/templates/dashboard.html:111
 msgid "Oluşturan"
 msgstr "Created By"
 
-#: app/templates/dashboard.html:141
+#: app/templates/dashboard.html:151
 msgid "Bu toplantıdan ayrılmak istediğinize emin misiniz?"
 msgstr "Are you sure you want to cancel this reservation?"
 
-#: app/templates/dashboard.html:141
+#: app/templates/dashboard.html:151
 msgid "Toplantıdan Ayrıl"
 msgstr "Meeting Rooms"
 
-#: app/templates/dashboard.html:150
+#: app/templates/dashboard.html:160
 msgid "Şu an için davet edildiğiniz bir toplantı bulunmuyor."
 msgstr "You are currently not invited to any meetings."
 
-#: app/templates/dashboard.html:158
+#: app/templates/dashboard.html:168
 msgid "Oda Giriş QR Kodu"
 msgstr "Room Entry QR Code"
 
-#: app/templates/dashboard.html:159
+#: app/templates/dashboard.html:169
 msgid "Kapıdaki okuyucuya bu QR kodu okutarak odaya giriş yapabilirsiniz."
 msgstr "You can enter the room by scanning this QR code at the door reader."
 
-#: app/templates/dashboard.html:164 app/templates/dashboard.html:178
+#: app/templates/dashboard.html:174 app/templates/dashboard.html:188
 msgid "Kapat"
 msgstr "Close"
 
-#: app/templates/dashboard.html:172
+#: app/templates/dashboard.html:182
 msgid "Oda Çıkış QR Kodu"
 msgstr "Room Entry QR Code"
 
-#: app/templates/dashboard.html:173
+#: app/templates/dashboard.html:183
 msgid ""
 "Erken ayrılıyorsanız, bu QR kodu okutarak odayı başkaları için anında boşa "
 "çıkarabilirsiniz."
@@ -687,11 +847,11 @@ msgstr ""
 "If you leave early, you can instantly free up the room for others by "
 "scanning this QR code."
 
-#: app/templates/door_scanner.html:5
+#: app/templates/door_scanner.html:56
 msgid "Sanal Kapı Okuyucu"
 msgstr "Virtual Door Reader"
 
-#: app/templates/door_scanner.html:6
+#: app/templates/door_scanner.html:57
 msgid ""
 "Kameraya QR kodu göstererek veya aşağıdan rezervasyon seçerek kapı girişini "
 "simüle edin."
@@ -699,15 +859,15 @@ msgstr ""
 "Simulate door entry by showing a QR code to the camera or selecting a "
 "reservation below."
 
-#: app/templates/door_scanner.html:15
+#: app/templates/door_scanner.html:66
 msgid "Yeniden Okut"
 msgstr "Scan Again"
 
-#: app/templates/door_scanner.html:20
+#: app/templates/door_scanner.html:71
 msgid "Kamera Çalışmıyor Mu?"
 msgstr "Is the Camera Not Working?"
 
-#: app/templates/door_scanner.html:21
+#: app/templates/door_scanner.html:72
 msgid ""
 "Güvenlik nedeniyle kameranız engellendiyse, Dashboard'dan aldığınız QR kodun"
 " ekran görüntüsünü alıp yukarıdaki okuyucu alanından <strong>\"Scan an Image"
@@ -719,60 +879,81 @@ msgstr ""
 "clicking on the <strong>\"Scan an Image File\"</strong> text from the reader"
 " area above to test it."
 
-#: app/templates/door_scanner.html:44
+#: app/templates/door_scanner.html:95
 msgid "Doğrulanıyor..."
 msgstr "Verifying..."
 
-#: app/templates/door_scanner.html:45
+#: app/templates/door_scanner.html:96
 msgid "QR Kod sunucuya iletiliyor..."
 msgstr "Sending QR code to the server..."
 
-#: app/templates/door_scanner.html:62
+#: app/templates/door_scanner.html:113
 msgid "ÇIKIŞ YAPILDI"
 msgstr "Logout"
 
-#: app/templates/door_scanner.html:64
+#: app/templates/door_scanner.html:115
 msgid "KAPI AÇILDI"
 msgstr "DOOR OPENED"
 
-#: app/templates/door_scanner.html:79
+#: app/templates/door_scanner.html:130
 msgid "ERİŞİM REDDEDİLDİ"
 msgstr "ACCESS DENIED"
 
-#: app/templates/door_scanner.html:85
+#: app/templates/door_scanner.html:136
 msgid "HATA"
 msgstr "ERROR"
 
-#: app/templates/door_scanner.html:86
+#: app/templates/door_scanner.html:137
 msgid "Sunucuyla bağlantı kurulamadı."
 msgstr "Could not connect to server."
 
-#: app/templates/index.html:170
-msgid "Toplantı Odası Rezervasyon Sistemine Hoş Geldiniz"
-msgstr "Welcome to the Meeting Room Reservation System"
-
-#: app/templates/index.html:171
+#: app/templates/index.html:3
+#, fuzzy
 msgid ""
-"Modern, hızlı ve akıllı rezervasyon yönetimi. İhtiyacınız olan toplantı "
-"odasını anında bulun, saniyeler içinde ayırtın ve ekibinizi kolayca davet "
-"edin."
+"Modern, hızlı ve akıllı toplantı odası rezervasyon sistemi. İhtiyacınız olan\n"
+"toplantı odasını anında bulun, saniyeler içinde ayırtın ve ekibinizi kolayca davet edin."
 msgstr ""
 "Modern, fast and smart reservation management. Find the meeting room you "
 "need instantly, book in seconds and invite your team easily."
 
-#: app/templates/index.html:183
+#: app/templates/index.html:188
+msgid "Toplantı Odası Rezervasyon Sistemine Hoş Geldiniz"
+msgstr "Welcome to the Meeting Room Reservation System"
+
+#: app/templates/index.html:189
+#, fuzzy
+msgid ""
+"Modern, hızlı ve akıllı rezervasyon yönetimi. İhtiyacınız olan toplantı odasını anında bulun,\n"
+"            saniyeler içinde ayırtın ve ekibinizi kolayca davet edin."
+msgstr ""
+"Modern, fast and smart reservation management. Find the meeting room you "
+"need instantly, book in seconds and invite your team easily."
+
+#: app/templates/index.html:202
 msgid "Hemen Başlayın"
 msgstr "Get Started"
 
-#: app/templates/index.html:196
+#: app/templates/index.html:203
+msgid ""
+"Giriş\n"
+"                    Yap"
+msgstr ""
+
+#: app/templates/index.html:217
 msgid "Hoş Geldiniz"
 msgstr "Welcome"
 
-#: app/templates/overview.html:213
+#: app/templates/overview.html:3
+msgid ""
+"Günün tüm toplantı ve oda kullanım durumlarını anlık ve canlı olarak takip "
+"edin."
+msgstr "Track all meeting and room usage statuses of the day in real time."
+
+#: app/templates/overview.html:215
 msgid "Aylık Doluluk & Günlük Genel Bakış"
 msgstr "Monthly Occupancy & Daily Overview"
 
-#: app/templates/overview.html:214
+#: app/templates/overview.html:216
 msgid ""
 "Takvimden gün seçerek detayları aşağıdan inceleyebilir ve boş saatlere "
 "tıklayarak rezervasyon yapabilirsiniz."
@@ -780,114 +961,165 @@ msgstr ""
 "You can examine the details below by selecting a day from the calendar and "
 "make a reservation by clicking on empty hours."
 
-#: app/templates/overview.html:225 app/templates/rooms/book.html:202
+#: app/templates/overview.html:227 app/templates/rooms/book.html:204
 msgid "Önceki Ay"
 msgstr "Previous Month"
 
-#: app/templates/overview.html:227 app/templates/rooms/book.html:204
+#: app/templates/overview.html:229 app/templates/rooms/book.html:206
 msgid "Sonraki Ay"
 msgstr "Next Month"
 
-#: app/templates/overview.html:230 app/templates/rooms/book.html:207
+#: app/templates/overview.html:232 app/templates/rooms/book.html:209
 msgid "Pzt"
 msgstr "Mon"
 
-#: app/templates/overview.html:231 app/templates/rooms/book.html:208
+#: app/templates/overview.html:233 app/templates/rooms/book.html:210
 msgid "Sal"
 msgstr "Tue"
 
-#: app/templates/overview.html:232 app/templates/rooms/book.html:209
+#: app/templates/overview.html:234 app/templates/rooms/book.html:211
 msgid "Çar"
 msgstr "Wed"
 
-#: app/templates/overview.html:233 app/templates/rooms/book.html:210
+#: app/templates/overview.html:235 app/templates/rooms/book.html:212
 msgid "Per"
 msgstr "Thu"
 
-#: app/templates/overview.html:234 app/templates/rooms/book.html:211
+#: app/templates/overview.html:236 app/templates/rooms/book.html:213
 msgid "Cum"
 msgstr "Fri"
 
-#: app/templates/overview.html:235 app/templates/rooms/book.html:212
+#: app/templates/overview.html:237 app/templates/rooms/book.html:214
 msgid "Cmt"
 msgstr "Sat"
 
-#: app/templates/overview.html:236 app/templates/rooms/book.html:213
+#: app/templates/overview.html:238 app/templates/rooms/book.html:215
 msgid "Paz"
 msgstr "Sun"
 
-#: app/templates/overview.html:240 app/templates/rooms/book.html:217
+#: app/templates/overview.html:242 app/templates/rooms/book.html:219
 msgid "Tamamen Boş"
 msgstr "Completely Empty"
 
-#: app/templates/overview.html:242 app/templates/rooms/book.html:219
+#: app/templates/overview.html:244 app/templates/rooms/book.html:221
 msgid "Tamamen Dolu"
 msgstr "Completely Full"
 
-#: app/templates/overview.html:248
+#: app/templates/overview.html:250
 msgid "Seçili Tarih:"
-msgstr ""
+msgstr "Selected Date:"
 
-#: app/templates/overview.html:256
+#: app/templates/overview.html:259
 msgid "Toplantı Odası"
 msgstr "Meeting Room"
 
-#: app/templates/overview.html:421 app/templates/overview.html:494
-#: app/templates/overview.html:525
+#: app/templates/overview.html:424 app/templates/overview.html:497
+#: app/templates/overview.html:528
 msgid "Bu rezervasyonu"
 msgstr "RESERVATION"
 
-#: app/templates/overview.html:421 app/templates/overview.html:494
-#: app/templates/overview.html:525
+#: app/templates/overview.html:424 app/templates/overview.html:497
+#: app/templates/overview.html:528
 msgid "iptal etmek istiyor musunuz?"
 msgstr "do you want to cancel?"
 
-#: app/templates/overview.html:431 app/templates/overview.html:504
-#: app/templates/overview.html:538 app/templates/overview.html:539
+#: app/templates/overview.html:434 app/templates/overview.html:507
+#: app/templates/overview.html:541 app/templates/overview.html:542
 msgid "Geçmiş"
 msgstr "Past"
 
-#: app/templates/overview.html:432 app/templates/overview.html:505
-#: app/templates/overview.html:540 app/templates/rooms/book.html:348
-#: app/templates/rooms/book.html:453
+#: app/templates/overview.html:435 app/templates/overview.html:508
+#: app/templates/overview.html:543 app/templates/rooms/book.html:368
+#: app/templates/rooms/book.html:473
 msgid "Bu saat geçmiş"
 msgstr "This hour has passed"
 
-#: app/templates/profile.html:46
+#: app/templates/profile.html:3
+msgid ""
+"Kullanıcı profil bilgilerinizi, profil fotoğrafınızı ve hesap tercihlerinizi"
+" güncelleyin."
+msgstr ""
+"Update your user profile information, profile picture, and account "
+"preferences."
+
+#: app/templates/profile.html:48
 msgid "Profil Fotoğrafı"
 msgstr "Profile Picture"
 
-#: app/templates/auth/login.html:36 app/templates/auth/login_register.html:285
-msgid "Beni Hatırla"
-msgstr "Remember Me"
+#: app/templates/auth/login.html:3
+msgid ""
+"Toplantı odası rezervasyon sistemine giriş yapın. Hesabınızla oturum açarak "
+"toplantılarınızı ve oda rezervasyonlarınızı yönetin."
+msgstr ""
+"Log in to the meeting room reservation system. Manage your meetings and room"
+" reservations by logging into your account."
 
-#: app/templates/auth/login.html:44 app/templates/auth/login_register.html:293
+#: app/templates/auth/login.html:46
 msgid "Şifremi Unuttum"
 msgstr "Forgot Password"
 
-#: app/templates/auth/login.html:51
+#: app/templates/auth/login.html:53
 msgid "VEYA"
 msgstr "OR"
 
-#: app/templates/auth/login.html:59
+#: app/templates/auth/login.html:61
 msgid "Google ile Giriş Yap"
 msgstr "Sign in with Google"
 
-#: app/templates/auth/login.html:64
+#: app/templates/auth/login.html:66
 msgid "Hesabınız yok mu?"
 msgstr "Don't have an account?"
 
-#: app/templates/auth/login.html:64
+#: app/templates/auth/login.html:66
 msgid "Hemen Kayıt Olun"
 msgstr "Sign Up Now"
 
-#: app/templates/auth/register.html:81
+#: app/templates/auth/register.html:3
+msgid ""
+"Toplantı odası rezervasyon sistemine kayıt olun. Yeni hesap oluşturarak oda "
+"rezervasyonları yapmaya hemen başlayın."
+msgstr ""
+"Sign up for the meeting room reservation system. Create a new account and "
+"start booking meeting rooms right away."
+
+#: app/templates/auth/register.html:111
 msgid "Zaten hesabınız var mı?"
 msgstr "Already have an account?"
 
-#: app/templates/auth/register.html:81
+#: app/templates/auth/register.html:111
 msgid "Giriş Yapın"
 msgstr "Log In"
+
+#: app/templates/auth/verify_email.html:3
+#, fuzzy
+msgid "E-posta adresinizi doğrulayın."
+msgstr "Verify your email address."
+
+#: app/templates/auth/verify_email.html:8
+#, fuzzy
+msgid "E-posta Adresinizi Doğrulayın"
+msgstr "Verify Your Email Address"
+
+#: app/templates/auth/verify_email.html:10
+msgid "Lütfen"
+msgstr "Please"
+
+#: app/templates/auth/verify_email.html:11
+msgid "adresine gönderilen 6 haneli doğrulama kodunu girin."
+msgstr "enter the 6-digit verification code sent to address."
+
+#: app/templates/auth/verify_email.html:23
+msgid "Hesabı Doğrula ve Aktifleştir"
+msgstr "Verify and Activate Account"
+
+#: app/templates/auth/verify_email.html:29
+msgid "Kod ulaşmadı mı veya süresi mi doldu?"
+msgstr "Didn't receive the code or has it expired?"
+
+#: app/templates/auth/verify_email.html:34
+#, fuzzy
+msgid "Yeni Kod Gönder"
+msgstr "Resend New Code"
 
 #: app/templates/rooms/add.html:18
 msgid "Yeni Toplantı Odası Ekle"
@@ -897,56 +1129,60 @@ msgstr "Add New Meeting Room"
 msgid "Lütfen oda özelliklerini girin."
 msgstr "Please enter room features."
 
-#: app/templates/rooms/add.html:83 app/templates/rooms/edit.html:83
-msgid "İptal"
-msgstr "Cancel"
+#: app/templates/rooms/book.html:3
+msgid ""
+"Toplantı odası için hızlıca rezervasyon oluşturun, katılımcıları davet edin "
+"ve takviminize ekleyin."
+msgstr ""
+"Quickly create a reservation for a meeting room, invite attendees, and add "
+"to your calendar."
 
-#: app/templates/rooms/book.html:232
+#: app/templates/rooms/book.html:234
 msgid "Rezervasyon Tarihi"
 msgstr "Reservation Date"
 
-#: app/templates/rooms/book.html:239
+#: app/templates/rooms/book.html:241
 msgid "Süre (Dakika)"
 msgstr "Duration (Minutes)"
 
-#: app/templates/rooms/book.html:242
+#: app/templates/rooms/book.html:244
 msgid "30 Dakika"
 msgstr "30 Minutes"
 
-#: app/templates/rooms/book.html:245
+#: app/templates/rooms/book.html:247
 msgid "60 Dakika"
 msgstr "60 Minutes"
 
-#: app/templates/rooms/book.html:251
+#: app/templates/rooms/book.html:265
 msgid "Kişileri Davet Et (Opsiyonel)"
 msgstr "Invite People (Optional)"
 
-#: app/templates/rooms/book.html:265 app/templates/rooms/book.html:382
-#: app/templates/rooms/book.html:396 app/templates/rooms/book.html:461
+#: app/templates/rooms/book.html:285 app/templates/rooms/book.html:402
+#: app/templates/rooms/book.html:416 app/templates/rooms/book.html:481
 msgid "Lütfen Saat Seçin"
 msgstr "Please Select Time"
 
-#: app/templates/rooms/book.html:271
+#: app/templates/rooms/book.html:291
 msgid "Uygun Saatler"
 msgstr "Available Times"
 
-#: app/templates/rooms/book.html:272
+#: app/templates/rooms/book.html:292
 msgid "Yeşil renkli boş saatlere tıklayarak seçiminizi yapabilirsiniz."
 msgstr "You can make your selection by clicking on the green empty times."
 
-#: app/templates/rooms/book.html:274
+#: app/templates/rooms/book.html:294
 msgid "Saatler yükleniyor..."
 msgstr "Loading times..."
 
-#: app/templates/rooms/book.html:348
+#: app/templates/rooms/book.html:368
 msgid "Bu saat dolu veya süre yetersiz"
 msgstr "This time slot is full or duration is insufficient"
 
-#: app/templates/rooms/book.html:362
+#: app/templates/rooms/book.html:382
 msgid "Seçimi Onayla"
 msgstr "Confirm Selection"
 
-#: app/templates/rooms/book.html:462
+#: app/templates/rooms/book.html:482
 msgid ""
 "Üzgünüz, az önce seçtiğiniz saat dilimi başka bir kullanıcı tarafından "
 "rezerve edildi."
@@ -960,62 +1196,388 @@ msgstr "Edit Meeting Room"
 msgid "Oda özelliklerini aşağıdan güncelleyebilirsiniz."
 msgstr "You can update room features below."
 
-#: app/templates/rooms/list.html:6
+#: app/templates/rooms/list.html:3
+msgid ""
+"Tüm toplantı odalarını ve doluluk durumlarını listeleyin. İhtiyacınıza uygun"
+" teknoloji ve kapasitedeki odayı seçip ayırtın."
+msgstr ""
+"List all meeting rooms and their availability. Choose and book the room with"
+" the technology and capacity suited to your needs."
+
+#: app/templates/rooms/list.html:8
 msgid "Toplantı Odaları"
 msgstr "Meeting Rooms"
 
-#: app/templates/rooms/list.html:7
+#: app/templates/rooms/list.html:9
 msgid "Lütfen rezervasyon yapmak istediğiniz odayı seçin."
 msgstr "Please select the room you want to book."
 
-#: app/templates/rooms/list.html:11
+#: app/templates/rooms/list.html:13
 msgid "Yeni Oda Ekle"
 msgstr "Add New Room"
 
-#: app/templates/rooms/list.html:46
+#: app/templates/rooms/list.html:93
 msgid "Bugünün Durumu"
 msgstr "Today's Status"
 
-#: app/templates/rooms/list.html:48
+#: app/templates/rooms/list.html:95
 msgid "Hiç rezervasyon yok"
 msgstr "No reservations"
 
-#: app/templates/rooms/list.html:50
+#: app/templates/rooms/list.html:97
 msgid "Toplam"
 msgstr "Total"
 
-#: app/templates/rooms/list.html:50
+#: app/templates/rooms/list.html:97
 msgid "sa"
 msgstr "h"
 
-#: app/templates/rooms/list.html:50
+#: app/templates/rooms/list.html:97
 msgid "dk"
 msgstr "m"
 
-#: app/templates/rooms/list.html:50
+#: app/templates/rooms/list.html:97
 msgid "dolu"
 msgstr "booked"
 
-#: app/templates/rooms/list.html:57
+#: app/templates/rooms/list.html:106
 msgid "Takvimi Görüntüle"
 msgstr "View Calendar"
 
-#: app/templates/rooms/list.html:59
+#: app/templates/rooms/list.html:108
 msgid "Düzenle"
 msgstr "Edit"
 
-#: app/templates/rooms/list.html:60
+#: app/templates/rooms/list.html:109
 msgid "Bu odayı ve tüm rezervasyonlarını silmek istediğinize emin misiniz?"
 msgstr "Are you sure you want to cancel this reservation?"
 
-msgid "Dosya Seç"
-msgstr "Choose File"
+msgid "overview"
+msgstr ""
 
-msgid "Dosya seçilmedi"
-msgstr "No file chosen"
+msgid "admin"
+msgstr ""
 
-msgid "Bu toplantıya zaten katılmıyorsunuz."
-msgstr "You are not attending this meeting anyway."
+msgid "logout"
+msgstr ""
+
+msgid "login"
+msgstr ""
+
+msgid "register"
+msgstr ""
+
+msgid "rooms"
+msgstr ""
+
+msgid "dashboard"
+msgstr ""
+
+msgid "Günlük Durum"
+msgstr "Daily Overview"
+
+msgid "Odalar"
+msgstr "Rooms"
+
+msgid "Kontrol Paneli"
+msgstr "Dashboard"
+
+msgid "Admin Panel"
+msgstr "Admin Panel"
+
+msgid "Bildirimler"
+msgstr "Notifications"
+
+msgid "Onayla"
+msgstr "Accept"
+
+msgid "Reddet"
+msgstr "Reject"
+
+msgid "Okundu İşaretle"
+msgstr "Mark as Read"
+
+msgid "Yeni bildiriminiz yok."
+msgstr "You have no new notifications."
+
+msgid "Kabul Edilen Toplantılar"
+msgstr "Accepted Meetings"
+
+msgid "Yaklaşan Toplantılar"
+msgstr "Upcoming Meetings"
+
+msgid "Odası"
+msgstr "Room"
+
+msgid "Takvime Ekle"
+msgstr "Add to Calendar"
+
+msgid "Çıkış Yap"
+msgstr "Logout"
+
+msgid "Giriş Yap"
+msgstr "Log In"
+
+msgid "Kayıt Ol"
+msgstr "Sign Up"
+
+msgid "Şu an Toplantıdasınız"
+msgstr "You are currently in a meeting"
+
+msgid "Rezervasyonlarım"
+msgstr "My Reservations"
+
+msgid "Yeni Rezervasyon"
+msgstr "New Reservation"
+
+msgid "Davetliler"
+msgstr "Attendees"
+
+msgid "Bu rezervasyonu iptal etmek istediğinize emin misiniz?"
+msgstr "Are you sure you want to cancel this reservation?"
+
+msgid "İptal Et"
+msgstr "Cancel"
+
+msgid "Henüz bir rezervasyonunuz bulunmuyor."
+msgstr "You have no reservations yet."
+
+msgid "Hemen Oda Rezervasyonu Yap"
+msgstr "Book a Room Now"
+
+msgid "Davet Edildiğim Toplantılar"
+msgstr "Meetings I Am Invited To"
+
+msgid "Oluşturan"
+msgstr "Created By"
+
+msgid "Şu an için davet edildiğiniz bir toplantı bulunmuyor."
+msgstr "You are currently not invited to any meetings."
+
+msgid "Toplantı Odası Rezervasyon Sistemine Hoş Geldiniz"
+msgstr "Welcome to the Meeting Room Reservation System"
+
+msgid ""
+"Lütfen rezervasyon yapmak veya mevcut odaları görüntülemek için giriş yapın."
+msgstr "Please log in to make a reservation or view available rooms."
+
+msgid "Beni Hatırla"
+msgstr "Remember Me"
+
+msgid "Şifremi Unuttum"
+msgstr "Forgot Password"
+
+msgid "Hesabınız yok mu?"
+msgstr "Don't have an account?"
+
+msgid "Hemen Kayıt Olun"
+msgstr "Sign Up Now"
+
+msgid "Zaten hesabınız var mı?"
+msgstr "Already have an account?"
+
+msgid "Giriş Yapın"
+msgstr "Log In"
+
+msgid "Kapasite"
+msgstr "Capacity"
+
+msgid "Kişi"
+msgstr "People"
+
+msgid "Rezervasyon Tarihi"
+msgstr "Reservation Date"
+
+msgid "Kişileri Davet Et (Opsiyonel)"
+msgstr "Invite People (Optional)"
+
+msgid ""
+"Birden fazla kişi seçmek için Ctrl (veya Cmd) tuşuna basılı tutarak "
+"tıklayın."
+msgstr "Hold Ctrl (or Cmd) to select multiple people."
+
+msgid "Lütfen Saat Seçin"
+msgstr "Please Select Time"
+
+msgid "Uygun Saatler"
+msgstr "Available Times"
+
+msgid "Yeşil renkli boş saatlere tıklayarak seçiminizi yapabilirsiniz."
+msgstr "You can make your selection by clicking on the green empty times."
+
+msgid "Saatler yükleniyor..."
+msgstr "Loading times..."
+
+msgid "Bu saat dolu"
+msgstr "This time is booked"
+
+msgid "Seçimi Onayla"
+msgstr "Confirm Selection"
+
+msgid ""
+"Üzgünüz, az önce seçtiğiniz saat dilimi başka bir kullanıcı tarafından "
+"rezerve edildi."
+msgstr "Sorry, the time slot you just selected was reserved by another user."
+
+msgid "Toplantı Odaları"
+msgstr "Meeting Rooms"
+
+msgid "Lütfen rezervasyon yapmak istediğiniz odayı seçin."
+msgstr "Please select the room you want to book."
+
+msgid "Takvimi Görüntüle"
+msgstr "View Calendar"
+
+msgid "Tarih / Saat"
+msgstr "Date / Time"
+
+msgid "Henüz log kaydı yok."
+msgstr "No log records yet."
+
+msgid "Kameraya QR kodu göstererek kapı girişini simüle edin."
+msgstr "Simulate door entry by showing a QR code to the camera."
+
+msgid "Birden fazla kişi seçmek için isimlerin üzerine tıklamanız yeterlidir."
+msgstr "Simply click on names to select multiple people."
+
+msgid "Yeşil Enerji"
+msgstr "Green Energy"
+
+msgid "Sarı Enerji"
+msgstr "Yellow Energy"
+
+msgid "Sinerji"
+msgstr "Synergy"
+
+msgid "İnovasyon"
+msgstr "Innovation"
+
+msgid "Vizyon"
+msgstr "Vision"
+
+msgid "Strateji"
+msgstr "Strategy"
+
+msgid "Dinamik"
+msgstr "Dynamic"
+
+msgid "Yeşil enerji"
+msgstr "Green Energy"
+
+msgid "sarı enerji"
+msgstr "Yellow Energy"
+
+msgid "Oda İsmi"
+msgstr "Room Name"
+
+msgid "Kişi Sayısı (Kapasite)"
+msgstr "Capacity"
+
+msgid "Özellikler / Açıklama"
+msgstr "Features / Description"
+
+msgid "Değişiklikleri Kaydet"
+msgstr "Save Changes"
+
+msgid "Oda Ekle"
+msgstr "Add Room"
+
+msgid "Profil Fotoğrafını Güncelle"
+msgstr "Update Profile Picture"
+
+msgid "Güncelle"
+msgstr "Update"
+
+msgid "E-posta"
+msgstr "Email"
+
+msgid "Şifre"
+msgstr "Password"
+
+msgid "Şifreyi Onayla"
+msgstr "Confirm Password"
+
+msgid ""
+"Harika! %(room)s odası %(date)s tarihinde %(start)s-%(end)s arası sizin için"
+" rezerve edildi."
+msgstr ""
+"Great! The %(room)s room has been reserved for you on %(date)s between "
+"%(start)s-%(end)s."
+
+msgid "İşlem yapılamadı."
+msgstr "Action failed."
+
+msgid "Toplantıdan başarıyla ayrıldınız."
+msgstr "You have successfully left the meeting."
+
+msgid "Profilim"
+msgstr "My Profile"
+
+msgid "Odayı Düzenle"
+msgstr "Edit Room"
+
+msgid "Şifreyi Sıfırla"
+msgstr "Reset Password"
+
+msgid "Yeni Şifre Belirle"
+msgstr "Set New Password"
+
+msgid "Tarih Seçin"
+msgstr "Date"
+
+msgid ""
+"DİKKAT: Seçilen tarihteki tüm loglar veritabanından KALICI olarak "
+"silinecektir. Emin misiniz?"
+msgstr ""
+"WARNING: All logs for the selected date will be PERMANENTLY deleted. Are you"
+" sure?"
+
+msgid ""
+"Sistemimizde bu Google e-posta adresiyle eşleşen bir kayıt bulunamadı. "
+"Lütfen sisteme giriş yapabilmek için önce Kayıt Ol sayfasından kayıt "
+"işleminizi tamamlayın."
+msgstr ""
+"No matching account found with this Google email address. Please register "
+"first on the Sign Up page to log in."
+
+msgid ""
+"Güvenlik uyarısı: Son 1 saat içinde çok fazla şifre sıfırlama talebinde "
+"bulundunuz. Lütfen hesabınızın güvenliği için daha sonra tekrar deneyin."
+msgstr ""
+"Security warning: Too many password reset requests in the last hour. Please "
+"try again later for your account security."
+
+msgid "Getir"
+msgstr "Fetch"
+
+msgid "Temizle"
+msgstr "Clear"
+
+msgid ""
+"Dikkat: Seçilen tarihe ait TÜM log kayıtları kalıcı olarak silinecektir. "
+"Emin misiniz?"
+msgstr ""
+"Warning: ALL log entries for the selected date will be permanently deleted."
+
+msgid "Tarihe Göre Sil"
+msgstr "Delete by Date"
+
+msgid ""
+"Dikkat: Seçilen tarihe ait TÜM log kayıtları kalıcı olarak silinecektir."
+msgstr ""
+"Warning: ALL log entries for the selected date will be permanently deleted."
+
+msgid "Admin"
+msgstr "Admin"
+
+msgid "User"
+msgstr "User"
+
+msgid "Rezervasyon Sistemi"
+msgstr "Booking System"
+
+msgid "İptal"
+msgstr "Cancel"
 
 msgid ""
 "TV, Klima, Kablosuz Yansıtma Özelliği, Beyaz Tahta ve Video Konferans "
@@ -1056,315 +1618,20 @@ msgstr ""
 "TV, Air Conditioning, Projection, Lounge Area, Video Conference System and "
 "Whiteboard."
 
-msgid "Yönetici"
-msgstr "Admin"
+msgid "Lütfen %(email)s adresine gönderilen 6 haneli doğrulama kodunu girin."
+msgstr "Please enter the 6-digit verification code sent to %(email)s."
 
-msgid "Yetkiyi Al"
-msgstr "Revoke Admin"
+msgid "Odadayken Çıkış yapmak için QR okutun"
+msgstr "Scan QR to exit while in the room"
 
-msgid "Yönetici Yap"
-msgstr "Make Admin"
+msgid "Odaya girmek için QR okutun"
+msgstr "Scan QR to enter the room"
 
-#~ msgid "overview"
-#~ msgstr ""
+msgid "Çıkış QR Kod"
+msgstr "Exit QR Code"
 
-#~ msgid "admin"
-#~ msgstr ""
+msgid "Google ile Kayıt Ol"
+msgstr "Sign Up with Google"
 
-#~ msgid "logout"
-#~ msgstr ""
-
-#~ msgid "login"
-#~ msgstr ""
-
-#~ msgid "register"
-#~ msgstr ""
-
-#~ msgid "rooms"
-#~ msgstr ""
-
-#~ msgid "dashboard"
-#~ msgstr ""
-
-#~ msgid "Günlük Durum"
-#~ msgstr "Daily Overview"
-
-#~ msgid "Odalar"
-#~ msgstr "Rooms"
-
-#~ msgid "Kontrol Paneli"
-#~ msgstr "Dashboard"
-
-#~ msgid "Admin Panel"
-#~ msgstr "Admin Panel"
-
-#~ msgid "Bildirimler"
-#~ msgstr "Notifications"
-
-#~ msgid "Onayla"
-#~ msgstr "Accept"
-
-#~ msgid "Reddet"
-#~ msgstr "Reject"
-
-#~ msgid "Okundu İşaretle"
-#~ msgstr "Mark as Read"
-
-#~ msgid "Yeni bildiriminiz yok."
-#~ msgstr "You have no new notifications."
-
-#~ msgid "Kabul Edilen Toplantılar"
-#~ msgstr "Accepted Meetings"
-
-#~ msgid "Yaklaşan Toplantılar"
-#~ msgstr "Upcoming Meetings"
-
-#~ msgid "Odası"
-#~ msgstr "Room"
-
-#~ msgid "Takvime Ekle"
-#~ msgstr "Add to Calendar"
-
-#~ msgid "Çıkış Yap"
-#~ msgstr "Logout"
-
-#~ msgid "Giriş Yap"
-#~ msgstr "Login"
-
-#~ msgid "Kayıt Ol"
-#~ msgstr "Sign Up"
-
-#~ msgid "Şu an Toplantıdasınız"
-#~ msgstr "You are currently in a meeting"
-
-#~ msgid "Rezervasyonlarım"
-#~ msgstr "My Reservations"
-
-#~ msgid "Yeni Rezervasyon"
-#~ msgstr "New Reservation"
-
-#~ msgid "Davetliler"
-#~ msgstr "Attendees"
-
-#~ msgid "Bu rezervasyonu iptal etmek istediğinize emin misiniz?"
-#~ msgstr "Are you sure you want to cancel this reservation?"
-
-#~ msgid "İptal Et"
-#~ msgstr "Cancel"
-
-#~ msgid "Henüz bir rezervasyonunuz bulunmuyor."
-#~ msgstr "You have no reservations yet."
-
-#~ msgid "Hemen Oda Rezervasyonu Yap"
-#~ msgstr "Book a Room Now"
-
-#~ msgid "Davet Edildiğim Toplantılar"
-#~ msgstr "Meetings I Am Invited To"
-
-#~ msgid "Oluşturan"
-#~ msgstr "Created By"
-
-#~ msgid "Şu an için davet edildiğiniz bir toplantı bulunmuyor."
-#~ msgstr "You are currently not invited to any meetings."
-
-#~ msgid "Toplantı Odası Rezervasyon Sistemine Hoş Geldiniz"
-#~ msgstr "Welcome to the Meeting Room Reservation System"
-
-#~ msgid ""
-#~ "Lütfen rezervasyon yapmak veya mevcut odaları görüntülemek için giriş yapın."
-#~ msgstr "Please log in to make a reservation or view available rooms."
-
-#~ msgid "Beni Hatırla"
-#~ msgstr "Remember Me"
-
-#~ msgid "Şifremi Unuttum"
-#~ msgstr "Forgot Password"
-
-#~ msgid "Hesabınız yok mu?"
-#~ msgstr "Don't have an account?"
-
-#~ msgid "Hemen Kayıt Olun"
-#~ msgstr "Sign Up Now"
-
-#~ msgid "Zaten hesabınız var mı?"
-#~ msgstr "Already have an account?"
-
-#~ msgid "Giriş Yapın"
-#~ msgstr "Log In"
-
-#~ msgid "Kapasite"
-#~ msgstr "Capacity"
-
-#~ msgid "Kişi"
-#~ msgstr "People"
-
-#~ msgid "Rezervasyon Tarihi"
-#~ msgstr "Reservation Date"
-
-#~ msgid "Kişileri Davet Et (Opsiyonel)"
-#~ msgstr "Invite People (Optional)"
-
-#~ msgid ""
-#~ "Birden fazla kişi seçmek için Ctrl (veya Cmd) tuşuna basılı tutarak "
-#~ "tıklayın."
-#~ msgstr "Hold Ctrl (or Cmd) to select multiple people."
-
-#~ msgid "Lütfen Saat Seçin"
-#~ msgstr "Please Select Time"
-
-#~ msgid "Uygun Saatler"
-#~ msgstr "Available Times"
-
-#~ msgid "Yeşil renkli boş saatlere tıklayarak seçiminizi yapabilirsiniz."
-#~ msgstr "You can make your selection by clicking on the green empty times."
-
-#~ msgid "Saatler yükleniyor..."
-#~ msgstr "Loading times..."
-
-#~ msgid "Bu saat dolu"
-#~ msgstr "This time is booked"
-
-#~ msgid "Seçimi Onayla"
-#~ msgstr "Confirm Selection"
-
-#~ msgid ""
-#~ "Üzgünüz, az önce seçtiğiniz saat dilimi başka bir kullanıcı tarafından "
-#~ "rezerve edildi."
-#~ msgstr "Sorry, the time slot you just selected was reserved by another user."
-
-#~ msgid "Toplantı Odaları"
-#~ msgstr "Meeting Rooms"
-
-#~ msgid "Lütfen rezervasyon yapmak istediğiniz odayı seçin."
-#~ msgstr "Please select the room you want to book."
-
-#~ msgid "Takvimi Görüntüle"
-#~ msgstr "View Calendar"
-
-#~ msgid "Tarih / Saat"
-#~ msgstr "Date / Time"
-
-#~ msgid "Henüz log kaydı yok."
-#~ msgstr "No log records yet."
-
-#~ msgid "Kameraya QR kodu göstererek kapı girişini simüle edin."
-#~ msgstr "Simulate door entry by showing a QR code to the camera."
-
-#~ msgid "Birden fazla kişi seçmek için isimlerin üzerine tıklamanız yeterlidir."
-#~ msgstr "Simply click on names to select multiple people."
-
-#~ msgid "Yeşil Enerji"
-#~ msgstr "Green Energy"
-
-#~ msgid "Sarı Enerji"
-#~ msgstr "Yellow Energy"
-
-#~ msgid "Sinerji"
-#~ msgstr "Synergy"
-
-#~ msgid "İnovasyon"
-#~ msgstr "Innovation"
-
-#~ msgid "Vizyon"
-#~ msgstr "Vision"
-
-#~ msgid "Strateji"
-#~ msgstr "Strategy"
-
-#~ msgid "Dinamik"
-#~ msgstr "Dynamic"
-
-#~ msgid "Yeşil enerji"
-#~ msgstr "Green Energy"
-
-#~ msgid "sarı enerji"
-#~ msgstr "Yellow Energy"
-
-#~ msgid "Oda İsmi"
-#~ msgstr "Room Name"
-
-#~ msgid "Kişi Sayısı (Kapasite)"
-#~ msgstr "Number of People (Capacity)"
-
-#~ msgid "Özellikler / Açıklama"
-#~ msgstr "Features / Description"
-
-#~ msgid "Değişiklikleri Kaydet"
-#~ msgstr "Save Changes"
-
-#~ msgid "Oda Ekle"
-#~ msgstr "Add Room"
-
-#~ msgid "Profil Fotoğrafını Güncelle"
-#~ msgstr "Update Profile Picture"
-
-#~ msgid "Güncelle"
-#~ msgstr "Update"
-
-#~ msgid "E-posta"
-#~ msgstr "Email"
-
-#~ msgid "Şifre"
-#~ msgstr "Password"
-
-#~ msgid "Şifreyi Onayla"
-#~ msgstr "Confirm Password"
-
-#~ msgid ""
-#~ "Harika! %(room)s odası %(date)s tarihinde %(start)s-%(end)s arası sizin için"
-#~ " rezerve edildi."
-#~ msgstr ""
-#~ "Great! The %(room)s room has been reserved for you on %(date)s between "
-#~ "%(start)s-%(end)s."
-
-#~ msgid "İşlem yapılamadı."
-#~ msgstr "Action failed."
-
-#~ msgid "Toplantıdan başarıyla ayrıldınız."
-#~ msgstr "You have successfully left the meeting."
-
-#~ msgid "Profilim"
-#~ msgstr "My Profile"
-
-#~ msgid "Odayı Düzenle"
-#~ msgstr "Edit Room"
-
-#~ msgid "Şifreyi Sıfırla"
-#~ msgstr "Reset Password"
-
-#~ msgid "Yeni Şifre Belirle"
-#~ msgstr "Set New Password"
-
-#~ msgid "Tarih Seçin"
-#~ msgstr "Date"
-
-#~ msgid ""
-#~ "DİKKAT: Seçilen tarihteki tüm loglar veritabanından KALICI olarak "
-#~ "silinecektir. Emin misiniz?"
-#~ msgstr ""
-#~ "WARNING: All logs for the selected date will be PERMANENTLY deleted. Are you"
-#~ " sure?"
-
-msgid "CSV Olarak İndir"
-msgstr "Export to CSV"
-
-msgid "Toplantılarım"
-msgstr "My Meetings"
-
-msgid "Yaklaşan Toplantılarım"
-msgstr "Upcoming Meetings"
-
-msgid "Yaklaşan toplantınız bulunmuyor."
-msgstr "You have no upcoming meetings."
-
-msgid "Yeni Rezervasyon Yap"
-msgstr "New Booking"
-
-msgid "Tümünü Gör (Kontrol Paneli) ➔"
-msgstr "View All (Dashboard) ➔"
-
-msgid "Takvime Ekle"
-msgstr "Add to Calendar"
-
-msgid "Tüm hakları saklıdır."
-msgstr "All rights reserved."
+msgid "Veriler yükleniyor..."
+msgstr "Loading data..."

@@ -76,9 +76,9 @@
                     </form>
                     {% else %}
                         {% if current_user in res.active_users %}
-                            <span style="font-size: 0.875rem; color: #10b981; font-weight: bold; margin-left: 0.5rem; align-self: center;">Odadayken Çıkış yapmak için QR okutun</span>
+                            <span style="font-size: 0.875rem; color: #10b981; font-weight: bold; margin-left: 0.5rem; align-self: center;">{{ gettext('Odadayken Çıkış yapmak için QR okutun') }}</span>
                         {% else %}
-                            <span style="font-size: 0.875rem; color: #f59e0b; font-weight: bold; margin-left: 0.5rem; align-self: center;">Odaya girmek için QR okutun</span>
+                            <span style="font-size: 0.875rem; color: #f59e0b; font-weight: bold; margin-left: 0.5rem; align-self: center;">{{ gettext('Odaya girmek için QR okutun') }}</span>
                         {% endif %}
                     {% endif %}
                 </div>

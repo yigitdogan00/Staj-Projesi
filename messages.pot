@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-07-23 09:47+0300\n"
+"POT-Creation-Date: 2026-08-04 11:09+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,234 +17,355 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.18.0\n"
 
-#: app/auth.py:21
-msgid "Hesabınız başarıyla oluşturuldu! Şimdi giriş yapabilirsiniz."
+#: app/auth.py:36
+msgid ""
+"Kayıt başarılı! Lütfen e-posta adresinize gönderilen 6 haneli doğrulama "
+"kodunu girin."
 msgstr ""
 
-#: app/auth.py:25
+#: app/auth.py:41
 msgid ""
 "Kayıt işlemi sırasında bir hata oluştu. Bu e-posta zaten kayıtlı olabilir"
 " veya butona çift tıklamış olabilirsiniz."
 msgstr ""
 
-#: app/auth.py:50 app/auth.py:105
-msgid "Giriş başarılı!"
+#: app/auth.py:49
+msgid "Lütfen önce kayıt olun veya giriş yapın."
 msgstr ""
 
-#: app/auth.py:60
-msgid "Giriş başarısız. Lütfen e-posta ve şifrenizi kontrol edin."
+#: app/auth.py:55
+msgid "Hesabınız zaten doğrulanmış. Giriş yapabilirsiniz."
+msgstr ""
+
+#: app/auth.py:68
+msgid "E-posta adresiniz başarıyla doğrulandı! Şimdi giriş yapabilirsiniz."
+msgstr ""
+
+#: app/auth.py:71
+msgid "Girdiğiniz doğrulama kodu hatalı veya süresi dolmuş."
 msgstr ""
 
 #: app/auth.py:79
+msgid "Kullanıcı oturumu bulunamadı."
+msgstr ""
+
+#: app/auth.py:92
+msgid "Yeni doğrulama kodu e-posta adresinize gönderildi."
+msgstr ""
+
+#: app/auth.py:132
+msgid ""
+"Hesabınız henüz doğrulanmamış. Lütfen e-posta adresinize gönderilen "
+"doğrulama kodunu girin."
+msgstr ""
+
+#: app/auth.py:146
+msgid "Giriş başarılı!"
+msgstr ""
+
+#: app/auth.py:159
+msgid "Giriş başarısız. Lütfen e-posta ve şifrenizi kontrol edin."
+msgstr ""
+
+#: app/auth.py:184
+msgid ""
+"Google ile giriş başarısız oldu: Kullanıcı bilgileri veya e-posta adresi "
+"alınamadı."
+msgstr ""
+
+#: app/auth.py:226
 #, python-format
-msgid "Google ile giriş başarısız oldu: %(error)s"
+msgid "Google ile giriş başarılı! Hoş geldiniz %(name)s"
 msgstr ""
 
-#: app/auth.py:85
-msgid "Kullanıcı bilgileri alınamadı."
+#: app/auth.py:231
+#, python-format
+msgid "Google ile giriş yapılırken bir hata oluştu: %(error)s"
 msgstr ""
 
-#: app/auth.py:91
-msgid "E-posta adresi alınamadı."
-msgstr ""
-
-#: app/auth.py:99
-msgid ""
-"Sistemimizde bu Google e-posta adresiyle eşleşen bir kayıt bulunamadı. "
-"Lütfen sisteme giriş yapabilmek için önce Kayıt Ol sayfasından kayıt "
-"işleminizi tamamlayın."
-msgstr ""
-
-#: app/auth.py:133
-msgid ""
-"Güvenlik uyarısı: Son 1 saat içinde çok fazla şifre sıfırlama talebinde "
-"bulundunuz. Lütfen hesabınızın güvenliği için daha sonra tekrar deneyin."
-msgstr ""
-
-#: app/auth.py:141
+#: app/auth.py:259
 msgid ""
 "Eğer sistemimizde böyle bir kayıt varsa, şifre sıfırlama bağlantısı "
 "e-posta adresinize gönderildi."
 msgstr ""
 
-#: app/auth.py:151
+#: app/auth.py:269
 msgid "Sıfırlama bağlantısı geçersiz veya süresi dolmuş."
 msgstr ""
 
-#: app/auth.py:162
+#: app/auth.py:280
 msgid ""
 "Şifreniz başarıyla güncellendi! Artık yeni şifrenizle giriş "
 "yapabilirsiniz."
 msgstr ""
 
-#: app/main.py:49
+#: app/forms.py:10 app/forms.py:25
+msgid "Ad"
+msgstr ""
+
+#: app/forms.py:11 app/forms.py:26
+msgid "Soyad"
+msgstr ""
+
+#: app/forms.py:12 app/forms.py:27 app/templates/admin_panel.html:175
+msgid "Kullanıcı Adı"
+msgstr ""
+
+#: app/forms.py:13 app/forms.py:47 app/templates/admin_panel.html:176
+msgid "E-Posta"
+msgstr ""
+
+#: app/forms.py:14
+msgid "Profil Fotoğrafını Güncelle"
+msgstr ""
+
+#: app/forms.py:15
+msgid "Güncelle"
+msgstr ""
+
+#: app/forms.py:28 app/forms.py:41
+msgid "E-posta"
+msgstr ""
+
+#: app/forms.py:29 app/forms.py:42
+msgid "Şifre"
+msgstr ""
+
+#: app/forms.py:30
+msgid "Şifreyi Onayla"
+msgstr ""
+
+#: app/forms.py:31 app/templates/auth/register.html:7
+#: app/templates/base.html:1142 app/templates/index.html:206
+msgid "Kayıt Ol"
+msgstr ""
+
+#: app/forms.py:43 app/templates/auth/login.html:38
+msgid "Beni Hatırla"
+msgstr ""
+
+#: app/forms.py:44 app/templates/auth/login.html:7 app/templates/base.html:1141
+msgid "Giriş Yap"
+msgstr ""
+
+#: app/forms.py:48
+msgid "Şifre Sıfırlama Bağlantısı Gönder"
+msgstr ""
+
+#: app/forms.py:54
+msgid "Bu e-posta adresiyle kayıtlı bir hesap bulunamadı. Lütfen kayıt olun."
+msgstr ""
+
+#: app/forms.py:57
+msgid "Yeni Şifre"
+msgstr ""
+
+#: app/forms.py:58
+msgid "Yeni Şifreyi Onayla"
+msgstr ""
+
+#: app/forms.py:59
+msgid "Şifreyi Güncelle"
+msgstr ""
+
+#: app/forms.py:62 app/forms.py:69
+msgid "Oda İsmi"
+msgstr ""
+
+#: app/forms.py:63 app/forms.py:70
+msgid "İngilizce Oda İsmi"
+msgstr ""
+
+#: app/forms.py:64 app/forms.py:71
+msgid "Kişi Sayısı (Kapasite)"
+msgstr ""
+
+#: app/forms.py:65 app/forms.py:72
+msgid "Özellikler / Açıklama"
+msgstr ""
+
+#: app/forms.py:66
+msgid "Oda Ekle"
+msgstr ""
+
+#: app/forms.py:73
+msgid "Değişiklikleri Kaydet"
+msgstr ""
+
+#: app/main.py:50
 msgid "Hesabınız başarıyla güncellendi!"
 msgstr ""
 
-#: app/main.py:217
+#: app/main.py:231
 msgid "Geçmiş (veya iptal edilmiş) bir toplantı davetiniz vardı."
 msgstr ""
 
-#: app/main.py:220
+#: app/main.py:234
 #, python-format
 msgid ""
 "'%(room)s' odasındaki toplantınız %(mins)s dakika içinde başlıyor. Lütfen"
 " odaya geçin."
 msgstr ""
 
-#: app/main.py:223
+#: app/main.py:237
 #, python-format
 msgid ""
 "%(user)s sizi %(date)s tarihinde %(start)s-%(end)s saatleri arasında "
 "%(room)s odasındaki toplantıya davet etti."
 msgstr ""
 
-#: app/main.py:226
+#: app/main.py:240
 #, python-format
 msgid ""
 "%(user)s, %(date)s tarihindeki %(start)s-%(end)s toplantı davetini "
 "reddetti."
 msgstr ""
 
-#: app/main.py:229
+#: app/main.py:243
 #, python-format
 msgid "'%(room)s' odasındaki toplantınız için zaman doldu."
 msgstr ""
 
-#: app/main.py:232
+#: app/main.py:246
 #, python-format
 msgid "'%(room)s' odasındaki toplantınız başlamak üzere."
 msgstr ""
 
-#: app/main.py:235
+#: app/main.py:249
 #, python-format
 msgid ""
 "Yönetici tarafından %(date)s tarihindeki %(start)s-%(end)s saatleri "
 "arasındaki %(room)s odası rezervasyonunuz iptal edildi."
 msgstr ""
 
-#: app/main.py:794 app/templates/overview.html:415
-#: app/templates/overview.html:488 app/templates/overview.html:512
-#: app/templates/overview.html:514 app/templates/overview.html:521
+#: app/main.py:1437 app/templates/overview.html:418
+#: app/templates/overview.html:491 app/templates/overview.html:515
+#: app/templates/overview.html:517 app/templates/overview.html:524
 msgid "Dolu"
 msgstr ""
 
-#: app/main.py:798 app/templates/overview.html:440
-#: app/templates/overview.html:553
+#: app/main.py:1441 app/templates/overview.html:443
+#: app/templates/overview.html:556
 msgid "Boş"
 msgstr ""
 
-#: app/main.py:802
+#: app/main.py:1445
 msgid "Çoğunluğu Dolu"
 msgstr ""
 
-#: app/main.py:806 app/templates/overview.html:241
-#: app/templates/rooms/book.html:218
+#: app/main.py:1449 app/templates/overview.html:243
+#: app/templates/rooms/book.html:220
 msgid "Kısmen Dolu"
 msgstr ""
 
-#: app/main.py:837
+#: app/main.py:1480
+msgid ""
+"Oda verileri yüklenirken bir veritabanı hatası oluştu. Lütfen sayfayı "
+"yenileyin."
+msgstr ""
+
+#: app/main.py:1501
 msgid "Yeni oda başarıyla eklendi!"
 msgstr ""
 
-#: app/main.py:852
+#: app/main.py:1516
 msgid "Bu isimde başka bir oda zaten var."
 msgstr ""
 
-#: app/main.py:861
+#: app/main.py:1525
 msgid "Oda başarıyla güncellendi!"
 msgstr ""
 
-#: app/main.py:1161
+#: app/main.py:1834
 #, python-format
 msgid "%(room)s için rezervasyonunuz onaylandı!"
 msgstr ""
 
-#: app/main.py:1164
+#: app/main.py:1837
 #, python-format
 msgid "%(room_name)s Rezervasyon"
 msgstr ""
 
-#: app/main.py:1232
+#: app/main.py:1905
 msgid "Rezervasyon başarıyla iptal edildi."
 msgstr ""
 
-#: app/main.py:1246
+#: app/main.py:1919
 msgid "Toplantıdan başarıyla ayrıldınız."
 msgstr ""
 
-#: app/main.py:1248
+#: app/main.py:1921
 msgid "Bu toplantıya zaten katılmıyorsunuz."
 msgstr ""
 
-#: app/main.py:1351 app/templates/admin_logs.html:95
-#: app/templates/admin_panel.html:130
+#: app/main.py:2098 app/templates/admin_logs.html:126
+#: app/templates/admin_panel.html:132
 msgid "Tarih"
 msgstr ""
 
-#: app/main.py:1352 app/templates/admin_logs.html:96
+#: app/main.py:2099 app/templates/admin_logs.html:127
 msgid "İşlem Türü"
 msgstr ""
 
-#: app/main.py:1353 app/templates/admin_logs.html:97
-#: app/templates/admin_panel.html:127 app/templates/admin_panel.html:191
+#: app/main.py:2100 app/templates/admin_logs.html:128
+#: app/templates/admin_panel.html:129 app/templates/admin_panel.html:193
 msgid "Kullanıcı"
 msgstr ""
 
-#: app/main.py:1354 app/templates/admin_logs.html:98
+#: app/main.py:2101 app/templates/admin_logs.html:129
 msgid "Detaylar"
 msgstr ""
 
-#: app/main.py:1370 app/templates/admin_logs.html:121
+#: app/main.py:2117 app/templates/admin_logs.html:152
 msgid "Sistem"
 msgstr ""
 
-#: app/main.py:1399
+#: app/main.py:2146
 msgid "Silinecek tarihi seçmeniz gerekiyor."
 msgstr ""
 
-#: app/main.py:1411
+#: app/main.py:2158
 #, python-format
 msgid "%(date)s tarihi için silinecek log bulunamadı."
 msgstr ""
 
-#: app/main.py:1418
+#: app/main.py:2165
 #, python-format
 msgid ""
 "%(date)s tarihine ait %(count)s log kaydı veritabanından kalıcı olarak "
 "silindi."
 msgstr ""
 
-#: app/main.py:1421
+#: app/main.py:2168
 msgid "Geçersiz tarih formatı."
 msgstr ""
 
-#: app/main.py:1434
+#: app/main.py:2181
 msgid "Silmek için hiçbir log seçmediniz."
 msgstr ""
 
-#: app/main.py:1449
+#: app/main.py:2196
 #, python-format
 msgid "Seçilen %(count)s adet log başarıyla silindi."
 msgstr ""
 
-#: app/main.py:1451
+#: app/main.py:2198
 msgid "Seçilen loglar bulunamadı."
 msgstr ""
 
-#: app/main.py:1453
+#: app/main.py:2200
 msgid "Loglar silinirken bir hata oluştu."
 msgstr ""
 
-#: app/main.py:1582 app/main.py:1602
+#: app/main.py:2329 app/main.py:2349
 msgid "Bu işlemi yapmaya yetkiniz yok."
 msgstr ""
 
-#: app/main.py:1590 app/main.py:1592
+#: app/main.py:2337 app/main.py:2339
 msgid "Daveti kabul ettiniz."
 msgstr ""
 
-#: app/main.py:1622 app/main.py:1624
+#: app/main.py:2369 app/main.py:2371
 msgid "Daveti reddettiniz."
 msgstr ""
 
@@ -256,460 +377,449 @@ msgstr ""
 msgid "Admin Paneline Dön"
 msgstr ""
 
-#: app/templates/admin_logs.html:53
-msgid "Tarih Seçin"
-msgstr ""
-
-#: app/templates/admin_logs.html:56
-msgid "Getir"
-msgstr ""
-
-#: app/templates/admin_logs.html:58
-msgid "Temizle"
-msgstr ""
-
-#: app/templates/admin_logs.html:63
-msgid "Tarihe Göre Sil"
-msgstr ""
-
-#: app/templates/admin_logs.html:67
-msgid "Lütfen silinecek tarihi seçin."
-msgstr ""
-
-#: app/templates/admin_logs.html:68
-msgid "Dikkat: "
-msgstr ""
-
-#: app/templates/admin_logs.html:68
-msgid " tarihindeki TÜM log kayıtları kalıcı olarak silinecektir. Emin misiniz?"
-msgstr ""
-
-#: app/templates/admin_logs.html:69 app/templates/dashboard.html:44
-#: app/templates/dashboard.html:123 app/templates/rooms/list.html:61
-msgid "Sil"
-msgstr ""
-
-#: app/templates/admin_logs.html:72
-msgid "Dikkat: Seçilen tarihe ait TÜM log kayıtları kalıcı olarak silinecektir."
-msgstr ""
-
-#: app/templates/admin_logs.html:83
+#: app/templates/admin_logs.html:113
 msgid "Seçili Logları Temizle"
 msgstr ""
 
-#: app/templates/admin_logs.html:92
+#: app/templates/admin_logs.html:123
 msgid "Tümünü Seç"
 msgstr ""
 
-#: app/templates/admin_logs.html:108
+#: app/templates/admin_logs.html:139
 msgid "GİRİŞ"
 msgstr ""
 
-#: app/templates/admin_logs.html:110
+#: app/templates/admin_logs.html:141
 msgid "REZERVASYON"
 msgstr ""
 
-#: app/templates/admin_logs.html:112
+#: app/templates/admin_logs.html:143
 msgid "İPTAL/SİLME"
 msgstr ""
 
-#: app/templates/admin_logs.html:129
+#: app/templates/admin_logs.html:160
 msgid "Belirtilen kriterlere uygun log kaydı bulunamadı."
 msgstr ""
 
-#: app/templates/admin_logs.html:173 app/templates/admin_panel.html:222
+#: app/templates/admin_logs.html:243
+msgid "Önceki Gün"
+msgstr ""
+
+#: app/templates/admin_logs.html:246
+msgid "Sonraki Gün"
+msgstr ""
+
+#: app/templates/admin_logs.html:253 app/templates/admin_panel.html:224
 msgid "Önceki"
 msgstr ""
 
-#: app/templates/admin_logs.html:177 app/templates/admin_panel.html:226
+#: app/templates/admin_logs.html:257 app/templates/admin_panel.html:228
 msgid "Sayfa"
 msgstr ""
 
-#: app/templates/admin_logs.html:181 app/templates/admin_panel.html:230
+#: app/templates/admin_logs.html:261 app/templates/admin_panel.html:232
 msgid "Sonraki"
 msgstr ""
 
-#: app/templates/admin_logs.html:187
+#: app/templates/admin_logs.html:268
 msgid "CSV Olarak İndir"
 msgstr ""
 
-#: app/templates/admin_panel.html:67
+#: app/templates/admin_panel.html:3
+msgid ""
+"Sistem yöneticisi paneli. Kullanıcıları, toplantı odalarını ve tüm sistem"
+" rezervasyonlarını yönetin."
+msgstr ""
+
+#: app/templates/admin_panel.html:69
 msgid "Kapsamlı Admin Paneli"
 msgstr ""
 
-#: app/templates/admin_panel.html:73
+#: app/templates/admin_panel.html:75
 msgid "Toplam Kullanıcı"
 msgstr ""
 
-#: app/templates/admin_panel.html:77
+#: app/templates/admin_panel.html:79
 msgid "Toplam Oda"
 msgstr ""
 
-#: app/templates/admin_panel.html:81 app/templates/admin_panel.html:116
+#: app/templates/admin_panel.html:83 app/templates/admin_panel.html:118
 msgid "Tüm Rezervasyonlar"
 msgstr ""
 
-#: app/templates/admin_panel.html:85
+#: app/templates/admin_panel.html:87
 msgid "Bugünkü Rezervasyonlar"
 msgstr ""
 
-#: app/templates/admin_panel.html:91
+#: app/templates/admin_panel.html:93
 msgid "Şu Anki Aktif Toplantılar (Canlı)"
 msgstr ""
 
-#: app/templates/admin_panel.html:98
+#: app/templates/admin_panel.html:100
 msgid "Düzenleyen"
 msgstr ""
 
-#: app/templates/admin_panel.html:99
+#: app/templates/admin_panel.html:101
 msgid "Süre"
 msgstr ""
 
-#: app/templates/admin_panel.html:101 app/templates/dashboard.html:24
+#: app/templates/admin_panel.html:103 app/templates/dashboard.html:26
 msgid "Davetliler"
 msgstr ""
 
-#: app/templates/admin_panel.html:105
+#: app/templates/admin_panel.html:107
 msgid "Ek katılımcı yok"
 msgstr ""
 
-#: app/templates/admin_panel.html:111
+#: app/templates/admin_panel.html:113
 msgid "Şu anda devam eden herhangi bir toplantı bulunmuyor."
 msgstr ""
 
-#: app/templates/admin_panel.html:117
+#: app/templates/admin_panel.html:119
 msgid ""
 "Tüm eski rezervasyonları kalıcı olarak silmek istediğinize emin misiniz? "
 "Bu işlem geri alınamaz."
 msgstr ""
 
-#: app/templates/admin_panel.html:119
+#: app/templates/admin_panel.html:121
 msgid "Geçmiş Rezervasyonları Temizle"
 msgstr ""
 
-#: app/templates/admin_panel.html:128
+#: app/templates/admin_panel.html:130
 msgid "Katılımcılar"
 msgstr ""
 
-#: app/templates/admin_panel.html:129
+#: app/templates/admin_panel.html:131
 msgid "Oda"
 msgstr ""
 
-#: app/templates/admin_panel.html:131
+#: app/templates/admin_panel.html:133
 msgid "Saat"
 msgstr ""
 
-#: app/templates/admin_panel.html:132
+#: app/templates/admin_panel.html:134
 msgid "Oluşturulma"
 msgstr ""
 
-#: app/templates/admin_panel.html:133 app/templates/admin_panel.html:176
-#: app/templates/admin_panel.html:243
+#: app/templates/admin_panel.html:135 app/templates/admin_panel.html:178
+#: app/templates/admin_panel.html:245
 msgid "İşlem"
 msgstr ""
 
-#: app/templates/admin_panel.html:154
+#: app/templates/admin_panel.html:156
 msgid "Bu rezervasyonu silmek istediğinize emin misiniz?"
 msgstr ""
 
-#: app/templates/admin_panel.html:156 app/templates/dashboard.html:73
+#: app/templates/admin_panel.html:158 app/templates/dashboard.html:75
 msgid "İptal Et"
 msgstr ""
 
-#: app/templates/admin_panel.html:164
+#: app/templates/admin_panel.html:166
 msgid "Sistemde henüz hiçbir rezervasyon bulunmuyor."
 msgstr ""
 
-#: app/templates/admin_panel.html:167 app/templates/admin_panel.html:168
+#: app/templates/admin_panel.html:169 app/templates/admin_panel.html:170
 msgid "Kullanıcı Yönetimi"
 msgstr ""
 
-#: app/templates/admin_panel.html:173
-msgid "Kullanıcı Adı"
-msgstr ""
-
-#: app/templates/admin_panel.html:174
-msgid "E-Posta"
-msgstr ""
-
-#: app/templates/admin_panel.html:175
+#: app/templates/admin_panel.html:177
 msgid "Rol"
 msgstr ""
 
-#: app/templates/admin_panel.html:188
+#: app/templates/admin_panel.html:190
 msgid "Yönetici"
 msgstr ""
 
-#: app/templates/admin_panel.html:199
+#: app/templates/admin_panel.html:201
 msgid "Yetkiyi Al"
 msgstr ""
 
-#: app/templates/admin_panel.html:202
+#: app/templates/admin_panel.html:204
 msgid "Yönetici Yap"
 msgstr ""
 
-#: app/templates/admin_panel.html:206
+#: app/templates/admin_panel.html:208
 msgid ""
 "Bu kullanıcıyı ve tüm rezervasyonlarını tamamen silmek istediğinize emin "
 "misiniz?"
 msgstr ""
 
-#: app/templates/admin_panel.html:208
+#: app/templates/admin_panel.html:210
 msgid "Kullanıcıyı Sil"
 msgstr ""
 
-#: app/templates/admin_panel.html:211
+#: app/templates/admin_panel.html:213
 msgid "Kendiniz"
 msgstr ""
 
-#: app/templates/admin_panel.html:235
+#: app/templates/admin_panel.html:237
 msgid "Oda Yönetimi"
 msgstr ""
 
-#: app/templates/admin_panel.html:240
+#: app/templates/admin_panel.html:242
 msgid "Oda Adı"
 msgstr ""
 
-#: app/templates/admin_panel.html:241 app/templates/overview.html:272
-#: app/templates/rooms/book.html:227 app/templates/rooms/list.html:54
+#: app/templates/admin_panel.html:243 app/templates/overview.html:275
+#: app/templates/rooms/book.html:229 app/templates/rooms/list.html:101
 msgid "Kapasite"
 msgstr ""
 
-#: app/templates/admin_panel.html:242
+#: app/templates/admin_panel.html:244
 msgid "Açıklama"
 msgstr ""
 
-#: app/templates/admin_panel.html:251 app/templates/rooms/book.html:227
-#: app/templates/rooms/list.html:54
+#: app/templates/admin_panel.html:253 app/templates/rooms/book.html:229
+#: app/templates/rooms/list.html:101
 msgid "Kişi"
 msgstr ""
 
-#: app/templates/admin_panel.html:255
+#: app/templates/admin_panel.html:257
 msgid ""
 "Bu odayı ve bu odaya ait tüm geçmiş/gelecek rezervasyonları silmek "
 "istediğinize emin misiniz?"
 msgstr ""
 
-#: app/templates/admin_panel.html:257
+#: app/templates/admin_panel.html:259
 msgid "Odayı Sil"
 msgstr ""
 
-#: app/templates/admin_panel.html:267
+#: app/templates/admin_panel.html:269
 msgid "Sistem Logları (Gelişmiş Yönetim)"
 msgstr ""
 
-#: app/templates/admin_panel.html:269
+#: app/templates/admin_panel.html:271
 msgid ""
 "Kullanıcı işlemlerini takip etmek, tarihe göre logları listelemek ve "
 "veritabanı loglarını site üzerinden güvenli bir şekilde silmek için "
 "Gelişmiş Log Yönetimi sayfasını kullanın."
 msgstr ""
 
-#: app/templates/admin_panel.html:272
+#: app/templates/admin_panel.html:274
 msgid "Gelişmiş Log Yönetimine Git"
 msgstr ""
 
-#: app/templates/admin_panel.html:277
+#: app/templates/admin_panel.html:279
 msgid ""
 "Not: Hızlı iptal işlemleri için \"Günlük Durum\" sekmesine gidip kırmızı "
 "kutulara tıklayabilirsiniz."
 msgstr ""
 
-#: app/templates/base.html:12
-msgid "Rezervasyon Sistemi"
-msgstr ""
-
-#: app/templates/base.html:625
+#: app/templates/base.html:1015
 msgid "Günlük Durum"
 msgstr ""
 
-#: app/templates/base.html:626 app/templates/index.html:215
+#: app/templates/base.html:1016 app/templates/index.html:218
 msgid "Odalar"
 msgstr ""
 
-#: app/templates/base.html:627 app/templates/index.html:216
+#: app/templates/base.html:1017 app/templates/index.html:219
 msgid "Kontrol Paneli"
 msgstr ""
 
-#: app/templates/base.html:628
+#: app/templates/base.html:1018
 msgid "Sanal Kapı (Test)"
 msgstr ""
 
-#: app/templates/base.html:630
+#: app/templates/base.html:1020
 msgid "Admin Panel"
 msgstr ""
 
-#: app/templates/base.html:649
+#: app/templates/base.html:1038
 msgid "Bildirimler"
 msgstr ""
 
-#: app/templates/base.html:665
+#: app/templates/base.html:1052
 msgid "Onayla"
 msgstr ""
 
-#: app/templates/base.html:668
+#: app/templates/base.html:1054
 msgid "Reddet"
 msgstr ""
 
-#: app/templates/base.html:673
+#: app/templates/base.html:1058
 msgid "Okundu İşaretle"
 msgstr ""
 
-#: app/templates/base.html:678 app/templates/base.html:824
+#: app/templates/base.html:1063 app/templates/base.html:1232
 msgid "Yeni bildiriminiz yok."
 msgstr ""
 
-#: app/templates/base.html:690
-msgid "Kabul Edilen Toplantılar"
+#: app/templates/base.html:1075
+msgid "Toplantılarım"
 msgstr ""
 
-#: app/templates/base.html:696
-msgid "Yaklaşan Toplantılar"
+#: app/templates/base.html:1084
+msgid "Yaklaşan Toplantılarım"
 msgstr ""
 
-#: app/templates/base.html:700 app/templates/base.html:864
-#: app/templates/dashboard.html:14 app/templates/dashboard.html:100
+#: app/templates/base.html:1091 app/templates/base.html:1271
+#: app/templates/dashboard.html:16 app/templates/dashboard.html:102
 msgid "Odası"
 msgstr ""
 
-#: app/templates/base.html:714 app/templates/dashboard.html:66
-#: app/templates/dashboard.html:145
+#: app/templates/base.html:1104 app/templates/dashboard.html:68
+#: app/templates/dashboard.html:147
 msgid "Takvime Ekle"
 msgstr ""
 
-#: app/templates/base.html:734
+#: app/templates/base.html:1109
+msgid "Tümünü Gör (Kontrol Paneli) ➔"
+msgstr ""
+
+#: app/templates/base.html:1112
+msgid "Yaklaşan toplantınız bulunmuyor."
+msgstr ""
+
+#: app/templates/base.html:1115
+msgid "Yeni Rezervasyon Yap"
+msgstr ""
+
+#: app/templates/base.html:1137
+msgid "Bildirimleri Aç"
+msgstr ""
+
+#: app/templates/base.html:1139
 msgid "Çıkış Yap"
 msgstr ""
 
-#: app/templates/auth/login.html:5 app/templates/auth/login_register.html:254
-#: app/templates/base.html:737
-msgid "Giriş Yap"
+#: app/templates/base.html:1158
+msgid "Temayı Değiştir"
 msgstr ""
 
-#: app/templates/auth/login_register.html:307
-#: app/templates/auth/register.html:5 app/templates/base.html:738
-#: app/templates/index.html:203
-msgid "Kayıt Ol"
+#: app/templates/base.html:1176
+msgid "Tüm hakları saklıdır."
 msgstr ""
 
-#: app/templates/base.html:862
+#: app/templates/base.html:1270
 msgid "Şu an Toplantıdasınız"
 msgstr ""
 
-#: app/templates/dashboard.html:5
+#: app/templates/dashboard.html:3
+msgid ""
+"Yaklaşan ve geçmiş toplantılarınızı, davet edildiğiniz rezervasyonları "
+"kişisel kontrol panelinizden inceleyin ve yönetin."
+msgstr ""
+
+#: app/templates/dashboard.html:7
 msgid "Rezervasyonlarım"
 msgstr ""
 
-#: app/templates/dashboard.html:6
+#: app/templates/dashboard.html:8
 msgid "Yeni Rezervasyon"
 msgstr ""
 
-#: app/templates/dashboard.html:35 app/templates/dashboard.html:114
+#: app/templates/dashboard.html:37 app/templates/dashboard.html:116
 msgid "📄 Dökümanlar"
 msgstr ""
 
-#: app/templates/dashboard.html:41 app/templates/dashboard.html:120
+#: app/templates/dashboard.html:43 app/templates/dashboard.html:122
 msgid "İndir"
 msgstr ""
 
-#: app/templates/dashboard.html:43 app/templates/dashboard.html:122
+#: app/templates/dashboard.html:45 app/templates/dashboard.html:124
 msgid "Bu belgeyi silmek istediğinize emin misiniz?"
 msgstr ""
 
-#: app/templates/dashboard.html:57 app/templates/dashboard.html:59
-#: app/templates/dashboard.html:136 app/templates/dashboard.html:138
+#: app/templates/dashboard.html:46 app/templates/dashboard.html:125
+#: app/templates/rooms/list.html:110
+msgid "Sil"
+msgstr ""
+
+#: app/templates/dashboard.html:59 app/templates/dashboard.html:61
+#: app/templates/dashboard.html:138 app/templates/dashboard.html:140
 msgid "Dosya seçilmedi"
 msgstr ""
 
-#: app/templates/dashboard.html:58 app/templates/dashboard.html:137
+#: app/templates/dashboard.html:60 app/templates/dashboard.html:139
 msgid "Dosya Seç"
 msgstr ""
 
-#: app/templates/dashboard.html:61 app/templates/dashboard.html:140
+#: app/templates/dashboard.html:63 app/templates/dashboard.html:142
 msgid "Yükle"
 msgstr ""
 
-#: app/templates/dashboard.html:68 app/templates/dashboard.html:146
+#: app/templates/dashboard.html:70 app/templates/dashboard.html:148
 msgid "QR Göster"
 msgstr ""
 
-#: app/templates/dashboard.html:69 app/templates/dashboard.html:147
+#: app/templates/dashboard.html:71 app/templates/dashboard.html:149
 msgid "Çıkış QR"
 msgstr ""
 
-#: app/templates/dashboard.html:73
+#: app/templates/dashboard.html:75
 msgid "Bu rezervasyonu iptal etmek istediğinize emin misiniz?"
 msgstr ""
 
-#: app/templates/dashboard.html:89
+#: app/templates/dashboard.html:91
 msgid "Henüz bir rezervasyonunuz bulunmuyor."
 msgstr ""
 
-#: app/templates/dashboard.html:90
+#: app/templates/dashboard.html:92
 msgid "Hemen Oda Rezervasyonu Yap"
 msgstr ""
 
-#: app/templates/dashboard.html:94
+#: app/templates/dashboard.html:96
 msgid "Davet Edildiğim Toplantılar"
 msgstr ""
 
-#: app/templates/dashboard.html:109
+#: app/templates/dashboard.html:111
 msgid "Oluşturan"
 msgstr ""
 
-#: app/templates/dashboard.html:149
+#: app/templates/dashboard.html:151
 msgid "Bu toplantıdan ayrılmak istediğinize emin misiniz?"
 msgstr ""
 
-#: app/templates/dashboard.html:149
+#: app/templates/dashboard.html:151
 msgid "Toplantıdan Ayrıl"
 msgstr ""
 
-#: app/templates/dashboard.html:158
+#: app/templates/dashboard.html:160
 msgid "Şu an için davet edildiğiniz bir toplantı bulunmuyor."
 msgstr ""
 
-#: app/templates/dashboard.html:166
+#: app/templates/dashboard.html:168
 msgid "Oda Giriş QR Kodu"
 msgstr ""
 
-#: app/templates/dashboard.html:167
+#: app/templates/dashboard.html:169
 msgid "Kapıdaki okuyucuya bu QR kodu okutarak odaya giriş yapabilirsiniz."
 msgstr ""
 
-#: app/templates/dashboard.html:172 app/templates/dashboard.html:186
+#: app/templates/dashboard.html:174 app/templates/dashboard.html:188
 msgid "Kapat"
 msgstr ""
 
-#: app/templates/dashboard.html:180
+#: app/templates/dashboard.html:182
 msgid "Oda Çıkış QR Kodu"
 msgstr ""
 
-#: app/templates/dashboard.html:181
+#: app/templates/dashboard.html:183
 msgid ""
 "Erken ayrılıyorsanız, bu QR kodu okutarak odayı başkaları için anında "
 "boşa çıkarabilirsiniz."
 msgstr ""
 
-#: app/templates/door_scanner.html:5
+#: app/templates/door_scanner.html:56
 msgid "Sanal Kapı Okuyucu"
 msgstr ""
 
-#: app/templates/door_scanner.html:6
+#: app/templates/door_scanner.html:57
 msgid ""
 "Kameraya QR kodu göstererek veya aşağıdan rezervasyon seçerek kapı "
 "girişini simüle edin."
 msgstr ""
 
-#: app/templates/door_scanner.html:15
+#: app/templates/door_scanner.html:66
 msgid "Yeniden Okut"
 msgstr ""
 
-#: app/templates/door_scanner.html:20
+#: app/templates/door_scanner.html:71
 msgid "Kamera Çalışmıyor Mu?"
 msgstr ""
 
-#: app/templates/door_scanner.html:21
+#: app/templates/door_scanner.html:72
 msgid ""
 "Güvenlik nedeniyle kameranız engellendiyse, Dashboard'dan aldığınız QR "
 "kodun ekran görüntüsünü alıp yukarıdaki okuyucu alanından <strong>\"Scan "
@@ -717,176 +827,232 @@ msgid ""
 "yükleyebilir ve test edebilirsiniz."
 msgstr ""
 
-#: app/templates/door_scanner.html:44
+#: app/templates/door_scanner.html:95
 msgid "Doğrulanıyor..."
 msgstr ""
 
-#: app/templates/door_scanner.html:45
+#: app/templates/door_scanner.html:96
 msgid "QR Kod sunucuya iletiliyor..."
 msgstr ""
 
-#: app/templates/door_scanner.html:62
+#: app/templates/door_scanner.html:113
 msgid "ÇIKIŞ YAPILDI"
 msgstr ""
 
-#: app/templates/door_scanner.html:64
+#: app/templates/door_scanner.html:115
 msgid "KAPI AÇILDI"
 msgstr ""
 
-#: app/templates/door_scanner.html:79
+#: app/templates/door_scanner.html:130
 msgid "ERİŞİM REDDEDİLDİ"
 msgstr ""
 
-#: app/templates/door_scanner.html:85
+#: app/templates/door_scanner.html:136
 msgid "HATA"
 msgstr ""
 
-#: app/templates/door_scanner.html:86
+#: app/templates/door_scanner.html:137
 msgid "Sunucuyla bağlantı kurulamadı."
 msgstr ""
 
-#: app/templates/index.html:185
+#: app/templates/index.html:3
+msgid ""
+"Modern, hızlı ve akıllı toplantı odası rezervasyon sistemi. İhtiyacınız "
+"olan\n"
+"toplantı odasını anında bulun, saniyeler içinde ayırtın ve ekibinizi "
+"kolayca davet edin."
+msgstr ""
+
+#: app/templates/index.html:188
 msgid "Toplantı Odası Rezervasyon Sistemine Hoş Geldiniz"
 msgstr ""
 
-#: app/templates/index.html:186
+#: app/templates/index.html:189
 msgid ""
 "Modern, hızlı ve akıllı rezervasyon yönetimi. İhtiyacınız olan toplantı "
 "odasını anında bulun,\n"
 "            saniyeler içinde ayırtın ve ekibinizi kolayca davet edin."
 msgstr ""
 
-#: app/templates/index.html:199
+#: app/templates/index.html:202
 msgid "Hemen Başlayın"
 msgstr ""
 
-#: app/templates/index.html:200
+#: app/templates/index.html:203
 msgid ""
 "Giriş\n"
 "                    Yap"
 msgstr ""
 
-#: app/templates/index.html:214
+#: app/templates/index.html:217
 msgid "Hoş Geldiniz"
 msgstr ""
 
-#: app/templates/overview.html:213
+#: app/templates/overview.html:3
+msgid ""
+"Günün tüm toplantı ve oda kullanım durumlarını anlık ve canlı olarak "
+"takip edin."
+msgstr ""
+
+#: app/templates/overview.html:215
 msgid "Aylık Doluluk & Günlük Genel Bakış"
 msgstr ""
 
-#: app/templates/overview.html:214
+#: app/templates/overview.html:216
 msgid ""
 "Takvimden gün seçerek detayları aşağıdan inceleyebilir ve boş saatlere "
 "tıklayarak rezervasyon yapabilirsiniz."
 msgstr ""
 
-#: app/templates/overview.html:225 app/templates/rooms/book.html:202
+#: app/templates/overview.html:227 app/templates/rooms/book.html:204
 msgid "Önceki Ay"
 msgstr ""
 
-#: app/templates/overview.html:227 app/templates/rooms/book.html:204
+#: app/templates/overview.html:229 app/templates/rooms/book.html:206
 msgid "Sonraki Ay"
 msgstr ""
 
-#: app/templates/overview.html:230 app/templates/rooms/book.html:207
+#: app/templates/overview.html:232 app/templates/rooms/book.html:209
 msgid "Pzt"
 msgstr ""
 
-#: app/templates/overview.html:231 app/templates/rooms/book.html:208
+#: app/templates/overview.html:233 app/templates/rooms/book.html:210
 msgid "Sal"
 msgstr ""
 
-#: app/templates/overview.html:232 app/templates/rooms/book.html:209
+#: app/templates/overview.html:234 app/templates/rooms/book.html:211
 msgid "Çar"
 msgstr ""
 
-#: app/templates/overview.html:233 app/templates/rooms/book.html:210
+#: app/templates/overview.html:235 app/templates/rooms/book.html:212
 msgid "Per"
 msgstr ""
 
-#: app/templates/overview.html:234 app/templates/rooms/book.html:211
+#: app/templates/overview.html:236 app/templates/rooms/book.html:213
 msgid "Cum"
 msgstr ""
 
-#: app/templates/overview.html:235 app/templates/rooms/book.html:212
+#: app/templates/overview.html:237 app/templates/rooms/book.html:214
 msgid "Cmt"
 msgstr ""
 
-#: app/templates/overview.html:236 app/templates/rooms/book.html:213
+#: app/templates/overview.html:238 app/templates/rooms/book.html:215
 msgid "Paz"
 msgstr ""
 
-#: app/templates/overview.html:240 app/templates/rooms/book.html:217
+#: app/templates/overview.html:242 app/templates/rooms/book.html:219
 msgid "Tamamen Boş"
 msgstr ""
 
-#: app/templates/overview.html:242 app/templates/rooms/book.html:219
+#: app/templates/overview.html:244 app/templates/rooms/book.html:221
 msgid "Tamamen Dolu"
 msgstr ""
 
-#: app/templates/overview.html:248
+#: app/templates/overview.html:250
 msgid "Seçili Tarih:"
 msgstr ""
 
-#: app/templates/overview.html:256
+#: app/templates/overview.html:259
 msgid "Toplantı Odası"
 msgstr ""
 
-#: app/templates/overview.html:421 app/templates/overview.html:494
-#: app/templates/overview.html:525
+#: app/templates/overview.html:424 app/templates/overview.html:497
+#: app/templates/overview.html:528
 msgid "Bu rezervasyonu"
 msgstr ""
 
-#: app/templates/overview.html:421 app/templates/overview.html:494
-#: app/templates/overview.html:525
+#: app/templates/overview.html:424 app/templates/overview.html:497
+#: app/templates/overview.html:528
 msgid "iptal etmek istiyor musunuz?"
 msgstr ""
 
-#: app/templates/overview.html:431 app/templates/overview.html:504
-#: app/templates/overview.html:538 app/templates/overview.html:539
+#: app/templates/overview.html:434 app/templates/overview.html:507
+#: app/templates/overview.html:541 app/templates/overview.html:542
 msgid "Geçmiş"
 msgstr ""
 
-#: app/templates/overview.html:432 app/templates/overview.html:505
-#: app/templates/overview.html:540 app/templates/rooms/book.html:348
-#: app/templates/rooms/book.html:453
+#: app/templates/overview.html:435 app/templates/overview.html:508
+#: app/templates/overview.html:543 app/templates/rooms/book.html:368
+#: app/templates/rooms/book.html:473
 msgid "Bu saat geçmiş"
 msgstr ""
 
-#: app/templates/profile.html:46
+#: app/templates/profile.html:3
+msgid ""
+"Kullanıcı profil bilgilerinizi, profil fotoğrafınızı ve hesap "
+"tercihlerinizi güncelleyin."
+msgstr ""
+
+#: app/templates/profile.html:48
 msgid "Profil Fotoğrafı"
 msgstr ""
 
-#: app/templates/auth/login.html:36 app/templates/auth/login_register.html:285
-msgid "Beni Hatırla"
+#: app/templates/auth/login.html:3
+msgid ""
+"Toplantı odası rezervasyon sistemine giriş yapın. Hesabınızla oturum "
+"açarak toplantılarınızı ve oda rezervasyonlarınızı yönetin."
 msgstr ""
 
-#: app/templates/auth/login.html:44 app/templates/auth/login_register.html:293
+#: app/templates/auth/login.html:46
 msgid "Şifremi Unuttum"
 msgstr ""
 
-#: app/templates/auth/login.html:51
+#: app/templates/auth/login.html:53
 msgid "VEYA"
 msgstr ""
 
-#: app/templates/auth/login.html:59
+#: app/templates/auth/login.html:61
 msgid "Google ile Giriş Yap"
 msgstr ""
 
-#: app/templates/auth/login.html:64
+#: app/templates/auth/login.html:66
 msgid "Hesabınız yok mu?"
 msgstr ""
 
-#: app/templates/auth/login.html:64
+#: app/templates/auth/login.html:66
 msgid "Hemen Kayıt Olun"
 msgstr ""
 
-#: app/templates/auth/register.html:109
+#: app/templates/auth/register.html:3
+msgid ""
+"Toplantı odası rezervasyon sistemine kayıt olun. Yeni hesap oluşturarak "
+"oda rezervasyonları yapmaya hemen başlayın."
+msgstr ""
+
+#: app/templates/auth/register.html:111
 msgid "Zaten hesabınız var mı?"
 msgstr ""
 
-#: app/templates/auth/register.html:109
+#: app/templates/auth/register.html:111
 msgid "Giriş Yapın"
+msgstr ""
+
+#: app/templates/auth/verify_email.html:3
+msgid "E-posta adresinizi doğrulayın."
+msgstr ""
+
+#: app/templates/auth/verify_email.html:8
+msgid "E-posta Adresinizi Doğrulayın"
+msgstr ""
+
+#: app/templates/auth/verify_email.html:10
+msgid "Lütfen"
+msgstr ""
+
+#: app/templates/auth/verify_email.html:11
+msgid "adresine gönderilen 6 haneli doğrulama kodunu girin."
+msgstr ""
+
+#: app/templates/auth/verify_email.html:23
+msgid "Hesabı Doğrula ve Aktifleştir"
+msgstr ""
+
+#: app/templates/auth/verify_email.html:29
+msgid "Kod ulaşmadı mı veya süresi mi doldu?"
+msgstr ""
+
+#: app/templates/auth/verify_email.html:34
+msgid "Yeni Kod Gönder"
 msgstr ""
 
 #: app/templates/rooms/add.html:18
@@ -897,56 +1063,58 @@ msgstr ""
 msgid "Lütfen oda özelliklerini girin."
 msgstr ""
 
-#: app/templates/rooms/add.html:83 app/templates/rooms/edit.html:83
-msgid "İptal"
+#: app/templates/rooms/book.html:3
+msgid ""
+"Toplantı odası için hızlıca rezervasyon oluşturun, katılımcıları davet "
+"edin ve takviminize ekleyin."
 msgstr ""
 
-#: app/templates/rooms/book.html:232
+#: app/templates/rooms/book.html:234
 msgid "Rezervasyon Tarihi"
 msgstr ""
 
-#: app/templates/rooms/book.html:239
+#: app/templates/rooms/book.html:241
 msgid "Süre (Dakika)"
 msgstr ""
 
-#: app/templates/rooms/book.html:242
+#: app/templates/rooms/book.html:244
 msgid "30 Dakika"
 msgstr ""
 
-#: app/templates/rooms/book.html:245
+#: app/templates/rooms/book.html:247
 msgid "60 Dakika"
 msgstr ""
 
-#: app/templates/rooms/book.html:251
+#: app/templates/rooms/book.html:265
 msgid "Kişileri Davet Et (Opsiyonel)"
 msgstr ""
 
-#: app/templates/rooms/book.html:265 app/templates/rooms/book.html:382
-#: app/templates/rooms/book.html:396 app/templates/rooms/book.html:461
+#: app/templates/rooms/book.html:285 app/templates/rooms/book.html:402
+#: app/templates/rooms/book.html:416 app/templates/rooms/book.html:481
 msgid "Lütfen Saat Seçin"
 msgstr ""
 
-#: app/templates/rooms/book.html:271
+#: app/templates/rooms/book.html:291
 msgid "Uygun Saatler"
 msgstr ""
 
-#: app/templates/rooms/book.html:272
+#: app/templates/rooms/book.html:292
 msgid "Yeşil renkli boş saatlere tıklayarak seçiminizi yapabilirsiniz."
 msgstr ""
 
-#: app/templates/rooms/book.html:274
+#: app/templates/rooms/book.html:294
 msgid "Saatler yükleniyor..."
 msgstr ""
 
-#: app/templates/rooms/book.html:348
+#: app/templates/rooms/book.html:368
 msgid "Bu saat dolu veya süre yetersiz"
 msgstr ""
 
-#: app/templates/rooms/book.html:362
+#: app/templates/rooms/book.html:382
 msgid "Seçimi Onayla"
 msgstr ""
 
-#: app/templates/rooms/book.html:462
+#: app/templates/rooms/book.html:482
 msgid ""
 "Üzgünüz, az önce seçtiğiniz saat dilimi başka bir kullanıcı tarafından "
 "rezerve edildi."
@@ -960,51 +1128,563 @@ msgstr ""
 msgid "Oda özelliklerini aşağıdan güncelleyebilirsiniz."
 msgstr ""
 
-#: app/templates/rooms/list.html:6
+#: app/templates/rooms/list.html:3
+msgid ""
+"Tüm toplantı odalarını ve doluluk durumlarını listeleyin. İhtiyacınıza "
+"uygun teknoloji ve kapasitedeki odayı seçip ayırtın."
+msgstr ""
+
+#: app/templates/rooms/list.html:8
 msgid "Toplantı Odaları"
 msgstr ""
 
-#: app/templates/rooms/list.html:7
+#: app/templates/rooms/list.html:9
 msgid "Lütfen rezervasyon yapmak istediğiniz odayı seçin."
 msgstr ""
 
-#: app/templates/rooms/list.html:11
+#: app/templates/rooms/list.html:13
 msgid "Yeni Oda Ekle"
 msgstr ""
 
-#: app/templates/rooms/list.html:46
+#: app/templates/rooms/list.html:93
 msgid "Bugünün Durumu"
 msgstr ""
 
-#: app/templates/rooms/list.html:48
+#: app/templates/rooms/list.html:95
 msgid "Hiç rezervasyon yok"
 msgstr ""
 
-#: app/templates/rooms/list.html:50
+#: app/templates/rooms/list.html:97
 msgid "Toplam"
 msgstr ""
 
-#: app/templates/rooms/list.html:50
+#: app/templates/rooms/list.html:97
 msgid "sa"
 msgstr ""
 
-#: app/templates/rooms/list.html:50
+#: app/templates/rooms/list.html:97
 msgid "dk"
 msgstr ""
 
-#: app/templates/rooms/list.html:50
+#: app/templates/rooms/list.html:97
 msgid "dolu"
 msgstr ""
 
-#: app/templates/rooms/list.html:57
+#: app/templates/rooms/list.html:106
 msgid "Takvimi Görüntüle"
 msgstr ""
 
-#: app/templates/rooms/list.html:59
+#: app/templates/rooms/list.html:108
 msgid "Düzenle"
 msgstr ""
 
-#: app/templates/rooms/list.html:60
+#: app/templates/rooms/list.html:109
 msgid "Bu odayı ve tüm rezervasyonlarını silmek istediğinize emin misiniz?"
+msgstr ""
+
+#: venv/Lib/site-packages/click/_termui_impl.py:556
+#, python-brace-format
+msgid "{editor}: Editing failed"
+msgstr ""
+
+#: venv/Lib/site-packages/click/_termui_impl.py:560
+#, python-brace-format
+msgid "{editor}: Editing failed: {e}"
+msgstr ""
+
+#: venv/Lib/site-packages/click/core.py:1124
+msgid "Aborted!"
+msgstr ""
+
+#: venv/Lib/site-packages/click/core.py:1349
+#: venv/Lib/site-packages/click/core.py:1379
+#, python-brace-format
+msgid "(Deprecated) {text}"
+msgstr ""
+
+#: venv/Lib/site-packages/click/core.py:1396
+msgid "Options"
+msgstr ""
+
+#: venv/Lib/site-packages/click/core.py:1422
+#, python-brace-format
+msgid "Got unexpected extra argument ({args})"
+msgid_plural "Got unexpected extra arguments ({args})"
+msgstr[0] ""
+msgstr[1] ""
+
+#: venv/Lib/site-packages/click/core.py:1438
+#, python-brace-format
+msgid "DeprecationWarning: The command {name!r} is deprecated."
+msgstr ""
+
+#: venv/Lib/site-packages/click/core.py:1645
+msgid "Commands"
+msgstr ""
+
+#: venv/Lib/site-packages/click/core.py:1677
+msgid "Missing command."
+msgstr ""
+
+#: venv/Lib/site-packages/click/core.py:1755
+#, python-brace-format
+msgid "No such command {name!r}."
+msgstr ""
+
+#: venv/Lib/site-packages/click/core.py:2313
+msgid "Value must be an iterable."
+msgstr ""
+
+#: venv/Lib/site-packages/click/core.py:2334
+#, python-brace-format
+msgid "Takes {nargs} values but 1 was given."
+msgid_plural "Takes {nargs} values but {len} were given."
+msgstr[0] ""
+msgstr[1] ""
+
+#: venv/Lib/site-packages/click/core.py:2783
+#, python-brace-format
+msgid "env var: {var}"
+msgstr ""
+
+#: venv/Lib/site-packages/click/core.py:2813
+msgid "(dynamic)"
+msgstr ""
+
+#: venv/Lib/site-packages/click/core.py:2828
+#, python-brace-format
+msgid "default: {default}"
+msgstr ""
+
+#: venv/Lib/site-packages/click/core.py:2841
+msgid "required"
+msgstr ""
+
+#: venv/Lib/site-packages/click/decorators.py:457
+#, python-format
+msgid "%(prog)s, version %(version)s"
+msgstr ""
+
+#: venv/Lib/site-packages/click/decorators.py:520
+msgid "Show the version and exit."
+msgstr ""
+
+#: venv/Lib/site-packages/click/decorators.py:541
+msgid "Show this message and exit."
+msgstr ""
+
+#: venv/Lib/site-packages/click/exceptions.py:49
+#: venv/Lib/site-packages/click/exceptions.py:88
+#, python-brace-format
+msgid "Error: {message}"
+msgstr ""
+
+#: venv/Lib/site-packages/click/exceptions.py:80
+#, python-brace-format
+msgid "Try '{command} {option}' for help."
+msgstr ""
+
+#: venv/Lib/site-packages/click/exceptions.py:129
+#, python-brace-format
+msgid "Invalid value: {message}"
+msgstr ""
+
+#: venv/Lib/site-packages/click/exceptions.py:131
+#, python-brace-format
+msgid "Invalid value for {param_hint}: {message}"
+msgstr ""
+
+#: venv/Lib/site-packages/click/exceptions.py:187
+msgid "Missing argument"
+msgstr ""
+
+#: venv/Lib/site-packages/click/exceptions.py:189
+msgid "Missing option"
+msgstr ""
+
+#: venv/Lib/site-packages/click/exceptions.py:191
+msgid "Missing parameter"
+msgstr ""
+
+#: venv/Lib/site-packages/click/exceptions.py:193
+#, python-brace-format
+msgid "Missing {param_type}"
+msgstr ""
+
+#: venv/Lib/site-packages/click/exceptions.py:200
+#, python-brace-format
+msgid "Missing parameter: {param_name}"
+msgstr ""
+
+#: venv/Lib/site-packages/click/exceptions.py:220
+#, python-brace-format
+msgid "No such option: {name}"
+msgstr ""
+
+#: venv/Lib/site-packages/click/exceptions.py:232
+#, python-brace-format
+msgid "Did you mean {possibility}?"
+msgid_plural "(Possible options: {possibilities})"
+msgstr[0] ""
+msgstr[1] ""
+
+#: venv/Lib/site-packages/click/exceptions.py:270
+msgid "unknown error"
+msgstr ""
+
+#: venv/Lib/site-packages/click/exceptions.py:277
+#, python-brace-format
+msgid "Could not open file {filename!r}: {message}"
+msgstr ""
+
+#: venv/Lib/site-packages/click/parser.py:233
+#, python-brace-format
+msgid "Argument {name!r} takes {nargs} values."
+msgstr ""
+
+#: venv/Lib/site-packages/click/parser.py:415
+#, python-brace-format
+msgid "Option {name!r} does not take a value."
+msgstr ""
+
+#: venv/Lib/site-packages/click/parser.py:476
+#, python-brace-format
+msgid "Option {name!r} requires an argument."
+msgid_plural "Option {name!r} requires {nargs} arguments."
+msgstr[0] ""
+msgstr[1] ""
+
+#: venv/Lib/site-packages/click/shell_completion.py:326
+msgid "Shell completion is not supported for Bash versions older than 4.4."
+msgstr ""
+
+#: venv/Lib/site-packages/click/shell_completion.py:333
+msgid "Couldn't detect Bash version, shell completion is not supported."
+msgstr ""
+
+#: venv/Lib/site-packages/click/termui.py:158
+msgid "Repeat for confirmation"
+msgstr ""
+
+#: venv/Lib/site-packages/click/termui.py:174
+msgid "Error: The value you entered was invalid."
+msgstr ""
+
+#: venv/Lib/site-packages/click/termui.py:176
+#, python-brace-format
+msgid "Error: {e.message}"
+msgstr ""
+
+#: venv/Lib/site-packages/click/termui.py:187
+msgid "Error: The two entered values do not match."
+msgstr ""
+
+#: venv/Lib/site-packages/click/termui.py:243
+msgid "Error: invalid input"
+msgstr ""
+
+#: venv/Lib/site-packages/click/termui.py:773
+msgid "Press any key to continue..."
+msgstr ""
+
+#: venv/Lib/site-packages/click/types.py:267
+#, python-brace-format
+msgid ""
+"Choose from:\n"
+"\t{choices}"
+msgstr ""
+
+#: venv/Lib/site-packages/click/types.py:299
+#, python-brace-format
+msgid "{value!r} is not {choice}."
+msgid_plural "{value!r} is not one of {choices}."
+msgstr[0] ""
+msgstr[1] ""
+
+#: venv/Lib/site-packages/click/types.py:393
+#, python-brace-format
+msgid "{value!r} does not match the format {format}."
+msgid_plural "{value!r} does not match the formats {formats}."
+msgstr[0] ""
+msgstr[1] ""
+
+#: venv/Lib/site-packages/click/types.py:415
+#, python-brace-format
+msgid "{value!r} is not a valid {number_type}."
+msgstr ""
+
+#: venv/Lib/site-packages/click/types.py:471
+#, python-brace-format
+msgid "{value} is not in the range {range}."
+msgstr ""
+
+#: venv/Lib/site-packages/click/types.py:612
+#, python-brace-format
+msgid "{value!r} is not a valid boolean."
+msgstr ""
+
+#: venv/Lib/site-packages/click/types.py:636
+#, python-brace-format
+msgid "{value!r} is not a valid UUID."
+msgstr ""
+
+#: venv/Lib/site-packages/click/types.py:826
+msgid "file"
+msgstr ""
+
+#: venv/Lib/site-packages/click/types.py:828
+msgid "directory"
+msgstr ""
+
+#: venv/Lib/site-packages/click/types.py:830
+msgid "path"
+msgstr ""
+
+#: venv/Lib/site-packages/click/types.py:881
+#, python-brace-format
+msgid "{name} {filename!r} does not exist."
+msgstr ""
+
+#: venv/Lib/site-packages/click/types.py:890
+#, python-brace-format
+msgid "{name} {filename!r} is a file."
+msgstr ""
+
+#: venv/Lib/site-packages/click/types.py:898
+#, python-brace-format
+msgid "{name} {filename!r} is a directory."
+msgstr ""
+
+#: venv/Lib/site-packages/click/types.py:907
+#, python-brace-format
+msgid "{name} {filename!r} is not readable."
+msgstr ""
+
+#: venv/Lib/site-packages/click/types.py:916
+#, python-brace-format
+msgid "{name} {filename!r} is not writable."
+msgstr ""
+
+#: venv/Lib/site-packages/click/types.py:925
+#, python-brace-format
+msgid "{name} {filename!r} is not executable."
+msgstr ""
+
+#: venv/Lib/site-packages/click/types.py:992
+#, python-brace-format
+msgid "{len_type} values are required, but {len_value} was given."
+msgid_plural "{len_type} values are required, but {len_value} were given."
+msgstr[0] ""
+msgstr[1] ""
+
+#: venv/Lib/site-packages/flask_wtf/file.py:55
+#: venv/Lib/site-packages/wtforms/validators.py:293
+#: venv/Lib/site-packages/wtforms/validators.py:323
+msgid "This field is required."
+msgstr ""
+
+#: venv/Lib/site-packages/flask_wtf/file.py:94
+#, python-brace-format
+msgid "File does not have an approved extension: {extensions}"
+msgstr ""
+
+#: venv/Lib/site-packages/flask_wtf/file.py:101
+msgid "File does not have an approved extension."
+msgstr ""
+
+#: venv/Lib/site-packages/flask_wtf/file.py:140
+#, python-brace-format
+msgid "File must be between {min_size} and {max_size} bytes."
+msgstr ""
+
+#: venv/Lib/site-packages/httplib2/__init__.py:409
+#, python-format
+msgid "Content purported to be compressed with %s but failed to decompress."
+msgstr ""
+
+#: venv/Lib/site-packages/httplib2/__init__.py:574
+#, python-format
+msgid "Unsupported value for qop: %s."
+msgstr ""
+
+#: venv/Lib/site-packages/httplib2/__init__.py:578
+#: venv/Lib/site-packages/httplib2/__init__.py:656
+#, python-format
+msgid "Unsupported value for algorithm: %s.algorithm"
+msgstr ""
+
+#: venv/Lib/site-packages/httplib2/__init__.py:651
+msgid "The challenge doesn't contain a server nonce, or this one is empty."
+msgstr ""
+
+#: venv/Lib/site-packages/httplib2/__init__.py:661
+#, python-format
+msgid "Unsupported value for pw-algorithm: %s.pw-algorithm"
+msgstr ""
+
+#: venv/Lib/site-packages/httplib2/__init__.py:1499
+msgid "Redirected but the response is missing a Location: header."
+msgstr ""
+
+#: venv/Lib/site-packages/wtforms/validators.py:86
+#, python-format
+msgid "Invalid field name '%s'."
+msgstr ""
+
+#: venv/Lib/site-packages/wtforms/validators.py:99
+#, python-format
+msgid "Field must be equal to %(other_name)s."
+msgstr ""
+
+#: venv/Lib/site-packages/wtforms/validators.py:146
+#, python-format
+msgid "Field must be at least %(min)d character long."
+msgid_plural "Field must be at least %(min)d characters long."
+msgstr[0] ""
+msgstr[1] ""
+
+#: venv/Lib/site-packages/wtforms/validators.py:152
+#, python-format
+msgid "Field cannot be longer than %(max)d character."
+msgid_plural "Field cannot be longer than %(max)d characters."
+msgstr[0] ""
+msgstr[1] ""
+
+#: venv/Lib/site-packages/wtforms/validators.py:158
+#, python-format
+msgid "Field must be exactly %(max)d character long."
+msgid_plural "Field must be exactly %(max)d characters long."
+msgstr[0] ""
+msgstr[1] ""
+
+#: venv/Lib/site-packages/wtforms/validators.py:164
+#, python-format
+msgid "Field must be between %(min)d and %(max)d characters long."
+msgstr ""
+
+#: venv/Lib/site-packages/wtforms/validators.py:216
+#, python-format
+msgid "Number must be at least %(min)s."
+msgstr ""
+
+#: venv/Lib/site-packages/wtforms/validators.py:219
+#, python-format
+msgid "Number must be at most %(max)s."
+msgstr ""
+
+#: venv/Lib/site-packages/wtforms/validators.py:222
+#, python-format
+msgid "Number must be between %(min)s and %(max)s."
+msgstr ""
+
+#: venv/Lib/site-packages/wtforms/validators.py:358
+msgid "Invalid input."
+msgstr ""
+
+#: venv/Lib/site-packages/wtforms/validators.py:422
+msgid "Invalid email address."
+msgstr ""
+
+#: venv/Lib/site-packages/wtforms/validators.py:460
+msgid "Invalid IP address."
+msgstr ""
+
+#: venv/Lib/site-packages/wtforms/validators.py:503
+msgid "Invalid Mac address."
+msgstr ""
+
+#: venv/Lib/site-packages/wtforms/validators.py:540
+msgid "Invalid URL."
+msgstr ""
+
+#: venv/Lib/site-packages/wtforms/validators.py:561
+msgid "Invalid UUID."
+msgstr ""
+
+#: venv/Lib/site-packages/wtforms/validators.py:595
+#, python-format
+msgid "Invalid value, must be one of: %(values)s."
+msgstr ""
+
+#: venv/Lib/site-packages/wtforms/validators.py:631
+#, python-format
+msgid "Invalid value, can't be any of: %(values)s."
+msgstr ""
+
+#: venv/Lib/site-packages/wtforms/validators.py:700
+msgid "This field cannot be edited."
+msgstr ""
+
+#: venv/Lib/site-packages/wtforms/validators.py:716
+msgid "This field is disabled and cannot have a value."
+msgstr ""
+
+#: venv/Lib/site-packages/wtforms/csrf/core.py:96
+msgid "Invalid CSRF Token."
+msgstr ""
+
+#: venv/Lib/site-packages/wtforms/csrf/session.py:64
+msgid "CSRF token missing."
+msgstr ""
+
+#: venv/Lib/site-packages/wtforms/csrf/session.py:72
+msgid "CSRF failed."
+msgstr ""
+
+#: venv/Lib/site-packages/wtforms/csrf/session.py:77
+msgid "CSRF token expired."
+msgstr ""
+
+#: venv/Lib/site-packages/wtforms/fields/choices.py:142
+msgid "Invalid Choice: could not coerce."
+msgstr ""
+
+#: venv/Lib/site-packages/wtforms/fields/choices.py:149
+#: venv/Lib/site-packages/wtforms/fields/choices.py:203
+msgid "Choices cannot be None."
+msgstr ""
+
+#: venv/Lib/site-packages/wtforms/fields/choices.py:155
+msgid "Not a valid choice."
+msgstr ""
+
+#: venv/Lib/site-packages/wtforms/fields/choices.py:194
+msgid "Invalid choice(s): one or more data inputs could not be coerced."
+msgstr ""
+
+#: venv/Lib/site-packages/wtforms/fields/choices.py:212
+#, python-format
+msgid "'%(value)s' is not a valid choice for this field."
+msgid_plural "'%(value)s' are not valid choices for this field."
+msgstr[0] ""
+msgstr[1] ""
+
+#: venv/Lib/site-packages/wtforms/fields/datetime.py:52
+msgid "Not a valid datetime value."
+msgstr ""
+
+#: venv/Lib/site-packages/wtforms/fields/datetime.py:78
+msgid "Not a valid date value."
+msgstr ""
+
+#: venv/Lib/site-packages/wtforms/fields/datetime.py:104
+msgid "Not a valid time value."
+msgstr ""
+
+#: venv/Lib/site-packages/wtforms/fields/datetime.py:149
+msgid "Not a valid week value."
+msgstr ""
+
+#: venv/Lib/site-packages/wtforms/fields/numeric.py:82
+#: venv/Lib/site-packages/wtforms/fields/numeric.py:92
+msgid "Not a valid integer value."
+msgstr ""
+
+#: venv/Lib/site-packages/wtforms/fields/numeric.py:168
+msgid "Not a valid decimal value."
+msgstr ""
+
+#: venv/Lib/site-packages/wtforms/fields/numeric.py:197
+msgid "Not a valid float value."
 msgstr ""
 

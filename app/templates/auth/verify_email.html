@@ -7,8 +7,7 @@
     <div style="font-size: 3rem; margin-bottom: 1rem;">✉️</div>
     <h2 style="margin-bottom: 0.5rem;">{{ gettext('E-posta Adresinizi Doğrulayın') }}</h2>
     <p style="color: #cbd5e1; font-size: 0.95rem; line-height: 1.5; margin-bottom: 2rem;">
-        {{ gettext('Lütfen') }} <strong style="color: var(--primary-light, #818cf8);">{{ user.email }}</strong> {{
-        gettext('adresine gönderilen 6 haneli doğrulama kodunu girin.') }}
+        {{ gettext('Lütfen %(email)s adresine gönderilen 6 haneli doğrulama kodunu girin.', email='<strong style="color: var(--primary-light, #818cf8);">' ~ user.email ~ '</strong>')|safe }}
     </p>
 
     <form method="POST" action="{{ url_for('auth.verify_email') }}">
