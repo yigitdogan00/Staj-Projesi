@@ -596,8 +596,6 @@
 
         body.mobile-menu-open {
             overflow: hidden !important;
-            height: 100vh !important;
-            touch-action: none !important;
         }
 
         @keyframes mobileMenuAccordion {
@@ -1974,6 +1972,17 @@
             }
         }
 
+        function resetMobileMenu() {
+            const navLinks = document.getElementById('navLinks');
+            const menuBtn = document.querySelector('.mobile-menu-btn');
+            if (navLinks) navLinks.classList.remove('active');
+            if (menuBtn) {
+                menuBtn.classList.remove('open');
+                menuBtn.innerText = '☰';
+            }
+            document.body.classList.remove('mobile-menu-open');
+        }
+
         function toggleMobileMenu(btnElement) {
             const btn = btnElement || document.querySelector('.mobile-menu-btn');
             const navLinks = document.getElementById('navLinks');
@@ -1990,49 +1999,32 @@
             }
         }
 
-        // Mobile Menu Click Outside & Link Close Handler
+        window.addEventListener('pageshow', resetMobileMenu);
+
+        document.addEventListener('DOMContentLoaded', function() {
+            resetMobileMenu();
+            const navLinks = document.getElementById('navLinks');
+            if (navLinks) {
+                navLinks.querySelectorAll('a').forEach(link => {
+                    link.addEventListener('click', resetMobileMenu);
+                });
+            }
+        });
+
+        // Mobile Menu Click Outside Handler
         document.addEventListener('click', function(e) {
             const navLinks = document.getElementById('navLinks');
             const menuBtn = document.querySelector('.mobile-menu-btn');
             if (navLinks && navLinks.classList.contains('active')) {
                 if (!navLinks.contains(e.target) && (!menuBtn || !menuBtn.contains(e.target))) {
-                    navLinks.classList.remove('active');
-                    if (menuBtn) {
-                        menuBtn.classList.remove('open');
-                        menuBtn.innerText = '☰';
-                    }
-                    document.body.classList.remove('mobile-menu-open');
+                    resetMobileMenu();
                 }
-            }
-        });
-
-        document.addEventListener('DOMContentLoaded', function() {
-            const navLinks = document.getElementById('navLinks');
-            const menuBtn = document.querySelector('.mobile-menu-btn');
-            if (navLinks) {
-                navLinks.querySelectorAll('a').forEach(link => {
-                    link.addEventListener('click', () => {
-                        navLinks.classList.remove('active');
-                        if (menuBtn) {
-                            menuBtn.classList.remove('open');
-                            menuBtn.innerText = '☰';
-                        }
-                        document.body.classList.remove('mobile-menu-open');
-                    });
-                });
             }
         });
 
         window.addEventListener('resize', function() {
             if (window.innerWidth > 768) {
-                const navLinks = document.getElementById('navLinks');
-                const menuBtn = document.querySelector('.mobile-menu-btn');
-                if (navLinks) navLinks.classList.remove('active');
-                if (menuBtn) {
-                    menuBtn.classList.remove('open');
-                    menuBtn.innerText = '☰';
-                }
-                document.body.classList.remove('mobile-menu-open');
+                resetMobileMenu();
             }
         });
         // Theme Switcher Functions (Logged-in Users)
