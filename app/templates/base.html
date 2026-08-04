@@ -594,6 +594,12 @@
             white-space: nowrap;
         }
 
+        body.mobile-menu-open {
+            overflow: hidden !important;
+            height: 100vh !important;
+            touch-action: none !important;
+        }
+
         @keyframes mobileMenuAccordion {
             0% {
                 opacity: 0;
@@ -1083,7 +1089,7 @@
             <img src="https://www.rndecommerce.com/wp-content/uploads/2025/04/RND-Logo-V1.png" alt="RND E-Ticaret"
                 style="height: 45px; transition: transform 0.3s ease;">
         </a>
-        <button class="mobile-menu-btn" onclick="this.classList.toggle('open'); document.getElementById('navLinks').classList.toggle('active'); this.innerText = this.classList.contains('open') ? '✖' : '☰';">
+        <button class="mobile-menu-btn" onclick="toggleMobileMenu(this)">
             ☰
         </button>
         <div class="nav-links" id="navLinks">
@@ -1968,6 +1974,22 @@
             }
         }
 
+        function toggleMobileMenu(btnElement) {
+            const btn = btnElement || document.querySelector('.mobile-menu-btn');
+            const navLinks = document.getElementById('navLinks');
+            if (!navLinks) return;
+
+            if (btn) btn.classList.toggle('open');
+            const isActive = navLinks.classList.toggle('active');
+            if (btn) btn.innerText = isActive ? '✖' : '☰';
+
+            if (isActive) {
+                document.body.classList.add('mobile-menu-open');
+            } else {
+                document.body.classList.remove('mobile-menu-open');
+            }
+        }
+
         // Mobile Menu Click Outside & Link Close Handler
         document.addEventListener('click', function(e) {
             const navLinks = document.getElementById('navLinks');
@@ -1975,17 +1997,42 @@
             if (navLinks && navLinks.classList.contains('active')) {
                 if (!navLinks.contains(e.target) && (!menuBtn || !menuBtn.contains(e.target))) {
                     navLinks.classList.remove('active');
+                    if (menuBtn) {
+                        menuBtn.classList.remove('open');
+                        menuBtn.innerText = '☰';
+                    }
+                    document.body.classList.remove('mobile-menu-open');
                 }
             }
         });
+
         document.addEventListener('DOMContentLoaded', function() {
             const navLinks = document.getElementById('navLinks');
+            const menuBtn = document.querySelector('.mobile-menu-btn');
             if (navLinks) {
                 navLinks.querySelectorAll('a').forEach(link => {
                     link.addEventListener('click', () => {
                         navLinks.classList.remove('active');
+                        if (menuBtn) {
+                            menuBtn.classList.remove('open');
+                            menuBtn.innerText = '☰';
+                        }
+                        document.body.classList.remove('mobile-menu-open');
                     });
                 });
+            }
+        });
+
+        window.addEventListener('resize', function() {
+            if (window.innerWidth > 768) {
+                const navLinks = document.getElementById('navLinks');
+                const menuBtn = document.querySelector('.mobile-menu-btn');
+                if (navLinks) navLinks.classList.remove('active');
+                if (menuBtn) {
+                    menuBtn.classList.remove('open');
+                    menuBtn.innerText = '☰';
+                }
+                document.body.classList.remove('mobile-menu-open');
             }
         });
         // Theme Switcher Functions (Logged-in Users)
