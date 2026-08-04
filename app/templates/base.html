@@ -1082,7 +1082,9 @@
     {% endif %}
 
     <nav class="navbar">
+        {% set home_url = url_for('main.overview') if current_user.is_authenticated else url_for('main.index') %}
         <a href="https://www.rndecommerce.com/" class="brand" target="_blank"
+            onclick="if (window.innerWidth <= 768) { event.preventDefault(); window.location.href = '{{ home_url }}'; }"
             style="display: flex; align-items: center; margin-right: 1rem;">
             <img src="https://www.rndecommerce.com/wp-content/uploads/2025/04/RND-Logo-V1.png" alt="RND E-Ticaret"
                 style="height: 45px; transition: transform 0.3s ease;">
