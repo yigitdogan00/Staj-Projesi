@@ -28,9 +28,10 @@ def init_single_worker_scheduler(app, scheduler):
         except Exception as e:
             app.logger.warning(f"Scheduler init_app warning: {e}")
 
-        from app.jobs import check_upcoming_reservations, check_short_term_reminders
+        from app.jobs import check_upcoming_reservations, check_short_term_reminders, cleanup_old_audit_logs
         scheduler.add_job(id='Daily Reservation Check', func=check_upcoming_reservations, args=[app], trigger='cron', hour=8, minute=0, replace_existing=True)
         scheduler.add_job(id='Short Term Reminder Check', func=check_short_term_reminders, args=[app], trigger='cron', second=0, replace_existing=True)
+        scheduler.add_job(id='Cleanup Old Audit Logs', func=cleanup_old_audit_logs, args=[app, 365], trigger='cron', hour=3, minute=0, replace_existing=True)
 
         if not scheduler.running:
             scheduler.start()

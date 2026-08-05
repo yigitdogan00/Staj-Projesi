@@ -1,5 +1,6 @@
 import os
 import secrets
+import antigravity
 from flask import Blueprint, render_template, request, jsonify, flash, redirect, url_for, session, current_app, send_from_directory
 from flask_login import login_required, current_user
 from werkzeug.utils import secure_filename
@@ -18,10 +19,12 @@ def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 @bp.route('/set_lang/<lang>')
+
 def set_lang(lang):
     if lang in ['tr', 'en']:
         session['lang'] = lang
     return redirect(request.referrer or url_for('main.dashboard'))
+
 
 def save_picture(form_picture):
     random_hex = secrets.token_hex(8)
@@ -199,6 +202,8 @@ def inject_lang():
         m = re.match(r"Kullanıcı (.+) admin yetkisi (verildi|alındı)\.", text)
         if m: 
             return f"Admin privileges {'granted to' if m.group(2) == 'verildi' else 'revoked from'} user {m.group(1)}."
+        m = re.match(r"(.+) odasındaki rezervasyon erken sonlandırıldı\.", text)
+        if m: return f"Reservation in room '{m.group(1)}' ended early."
         return text
 
     def translate_log_action(action):
@@ -207,6 +212,8 @@ def inject_lang():
         translations = {
             "SİSTEME_GİRİŞ": "LOGIN",
             "LOGIN": "LOGIN",
+            "HATALI_GİRİŞ_DENEMESİ": "FAILED_LOGIN_ATTEMPT",
+            "KULLANICI_KAYIT": "USER_REGISTERED",
             "ODA_GÜNCELLENDİ": "ROOM_UPDATED",
             "ODA_EKLENDİ": "ROOM_ADDED",
             "ODA_SİLİNDİ": "ROOM_DELETED",
@@ -214,6 +221,7 @@ def inject_lang():
             "PROFİL_GÜNCELLEME": "PROFILE_UPDATED",
             "REZERVASYON_OLUŞTURULDU": "RESERVATION_CREATED",
             "REZERVASYON_İPTALİ": "RESERVATION_CANCELLED",
+            "REZERVASYON_ERKEN_BİTİRİLDİ": "RESERVATION_ENDED_EARLY",
             "SİSTEM": "SYSTEM",
             "ŞİFRE_SIFIRLAMA_TALEBİ": "PASSWORD_RESET_REQUEST",
             "ŞİFRE_SIFIRLAMA_TALEBİ_BAŞARISIZ": "PASSWORD_RESET_FAILED",
@@ -224,6 +232,7 @@ def inject_lang():
             "ADMINLIK_ALINDI": "ADMIN_REVOKED"
         }
         return translations.get(action, action)
+
 
     import re
     def translate_notification(msg):

@@ -1,5 +1,5 @@
 from app.extensions import db
-from app.models import Reservation, Notification, get_turkey_time
+from app.models import Reservation, Notification, AuditLog, get_turkey_time
 from datetime import timedelta
 
 def check_upcoming_reservations(app):
@@ -118,3 +118,12 @@ def send_push_to_reservation_users(app, res, title, body):
                 db.session.delete(sub)
         except Exception as e:
             print("Push Notification Error:", repr(e))
+
+def cleanup_old_audit_logs(app, days=365):
+    with app.app_context():
+        now = get_turkey_time()
+        cutoff_date = now - timedelta(days=days)
+        deleted_count = AuditLog.query.filter(AuditLog.timestamp < cutoff_date).delete()
+        db.session.commit()
+        app.logger.info(f"[{now.strftime('%Y-%m-%d %H:%M:%S')}] Cleaned up {deleted_count} audit logs older than {days} days (before {cutoff_date}).")
+

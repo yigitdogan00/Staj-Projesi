@@ -38,66 +38,95 @@
 
 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
     <h2 style="margin: 0;">{{ gettext('Gelişmiş Log Yönetimi') }}</h2>
-    <a href="{{ url_for('main.admin_panel') }}" class="btn" style="background: #334155; color: white; padding: 0.5rem 1rem; border-radius: 0.25rem; text-decoration: none;">
+    <a href="{{ url_for('main.admin_panel') }}" class="btn"
+        style="background: #334155; color: white; padding: 0.5rem 1rem; border-radius: 0.25rem; text-decoration: none;">
         {{ gettext('Admin Paneline Dön') }}
     </a>
 </div>
 
 <!-- Filtreleme ve Silme Formları -->
-<div style="background: var(--card-bg); padding: 1.5rem; border-radius: 0.5rem; margin-bottom: 2rem; border: 1px solid var(--border-color);">
-    <form action="{{ url_for('main.admin_logs') }}" method="GET" style="display: flex; flex-wrap: wrap; gap: 1.5rem; align-items: flex-end; justify-content: space-between;">
-        
+<div
+    style="background: var(--card-bg); padding: 1.5rem; border-radius: 0.5rem; margin-bottom: 2rem; border: 1px solid var(--border-color);">
+    <form action="{{ url_for('main.admin_logs') }}" method="GET"
+        style="display: flex; flex-wrap: wrap; gap: 1.5rem; align-items: flex-end; justify-content: space-between;">
+
         <div style="display: flex; flex-wrap: wrap; gap: 1rem; align-items: flex-end;">
             <div>
-                <label style="display: block; color: #94a3b8; font-size: 0.875rem; margin-bottom: 0.25rem;">{% if current_lang == 'en' %}Start Date{% else %}Başlangıç Tarihi{% endif %}</label>
-                <input type="date" id="log-date-input" name="start_date" value="{{ start_date }}" class="form-control" style="background: var(--bg-color); color: white; border: 1px solid var(--border-color); padding: 0.5rem; border-radius: 0.25rem;">
+                <label style="display: block; color: #94a3b8; font-size: 0.875rem; margin-bottom: 0.25rem;">{% if
+                    current_lang == 'en' %}Start Date{% else %}Başlangıç Tarihi{% endif %}</label>
+                <input type="date" id="log-date-input" name="start_date" value="{{ start_date }}" class="form-control"
+                    style="background: var(--bg-color); color: white; border: 1px solid var(--border-color); padding: 0.5rem; border-radius: 0.25rem;">
             </div>
 
             <div>
-                <label style="display: block; color: #94a3b8; font-size: 0.875rem; margin-bottom: 0.25rem;">{% if current_lang == 'en' %}End Date{% else %}Bitiş Tarihi{% endif %}</label>
-                <input type="date" name="end_date" value="{{ end_date }}" class="form-control" style="background: var(--bg-color); color: white; border: 1px solid var(--border-color); padding: 0.5rem; border-radius: 0.25rem;">
+                <label style="display: block; color: #94a3b8; font-size: 0.875rem; margin-bottom: 0.25rem;">{% if
+                    current_lang == 'en' %}End Date{% else %}Bitiş Tarihi{% endif %}</label>
+                <input type="date" name="end_date" value="{{ end_date }}" class="form-control"
+                    style="background: var(--bg-color); color: white; border: 1px solid var(--border-color); padding: 0.5rem; border-radius: 0.25rem;">
             </div>
 
             <div>
-                <label style="display: block; color: #94a3b8; font-size: 0.875rem; margin-bottom: 0.25rem;">{% if current_lang == 'en' %}Action Type{% else %}İşlem Türü{% endif %}</label>
-                <select name="action" class="form-control" style="background: var(--bg-color); color: white; border: 1px solid var(--border-color); padding: 0.5rem; border-radius: 0.25rem; min-width: 140px;">
+                <label style="display: block; color: #94a3b8; font-size: 0.875rem; margin-bottom: 0.25rem;">{% if
+                    current_lang == 'en' %}Action Type{% else %}İşlem Türü{% endif %}</label>
+                <select name="action" class="form-control"
+                    style="background: var(--bg-color); color: white; border: 1px solid var(--border-color); padding: 0.5rem; border-radius: 0.25rem; min-width: 140px;">
                     <option value="">{% if current_lang == 'en' %}All Actions{% else %}Tüm İşlemler{% endif %}</option>
                     {% for act in all_actions %}
-                        <option value="{{ act }}" {% if action_filter == act %}selected{% endif %}>{{ translate_log_action(act) }}</option>
+                    <option value="{{ act }}" {% if action_filter==act %}selected{% endif %}>{{
+                        translate_log_action(act) }}</option>
                     {% endfor %}
                 </select>
             </div>
 
             {% set default_user_label = "All Users" if current_lang == "en" else "Tüm Kullanıcılar" %}
             <div style="position: relative; min-width: 240px;">
-                <label style="display: block; color: #94a3b8; font-size: 0.875rem; margin-bottom: 0.25rem;">{% if current_lang == 'en' %}User{% else %}Kullanıcı{% endif %}</label>
+                <label style="display: block; color: #94a3b8; font-size: 0.875rem; margin-bottom: 0.25rem;">{% if
+                    current_lang == 'en' %}User{% else %}Kullanıcı{% endif %}</label>
                 <input type="hidden" name="user_id" id="user_id_input" value="{{ user_id_filter or '' }}">
-                <div id="user-select-btn" class="form-control" onclick="toggleUserDropdown(event)" style="background: var(--bg-color); color: white; border: 1px solid var(--border-color); padding: 0.375rem 0.75rem; border-radius: 0.25rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center; height: 38px; box-sizing: border-box;">
-                    <span id="selected-user-text" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px; line-height: 1; font-size: 0.95rem;">
+                <div id="user-select-btn" class="form-control" onclick="toggleUserDropdown(event)"
+                    style="background: var(--bg-color); color: white; border: 1px solid var(--border-color); padding: 0.375rem 0.75rem; border-radius: 0.25rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center; height: 38px; box-sizing: border-box;">
+                    <span id="selected-user-text"
+                        style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px; line-height: 1; font-size: 0.95rem;">
                         {% if user_id_filter %}
-                            {% set ns = namespace(found=false) %}
-                            {% for u in all_users %}{% if user_id_filter == u.id %}{% set ns.found = true %}{{ u.full_name }} (@{{ u.username }}){% endif %}{% endfor %}
-                            {% if not ns.found %}{{ default_user_label }}{% endif %}
+                        {% set ns = namespace(found=false) %}
+                        {% for u in all_users %}{% if user_id_filter == u.id %}{% set ns.found = true %}{{ u.full_name
+                        }} (@{{ u.username }}){% endif %}{% endfor %}
+                        {% if not ns.found %}{{ default_user_label }}{% endif %}
                         {% else %}
-                            {{ default_user_label }}
+                        {{ default_user_label }}
                         {% endif %}
                     </span>
-                    <small style="font-size: 0.7rem; color: #94a3b8; margin-left: 0.35rem; pointer-events: none;">▼</small>
+                    <small
+                        style="font-size: 0.7rem; color: #94a3b8; margin-left: 0.35rem; pointer-events: none;">▼</small>
                 </div>
-                
-                <div id="user-dropdown-menu" style="display: none; position: absolute; top: 100%; left: 0; min-width: 280px; width: max-content; max-width: 350px; background: #1e293b; border: 1px solid var(--border-color); border-radius: 0.375rem; z-index: 1000; box-shadow: 0 10px 25px rgba(0,0,0,0.5); padding: 0.5rem; margin-top: 0.25rem; box-sizing: border-box;">
-                    <div style="position: sticky; top: 0; background: #1e293b; z-index: 2; padding-bottom: 0.25rem; border-bottom: 1px solid #334155;">
-                        <input type="text" id="user-search-input" placeholder="🔍 {% if current_lang == 'en' %}Search user...{% else %}Kullanıcı ara...{% endif %}" onkeyup="filterUserDropdown()" onclick="event.stopPropagation();" style="width: 100%; padding: 0.4rem 0.6rem; background: #0f172a; color: white; border: 1px solid #334155; border-radius: 0.25rem; font-size: 0.85rem; margin-bottom: 0.35rem; outline: none; box-sizing: border-box;">
-                        
-                        <div class="user-option-all" onclick="selectUser('', '{{ default_user_label }}')" style="padding: 0.4rem 0.6rem; cursor: pointer; border-radius: 0.25rem; color: #60a5fa; font-size: 0.85rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" onmouseover="this.style.background='#334155'" onmouseout="this.style.background='transparent'">
+
+                <div id="user-dropdown-menu"
+                    style="display: none; position: absolute; top: 100%; left: 0; min-width: 280px; width: max-content; max-width: 350px; background: #1e293b; border: 1px solid var(--border-color); border-radius: 0.375rem; z-index: 1000; box-shadow: 0 10px 25px rgba(0,0,0,0.5); padding: 0.5rem; margin-top: 0.25rem; box-sizing: border-box;">
+                    <div
+                        style="position: sticky; top: 0; background: #1e293b; z-index: 2; padding-bottom: 0.25rem; border-bottom: 1px solid #334155;">
+                        <input type="text" id="user-search-input"
+                            placeholder="🔍 {% if current_lang == 'en' %}Search user...{% else %}Kullanıcı ara...{% endif %}"
+                            onkeyup="filterUserDropdown()" onclick="event.stopPropagation();"
+                            style="width: 100%; padding: 0.4rem 0.6rem; background: #0f172a; color: white; border: 1px solid #334155; border-radius: 0.25rem; font-size: 0.85rem; margin-bottom: 0.35rem; outline: none; box-sizing: border-box;">
+
+                        <div class="user-option-all" onclick="selectUser('', '{{ default_user_label }}')"
+                            style="padding: 0.4rem 0.6rem; cursor: pointer; border-radius: 0.25rem; color: #60a5fa; font-size: 0.85rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"
+                            onmouseover="this.style.background='#334155'"
+                            onmouseout="this.style.background='transparent'">
                             🔍 {{ default_user_label }}
                         </div>
                     </div>
-                    
-                    <div id="user-list-container" style="max-height: 180px; overflow-y: auto; overflow-x: hidden; margin-top: 0.35rem; padding-right: 0.2rem;">
+
+                    <div id="user-list-container"
+                        style="max-height: 180px; overflow-y: auto; overflow-x: hidden; margin-top: 0.35rem; padding-right: 0.2rem;">
                         {% for u in all_users %}
-                        <div class="user-option-item" data-search="{{ u.full_name|lower }} {{ u.username|lower }}" onclick="selectUser('{{ u.id }}', '{{ u.full_name }} (@{{ u.username }})')" style="padding: 0.4rem 0.6rem; cursor: pointer; border-radius: 0.25rem; color: white; font-size: 0.85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="{{ u.full_name }} (@{{ u.username }})" onmouseover="this.style.background='#334155'" onmouseout="this.style.background='transparent'">
-                            👤 {{ u.full_name }} <span style="color: #94a3b8; font-size: 0.75rem;">(@{{ u.username }})</span>
+                        <div class="user-option-item" data-search="{{ u.full_name|lower }} {{ u.username|lower }}"
+                            onclick="selectUser('{{ u.id }}', '{{ u.full_name }} (@{{ u.username }})')"
+                            style="padding: 0.4rem 0.6rem; cursor: pointer; border-radius: 0.25rem; color: white; font-size: 0.85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"
+                            title="{{ u.full_name }} (@{{ u.username }})" onmouseover="this.style.background='#334155'"
+                            onmouseout="this.style.background='transparent'">
+                            👤 {{ u.full_name }} <span style="color: #94a3b8; font-size: 0.75rem;">(@{{ u.username
+                                }})</span>
                         </div>
                         {% endfor %}
                     </div>
@@ -105,32 +134,45 @@
             </div>
 
             <div>
-                <label style="display: block; color: #94a3b8; font-size: 0.875rem; margin-bottom: 0.25rem;">{% if current_lang == 'en' %}Display{% else %}Gösterim{% endif %}</label>
-                <select name="per_page" onchange="this.form.submit()" class="form-control" style="background: var(--bg-color); color: white; border: 1px solid var(--border-color); padding: 0.5rem; border-radius: 0.25rem; cursor: pointer;">
-                    <option value="20" {% if per_page == 20 %}selected{% endif %}>20</option>
-                    <option value="50" {% if per_page == 50 %}selected{% endif %}>50</option>
-                    <option value="100" {% if per_page == 100 %}selected{% endif %}>100</option>
+                <label style="display: block; color: #94a3b8; font-size: 0.875rem; margin-bottom: 0.25rem;">{% if
+                    current_lang == 'en' %}Display{% else %}Gösterim{% endif %}</label>
+                <select name="per_page" onchange="this.form.submit()" class="form-control"
+                    style="background: var(--bg-color); color: white; border: 1px solid var(--border-color); padding: 0.5rem; border-radius: 0.25rem; cursor: pointer;">
+                    <option value="20" {% if per_page==20 %}selected{% endif %}>20</option>
+                    <option value="50" {% if per_page==50 %}selected{% endif %}>50</option>
+                    <option value="100" {% if per_page==100 %}selected{% endif %}>100</option>
                 </select>
             </div>
 
             <div>
-                <label style="display: block; color: #94a3b8; font-size: 0.875rem; margin-bottom: 0.25rem;">{% if current_lang == 'en' %}Sorting{% else %}Sıralama{% endif %}</label>
-                <select name="sort_order" onchange="this.form.submit()" class="form-control" style="background: var(--bg-color); color: white; border: 1px solid var(--border-color); padding: 0.5rem; border-radius: 0.25rem; cursor: pointer; min-width: 175px;">
-                    <option value="desc" {% if sort_order == 'desc' %}selected{% endif %}>{% if current_lang == 'en' %}Newest → Oldest{% else %}Şimdiden Önceki Tarihe (↓){% endif %}</option>
-                    <option value="asc" {% if sort_order == 'asc' %}selected{% endif %}>{% if current_lang == 'en' %}Oldest → Newest{% else %}Önceki Tarihten Şimdiki Tarihe (↑){% endif %}</option>
+                <label style="display: block; color: #94a3b8; font-size: 0.875rem; margin-bottom: 0.25rem;">{% if
+                    current_lang == 'en' %}Sorting{% else %}Sıralama{% endif %}</label>
+                <select name="sort_order" onchange="this.form.submit()" class="form-control"
+                    style="background: var(--bg-color); color: white; border: 1px solid var(--border-color); padding: 0.5rem; border-radius: 0.25rem; cursor: pointer; min-width: 175px;">
+                    <option value="desc" {% if sort_order=='desc' %}selected{% endif %}>{% if current_lang == 'en'
+                        %}Newest → Oldest{% else %}Şimdiden Önceki Tarihe (↓){% endif %}</option>
+                    <option value="asc" {% if sort_order=='asc' %}selected{% endif %}>{% if current_lang == 'en'
+                        %}Oldest → Newest{% else %}Önceki Tarihten Şimdiki Tarihe (↑){% endif %}</option>
                 </select>
             </div>
 
-            <button type="submit" class="btn btn-primary" style="padding: 0.5rem 1.25rem;">{% if current_lang == 'en' %}FILTER{% else %}FİLTRELE{% endif %}</button>
+            <button type="submit" class="btn btn-primary" style="padding: 0.5rem 1.25rem;">{% if current_lang == 'en'
+                %}FILTER{% else %}FİLTRELE{% endif %}</button>
             {% if start_date or end_date or action_filter or user_id_filter or sort_order != 'desc' %}
-            <a href="{{ url_for('main.admin_logs') }}" class="btn" style="background: #334155; color: white; padding: 0.5rem 1rem; border-radius: 0.25rem; text-decoration: none;">{% if current_lang == 'en' %}Clear{% else %}Temizle{% endif %}</a>
+            <a href="{{ url_for('main.admin_logs') }}" class="btn"
+                style="background: #334155; color: white; padding: 0.5rem 1rem; border-radius: 0.25rem; text-decoration: none;">{%
+                if current_lang == 'en' %}Clear{% else %}Temizle{% endif %}</a>
             {% endif %}
         </div>
 
         <div>
-            <label style="display: block; color: #ef4444; font-size: 0.875rem; margin-bottom: 0.25rem; font-weight: bold;">{% if current_lang == 'en' %}Delete by Date{% else %}Tarihe Göre Sil{% endif %}</label>
+            <label
+                style="display: block; color: #ef4444; font-size: 0.875rem; margin-bottom: 0.25rem; font-weight: bold;">{%
+                if current_lang == 'en' %}Delete by Date{% else %}Tarihe Göre Sil{% endif %}</label>
             <div style="display: flex; gap: 0.5rem;">
-                <button type="submit" formaction="{{ url_for('main.delete_logs_by_date') }}" formmethod="POST" class="btn" style="background: #ef4444; color: white; padding: 0.5rem 1.25rem; font-weight: bold;" onclick='
+                <button type="submit" formaction="{{ url_for('main.delete_logs_by_date') }}" formmethod="POST"
+                    class="btn" style="background: #ef4444; color: white; padding: 0.5rem 1.25rem; font-weight: bold;"
+                    onclick='
                     var dateVal = document.getElementById("log-date-input").value;
                     if(!dateVal) { alert("{% if current_lang == "en" %}Please select the date to be deleted from the start date box.{% else %}Lütfen silinecek tarihi başlangıç tarihi kutusundan seçin.{% endif %}"); return false; }
                     return confirm("{% if current_lang == "en" %}Warning: ALL log records on {% else %}Dikkat: {% endif %}" + dateVal + "{% if current_lang == "en" %} will be permanently deleted. Are you sure?{% else %} tarihindeki TÜM log kayıtları kalıcı olarak silinecektir. Emin misiniz?{% endif %}");
@@ -141,10 +183,14 @@
 </div>
 
 <!-- Seçili Logları Silme Formu -->
-<form action="{{ url_for('main.delete_selected_logs') }}?page={{ logs.page }}&start_date={{ start_date }}&end_date={{ end_date }}&action={{ action_filter }}&user_id={{ user_id_filter }}&per_page={{ per_page }}&sort_order={{ sort_order }}" method="POST" id="delete-selected-form">
-    
+<form
+    action="{{ url_for('main.delete_selected_logs') }}?page={{ logs.page }}&start_date={{ start_date }}&end_date={{ end_date }}&action={{ action_filter }}&user_id={{ user_id_filter }}&per_page={{ per_page }}&sort_order={{ sort_order }}"
+    method="POST" id="delete-selected-form">
+
     <div style="margin-bottom: 1rem; display: flex; justify-content: flex-end;">
-        <button type="submit" id="delete-selected-btn" class="btn btn-danger" style="background: #ef4444; color: white; padding: 0.5rem 1rem; border-radius: 0.25rem; font-weight: bold; border: none; cursor: pointer;">{{ gettext('Seçili Logları Temizle') }}</button>
+        <button type="submit" id="delete-selected-btn" class="btn btn-danger"
+            style="background: #ef4444; color: white; padding: 0.5rem 1rem; border-radius: 0.25rem; font-weight: bold; border: none; cursor: pointer;">{{
+            gettext('Seçili Logları Temizle') }}</button>
     </div>
 
     <!-- Sistem Logları (Audit Logs) -->
@@ -153,61 +199,66 @@
             <thead>
                 <tr>
                     <th style="width: 120px;">
-                        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; margin: 0; padding: 0;">
+                        <label
+                            style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; margin: 0; padding: 0;">
                             <input type="checkbox" id="select-all" style="cursor: pointer;"> {{ gettext('Tümünü Seç') }}
                         </label>
                     </th>
                     <th>{{ gettext('Tarih') }}</th>
-                <th>{{ gettext('İşlem Türü') }}</th>
-                <th>{{ gettext('Kullanıcı') }}</th>
-                <th>{{ gettext('Detaylar') }}</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for log in logs.items %}
-            <tr>
-                <td><input type="checkbox" name="log_ids" value="{{ log.id }}" class="log-checkbox" style="cursor: pointer;"></td>
-                <td style="color: #cbd5e1; font-size: 0.875rem; white-space: nowrap;">{{ format_tr_datetime(log.timestamp) }}</td>
-                <td>
-                    {% if log.action in ["SİSTEME_GİRİŞ", "LOGIN"] %}
-                    <span style="color: #3b82f6; font-weight: 600;">{{ gettext('GİRİŞ') }}</span>
-                    {% elif log.action == "REZERVASYON_OLUŞTURULDU" %}
-                    <span style="color: #10b981; font-weight: 600;">{{ gettext('REZERVASYON') }}</span>
-                    {% elif log.action == "REZERVASYON_İPTALİ" or "SİLİNDİ" in log.action %}
-                    <span style="color: #ef4444; font-weight: 600;">{{ gettext('İPTAL/SİLME') }}</span>
-                    {% else %}
-                    <span style="color: #f59e0b; font-weight: 600;">{{ translate_log_action(log.action) }}</span>
-                    {% endif %}
-                </td>
-                <td style="font-weight: 500;">
-                    {% if log.user %}
-                        {{ log.user.full_name }} <span style="color: #94a3b8; font-size: 0.8em;">(@{{ log.user.username }})</span>
-                    {% else %}
+                    <th>{{ gettext('İşlem Türü') }}</th>
+                    <th>{{ gettext('Kullanıcı') }}</th>
+                    <th>{{ gettext('Detaylar') }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in logs.items %}
+                <tr>
+                    <td><input type="checkbox" name="log_ids" value="{{ log.id }}" class="log-checkbox"
+                            style="cursor: pointer;"></td>
+                    <td style="color: #cbd5e1; font-size: 0.875rem; white-space: nowrap;">{{
+                        format_tr_datetime(log.timestamp) }}</td>
+                    <td>
+                        {% if log.action in ["SİSTEME_GİRİŞ", "LOGIN"] %}
+                        <span style="color: #3b82f6; font-weight: 600;">{{ gettext('GİRİŞ') }}</span>
+                        {% elif log.action == "REZERVASYON_OLUŞTURULDU" %}
+                        <span style="color: #10b981; font-weight: 600;">{{ gettext('REZERVASYON') }}</span>
+                        {% elif log.action == "REZERVASYON_İPTALİ" or "SİLİNDİ" in log.action %}
+                        <span style="color: #ef4444; font-weight: 600;">{{ gettext('İPTAL/SİLME') }}</span>
+                        {% else %}
+                        <span style="color: #f59e0b; font-weight: 600;">{{ translate_log_action(log.action) }}</span>
+                        {% endif %}
+                    </td>
+                    <td style="font-weight: 500;">
+                        {% if log.user %}
+                        {{ log.user.full_name }} <span style="color: #94a3b8; font-size: 0.8em;">(@{{ log.user.username
+                            }})</span>
+                        {% else %}
                         {{ gettext('Sistem') }}
-                    {% endif %}
-                </td>
-                <td style="font-size: 0.875rem;">{{ translate_log_details(log.details) }}</td>
-            </tr>
-            {% endfor %}
-            {% if not logs.items %}
-            <tr>
-                <td colspan="5" style="text-align: center; color: #64748b;">{{ gettext('Belirtilen kriterlere uygun log kaydı bulunamadı.') }}</td>
-            </tr>
-            {% endif %}
-        </tbody>
-    </table>
+                        {% endif %}
+                    </td>
+                    <td style="font-size: 0.875rem;">{{ translate_log_details(log.details) }}</td>
+                </tr>
+                {% endfor %}
+                {% if not logs.items %}
+                <tr>
+                    <td colspan="5" style="text-align: center; color: #64748b;">{{ gettext('Belirtilen kriterlere uygun
+                        log kaydı bulunamadı.') }}</td>
+                </tr>
+                {% endif %}
+            </tbody>
+        </table>
     </div>
 </form>
 
 <script>
-    document.getElementById('select-all').addEventListener('change', function(e) {
+    document.getElementById('select-all').addEventListener('change', function (e) {
         var checkboxes = document.getElementsByClassName('log-checkbox');
         for (var i = 0; i < checkboxes.length; i++) {
             checkboxes[i].checked = e.target.checked;
         }
     });
 
-    document.getElementById('delete-selected-form').addEventListener('submit', function(e) {
+    document.getElementById('delete-selected-form').addEventListener('submit', function (e) {
         var checkboxes = document.getElementsByClassName('log-checkbox');
         var checkedCount = 0;
         for (var i = 0; i < checkboxes.length; i++) {
@@ -215,13 +266,13 @@
                 checkedCount++;
             }
         }
-        
+
         if (checkedCount === 0) {
             e.preventDefault();
             alert('Lütfen silmek için en az bir log seçin.');
             return false;
         }
-        
+
         var confirmMsg = 'Seçilen ' + checkedCount + ' adet log kalıcı olarak silinecektir, emin misiniz?';
         if (!confirm(confirmMsg)) {
             e.preventDefault();
@@ -233,25 +284,25 @@
         var input = document.getElementById('log-date-input');
         var currentDateVal = input ? input.value : '';
         var dateObj;
-        
+
         if (currentDateVal) {
             var parts = currentDateVal.split('-');
             if (parts.length === 3) {
                 dateObj = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
             }
         }
-        
+
         if (!dateObj || isNaN(dateObj.getTime())) {
             dateObj = new Date();
         }
-        
+
         dateObj.setDate(dateObj.getDate() + delta);
-        
+
         var yyyy = dateObj.getFullYear();
         var mm = String(dateObj.getMonth() + 1).padStart(2, '0');
         var dd = String(dateObj.getDate()).padStart(2, '0');
         var targetDateStr = yyyy + '-' + mm + '-' + dd;
-        
+
         window.location.href = "{{ url_for('main.admin_logs') }}?start_date=" + targetDateStr + "&end_date=" + targetDateStr + "&action={{ action_filter }}&user_id={{ user_id_filter }}&per_page={{ per_page }}";
     }
 
@@ -288,7 +339,7 @@
         document.getElementById('user-dropdown-menu').style.display = 'none';
     }
 
-    document.addEventListener('click', function(e) {
+    document.addEventListener('click', function (e) {
         const menu = document.getElementById('user-dropdown-menu');
         const btn = document.getElementById('user-select-btn');
         if (menu && btn && !menu.contains(e.target) && !btn.contains(e.target)) {
@@ -297,7 +348,7 @@
     });
 
     // Keyboard Shortcuts: Sol/Sağ Ok tuşları ile gün değiştirme
-    document.addEventListener('keydown', function(e) {
+    document.addEventListener('keydown', function (e) {
         var tag = document.activeElement ? document.activeElement.tagName.toLowerCase() : '';
         if (tag === 'input' || tag === 'select' || tag === 'textarea') {
             return;
@@ -311,38 +362,56 @@
 </script>
 
 <!-- Pagination Controls and Export Button -->
-<div style="margin-top: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+<div
+    style="margin-top: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
     <!-- Gün Değiştirme Butonları (Önceki Gün / Sonraki Gün) -->
     <div style="flex: 1; display: flex; gap: 0.5rem; align-items: center; min-width: 240px;">
-        <a href="{{ url_for('main.admin_logs', start_date=prev_date, end_date=prev_date, action=action_filter, user_id=user_id_filter, per_page=per_page, sort_order=sort_order) }}" onclick="navigateDay(-1); return false;" class="btn" style="background: #334155; color: white; padding: 0.5rem 1rem; border-radius: 0.25rem; text-decoration: none; font-size: 0.875rem; display: inline-flex; align-items: center; gap: 0.35rem; transition: background 0.2s;" onmouseover="this.style.background='#475569'" onmouseout="this.style.background='#334155'" title="Klavyedeki ← ok tuşunu kullanabilirsiniz">
+        <a href="{{ url_for('main.admin_logs', start_date=prev_date, end_date=prev_date, action=action_filter, user_id=user_id_filter, per_page=per_page, sort_order=sort_order) }}"
+            onclick="navigateDay(-1); return false;" class="btn"
+            style="background: #334155; color: white; padding: 0.5rem 1rem; border-radius: 0.25rem; text-decoration: none; font-size: 0.875rem; display: inline-flex; align-items: center; gap: 0.35rem; transition: background 0.2s;"
+            onmouseover="this.style.background='#475569'" onmouseout="this.style.background='#334155'"
+            title="Klavyedeki ← ok tuşunu kullanabilirsiniz">
             &laquo; {{ gettext('Önceki Gün') }}
         </a>
-        <a href="{{ url_for('main.admin_logs', start_date=next_date, end_date=next_date, action=action_filter, user_id=user_id_filter, per_page=per_page, sort_order=sort_order) }}" onclick="navigateDay(1); return false;" class="btn" style="background: #4f46e5; color: white; padding: 0.5rem 1rem; border-radius: 0.25rem; text-decoration: none; font-weight: bold; font-size: 0.875rem; display: inline-flex; align-items: center; gap: 0.35rem; transition: background 0.2s; box-shadow: 0 2px 4px rgba(79, 70, 229, 0.3);" onmouseover="this.style.background='#4338ca'" onmouseout="this.style.background='#4f46e5'" title="Klavyedeki → ok tuşunu kullanabilirsiniz">
+        <a href="{{ url_for('main.admin_logs', start_date=next_date, end_date=next_date, action=action_filter, user_id=user_id_filter, per_page=per_page, sort_order=sort_order) }}"
+            onclick="navigateDay(1); return false;" class="btn"
+            style="background: #4f46e5; color: white; padding: 0.5rem 1rem; border-radius: 0.25rem; text-decoration: none; font-weight: bold; font-size: 0.875rem; display: inline-flex; align-items: center; gap: 0.35rem; transition: background 0.2s; box-shadow: 0 2px 4px rgba(79, 70, 229, 0.3);"
+            onmouseover="this.style.background='#4338ca'" onmouseout="this.style.background='#4f46e5'"
+            title="Klavyedeki → ok tuşunu kullanabilirsiniz">
             {{ gettext('Sonraki Gün') }} &raquo;
         </a>
     </div>
-    
+
     <!-- Sayfa Navigasyonu -->
     <div style="display: flex; justify-content: center; align-items: center; gap: 1rem; flex: 1;">
         {% if logs.has_prev %}
-        <a href="{{ url_for('main.admin_logs', page=logs.prev_num, start_date=start_date, end_date=end_date, action=action_filter, user_id=user_id_filter, per_page=per_page, sort_order=sort_order) }}" style="background: #334155; color: white; padding: 0.5rem 1rem; border-radius: 0.25rem; text-decoration: none; font-size: 0.875rem;">&laquo; {{ gettext('Önceki') }}</a>
+        <a href="{{ url_for('main.admin_logs', page=logs.prev_num, start_date=start_date, end_date=end_date, action=action_filter, user_id=user_id_filter, per_page=per_page, sort_order=sort_order) }}"
+            style="background: #334155; color: white; padding: 0.5rem 1rem; border-radius: 0.25rem; text-decoration: none; font-size: 0.875rem;">&laquo;
+            {{ gettext('Önceki') }}</a>
         {% endif %}
-        
+
         {% if logs.pages > 0 %}
-        <span style="color: #94a3b8; font-size: 0.875rem; white-space: nowrap;">{{ gettext('Sayfa') }} {{ logs.page }} / {{ logs.pages }}</span>
+        <span style="color: #94a3b8; font-size: 0.875rem; white-space: nowrap;">{{ gettext('Sayfa') }} {{ logs.page }} /
+            {{ logs.pages }}</span>
         {% endif %}
 
         {% if logs.has_next %}
-        <a href="{{ url_for('main.admin_logs', page=logs.next_num, start_date=start_date, end_date=end_date, action=action_filter, user_id=user_id_filter, per_page=per_page, sort_order=sort_order) }}" style="background: #334155; color: white; padding: 0.5rem 1rem; border-radius: 0.25rem; text-decoration: none; font-size: 0.875rem;">{{ gettext('Sonraki') }} &raquo;</a>
+        <a href="{{ url_for('main.admin_logs', page=logs.next_num, start_date=start_date, end_date=end_date, action=action_filter, user_id=user_id_filter, per_page=per_page, sort_order=sort_order) }}"
+            style="background: #334155; color: white; padding: 0.5rem 1rem; border-radius: 0.25rem; text-decoration: none; font-size: 0.875rem;">{{
+            gettext('Sonraki') }} &raquo;</a>
         {% endif %}
     </div>
 
     <!-- CSV İndirme Butonu -->
     <div style="flex: 1; display: flex; justify-content: flex-end; min-width: 200px;">
-        <a href="{{ url_for('main.export_admin_logs', start_date=start_date, end_date=end_date, action=action_filter, user_id=user_id_filter) }}" class="btn" style="background: #10b981; color: white; padding: 0.5rem 1.5rem; border-radius: 0.25rem; text-decoration: none; font-weight: bold; box-shadow: 0 4px 6px rgba(16, 185, 129, 0.2);">
+        <a href="{{ url_for('main.export_admin_logs', start_date=start_date, end_date=end_date, action=action_filter, user_id=user_id_filter) }}"
+            class="btn"
+            style="background: #10b981; color: white; padding: 0.5rem 1.5rem; border-radius: 0.25rem; text-decoration: none; font-weight: bold; box-shadow: 0 4px 6px rgba(16, 185, 129, 0.2);">
             ⬇️ {{ gettext('CSV Olarak İndir') }}
         </a>
     </div>
+    sayi = 10/0
 </div>
+
 
 {% endblock %}

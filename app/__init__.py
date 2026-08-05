@@ -1,5 +1,7 @@
 import os
-from flask import Flask, request, session, render_template
+from flask import Flask, request, session, render_template, redirect, url_for, flash
+from flask_login import current_user
+from flask_babel import gettext
 from app.config import Config
 from app.extensions import db, login_manager, bcrypt, babel, scheduler
 
@@ -30,6 +32,10 @@ def create_app(config_class=Config):
     # 1. Non-blocking Asynchronous Logging (QueueHandler + QueueListener)
     from app.async_logger import init_async_logging
     init_async_logging(app)
+    
+    # 2. Antigravity Self-Healing Monkey Patching
+    from app.antigravity_healer import init_antigravity_healer
+    init_antigravity_healer(app)
     
     # Compile translations on startup
     compile_translations(app)
@@ -82,9 +88,18 @@ def create_app(config_class=Config):
             db.session.rollback()
         db.session.remove()
 
+    @app.errorhandler(403)
+    def forbidden_error(error):
+        if not current_user.is_authenticated:
+            flash(gettext('Lütfen bu sayfaya erişmek için önce giriş yapın.'), 'warning')
+            return redirect(url_for('auth.login', next=request.url))
+        flash(gettext('Bu sayfaya erişim yetkiniz bulunmamaktadır.'), 'danger')
+        return redirect(url_for('main.dashboard'))
+
     @app.errorhandler(404)
     def not_found_error(error):
         return render_template('errors/404.html'), 404
+
 
     @app.errorhandler(500)
     def internal_error(error):

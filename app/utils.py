@@ -1,6 +1,7 @@
 from functools import wraps
-from flask import abort, current_app
+from flask import abort, current_app, redirect, url_for, flash, request
 from flask_login import current_user
+from flask_babel import gettext
 from itsdangerous import URLSafeSerializer
 
 # send_email removed
@@ -8,10 +9,15 @@ from itsdangerous import URLSafeSerializer
 def admin_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        if not current_user.is_authenticated or not current_user.is_admin:
-            abort(403)
+        if not current_user.is_authenticated:
+            flash(gettext('Lütfen bu sayfaya erişmek için önce giriş yapın.'), 'warning')
+            return redirect(url_for('auth.login', next=request.url))
+        if not current_user.is_admin:
+            flash(gettext('Bu sayfaya erişim yetkiniz bulunmamaktadır.'), 'danger')
+            return redirect(url_for('main.dashboard'))
         return f(*args, **kwargs)
     return decorated_function
+
 
 COMMON_TURKISH_NAMES = {
     'yigit': 'Yiğit', 'ahmet': 'Ahmet', 'mehmet': 'Mehmet', 'ali': 'Ali', 'can': 'Can',
@@ -122,6 +128,9 @@ def generate_google_calendar_url(room_name, date, start_time, end_time):
 def log_action(user_id, action, details=None):
     from app.models import AuditLog
     from app.extensions import db
+    from app.async_logger import mask_sensitive_data
+    if details:
+        details = mask_sensitive_data(details)
     log = AuditLog(user_id=user_id, action=action, details=details)
     db.session.add(log)
     db.session.commit()

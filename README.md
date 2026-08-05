@@ -95,6 +95,15 @@ python run.py
 Tarayıcınızdan aşağıdaki adreslere giderek uygulamaya erişebilirsiniz:
 - **Ana Uygulama:** `http://localhost:5000`
 
+## Log Yönetimi ve Güvenli Saklama
+
+Projede performans, sistem güvenliği ve veri saklama standartlarına uygun loglama mimarisi uygulanmıştır:
+
+- **Asenkron Sistem Loglaması (Non-blocking Logging):** Uygulama istek yanıt sürelerini olumsuz etkilememek adına arka plan kuyruk mimarisi (`QueueHandler` / `QueueListener`) kullanılarak sistem logları asenkron şekilde saklanır.
+- **Otomatik Log Rotasyonu:** Log dosyalarının sistem kaynağını aşırı tüketmesini önlemek amacıyla limitli döngüsel dosya rotasyonu (Log Rotation) uygulanmaktadır.
+- **Hassas Veri Maskeleme (Log Anonymization):** KVKK/GDPR uyumluluğu ve veri güvenliği ilkeleri doğrultusunda; şifreler, T.C. Kimlik Numaraları, kredi kartı bilgileri, doğrulama kodları ve erişim anahtarları log dosyalarına ve veritabanı kayıtlarına yazılmadan önce regex tabanlı filtreler (`SensitiveDataFilter` / `SensitiveDataFormatter`) tarafından otomatik olarak anonimleştirilir (`[MASKED]`).
+- **Periyodik Otomatik Veri Temizliği (Retention Policy):** Arka planda çalışan zamanlanmış görevler (APScheduler Cron Job) aracılığıyla, belirlenen saklama süresini aşan sistem denetim kayıtları otomatik ve güvenli bir şekilde temizlenmektedir.
+
 ## Sık Karşılaşılan Sorunlar
 
 - **"ModuleNotFoundError" Hatası:** Sanal ortamı (`venv`) aktifleştirmeyi unuttuğunuzda yaşanabilir. Komut satırında 2. adımdaki `activate` komutunu tekrar çalıştırın.
