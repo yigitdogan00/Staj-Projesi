@@ -53,12 +53,19 @@ def check_short_term_reminders(app):
         hour_1_str = target_time_1.strftime('%H:%M')
         
         def notify_users(res, title, body):
-            users_to_notify = [res.user_id] + [a.id for a in res.attendees if a.id != res.user_id]
+            accepted_attendees = []
+            for a in res.attendees:
+                if a.id != res.user_id:
+                    inv_notif = Notification.query.filter_by(user_id=a.id, reservation_id=res.id, type='invitation').first()
+                    if inv_notif and inv_notif.status == 'accepted':
+                        accepted_attendees.append(a.id)
+
+            users_to_notify = [res.user_id] + accepted_attendees
             for uid in users_to_notify:
                 notif = Notification(user_id=uid, type='info', message=body)
                 db.session.add(notif)
                     
-            send_push_to_reservation_users(app, res, title, body)
+            send_push_to_reservation_users(app, res, title, body, users_to_notify)
             
         # --- Process 60 min reminders ---
         res_60 = Reservation.query.filter_by(date=date_60_str, start_time=hour_60_str).all()
@@ -98,10 +105,12 @@ def check_short_term_reminders(app):
         if res_30 or res_60 or res_1:
             print(f"[{now.strftime('%Y-%m-%d %H:%M:%S')}] Sent reminders: {len(res_60)} (60min), {len(res_30)} (30min), {len(res_1)} (1min).")
 
-def send_push_to_reservation_users(app, res, title, body):
+def send_push_to_reservation_users(app, res, title, body, users_to_notify=None):
     from app.models import PushSubscription
-    users_to_notify = [res.user_id] + [a.id for a in res.attendees if a.id != res.user_id]
+    if users_to_notify is None:
+        users_to_notify = [res.user_id] + [a.id for a in res.attendees if a.id != res.user_id]
     subscriptions = PushSubscription.query.filter(PushSubscription.user_id.in_(users_to_notify)).all()
+
     
     for sub in subscriptions:
         try:
