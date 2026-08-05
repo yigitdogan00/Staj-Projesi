@@ -17,31 +17,32 @@
             <span class="res-date">{{ res.date }}</span>
         </div>
         <div class="res-body">
-            <div style="font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem; color: #f8fafc;">
+            <div class="res-time-text" style="font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem; color: var(--text-color);">
                 {{ res.start_time }} - {{ res.end_time }}
             </div>
 
             {% if res.attendees %}
             <div style="margin-bottom: 1rem; font-size: 0.875rem;">
-                <strong style="color: #cbd5e1;">{% if current_lang == 'en' %}Attendees{% else %}Davetliler{% endif %}:</strong>
+                <strong class="res-label" style="color: var(--text-color); opacity: 0.85;">{% if current_lang == 'en' %}Attendees{% else %}Davetliler{% endif %}:</strong>
                 <div style="display: flex; flex-wrap: wrap; gap: 0.25rem; margin-top: 0.5rem;">
                     {% for attendee in res.attendees %}
-                    <span style="background: rgba(79, 70, 229, 0.2); padding: 0.25rem 0.5rem; border-radius: 4px; color: #a5b4fc;">{{ attendee.username }}</span>
+                    <span style="background: rgba(79, 70, 229, 0.2); padding: 0.25rem 0.5rem; border-radius: 4px; color: var(--primary);">{{ attendee.username }}</span>
                     {% endfor %}
                 </div>
             </div>
             {% endif %}
 
             {% if res.note %}
-            <div style="margin-bottom: 1rem; padding: 0.6rem 0.75rem; background: rgba(99, 102, 241, 0.12); border-left: 3px solid #6366f1; border-radius: 6px; font-size: 0.85rem; color: #e2e8f0; line-height: 1.4;">
-                <strong style="color: #a5b4fc;">📝 {% if current_lang == 'en' %}Note{% else %}Not{% endif %}:</strong> {{ res.note }}
+            <div class="res-note-box" style="margin-bottom: 1rem; padding: 0.75rem 1rem; background: rgba(99, 102, 241, 0.1); border: 1px solid rgba(99, 102, 241, 0.25); border-radius: 12px; font-size: 0.875rem; color: var(--text-color); line-height: 1.5;">
+                <strong class="res-note-title" style="color: #6366f1;">📝 {% if current_lang == 'en' %}Note{% else %}Not{% endif %}:</strong> {{ res.note }}
             </div>
             {% endif %}
 
             {% if res.documents %}
 
             <div style="margin-bottom: 1rem;">
-                <strong style="color: #cbd5e1; font-size: 0.875rem;">{% if current_lang == 'en' %}📄 Documents{% else %}📄 Dökümanlar{% endif %}:</strong>
+                <strong class="res-label" style="color: var(--text-color); opacity: 0.85; font-size: 0.875rem;">{% if current_lang == 'en' %}📄 Documents{% else %}📄 Dökümanlar{% endif %}:</strong>
+
                 <div style="display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.5rem;">
                     {% for doc in res.documents %}
                     <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.05); padding: 0.5rem; border-radius: 4px;">
@@ -64,13 +65,13 @@
 
             <div style="margin-bottom: 1.5rem;">
                 <form action="{{ url_for('main.upload_document', res_id=res.id) }}" method="POST" enctype="multipart/form-data" style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
-                    <label class="custom-file-upload" style="display: flex; align-items: center; max-width: 250px; border: 1px solid #334155; padding: 0.25rem 0.5rem; cursor: pointer; border-radius: 4px; font-size: 0.75rem; color: #cbd5e1; background: #1e293b; margin: 0;">
+                    <label class="custom-file-upload" style="display: flex; align-items: center; max-width: 260px; border: 1px solid #334155; padding: 0.4rem 0.75rem; cursor: pointer; border-radius: 8px; font-size: 0.8rem; color: #cbd5e1; background: #1e293b; margin: 0;">
                         {% set no_file_text = "No file selected" if current_lang == "en" else "Dosya seçilmedi" %}
                         <input type="file" name="document" required style="display: none;" onchange='this.parentElement.querySelector("span.file-name").innerText = this.files[0] ? this.files[0].name : "{{ no_file_text }}"'>
-                        <span class="file-btn" style="background: #334155; padding: 0.15rem 0.4rem; border-radius: 3px; margin-right: 0.5rem; color: #fff; white-space: nowrap; flex-shrink: 0;">{% if current_lang == 'en' %}Choose File{% else %}Dosya Seç{% endif %}</span>
+                        <span class="file-btn" style="background: #334155; padding: 0.2rem 0.5rem; border-radius: 6px; margin-right: 0.5rem; color: #fff; white-space: nowrap; flex-shrink: 0;">{% if current_lang == 'en' %}Choose File{% else %}Dosya Seç{% endif %}</span>
                         <span class="file-name" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{% if current_lang == 'en' %}No file selected{% else %}Dosya seçilmedi{% endif %}</span>
                     </label>
-                    <button type="submit" class="btn btn-primary" style="padding: 0.25rem 0.5rem; font-size: 0.75rem; width: auto; margin: 0;">{% if current_lang == 'en' %}Upload{% else %}Yükle{% endif %}</button>
+                    <button type="submit" class="btn btn-primary" style="padding: 0.4rem 0.85rem; font-size: 0.8rem; border-radius: 8px; width: auto; margin: 0;">{% if current_lang == 'en' %}Upload{% else %}Yükle{% endif %}</button>
                 </form>
             </div>
 
@@ -82,24 +83,25 @@
                 {% if is_past %}
                 <span class="badge" style="background: #10b981; color: white; padding: 0.5rem 1rem; border-radius: 0.5rem; font-weight: 600; font-size: 0.875rem; display: inline-flex; align-items: center; gap: 0.3rem;">✓ {% if current_lang == 'en' %}Completed{% else %}Tamamlandı{% endif %}</span>
                 {% else %}
-                <a href="{{ res.cal_url }}" target="_blank" class="btn" style="width: auto; padding: 0.5rem 1.5rem; font-size: 0.875rem; background: #3b82f6; margin-right: 0.5rem;">{% if current_lang == 'en' %}Add to Calendar{% else %}Takvime Ekle{% endif %}</a>
-                <button type="button" class="btn" style="width: auto; padding: 0.5rem 1.5rem; font-size: 0.875rem; background: #8b5cf6; margin-right: 0.5rem;" onclick="showQrModal({{ res.id }})">{% if current_lang == 'en' %}Show QR{% else %}QR Göster{% endif %}</button>
-                <button type="button" class="btn btn-warning" style="width: auto; padding: 0.5rem 1.5rem; font-size: 0.875rem; background: #f59e0b; border: none; color: white; margin-right: 0.5rem;" onclick="showExitQrModal({{ res.id }})">{% if current_lang == 'en' %}Exit QR{% else %}Çıkış QR{% endif %}</button>
+                <a href="{{ res.cal_url }}" target="_blank" class="btn" style="width: auto; padding: 0.5rem 1.15rem; font-size: 0.85rem; border-radius: 10px; background: #3b82f6;">{% if current_lang == 'en' %}Add to Calendar{% else %}Takvime Ekle{% endif %}</a>
+                <button type="button" class="btn" style="width: auto; padding: 0.5rem 1.15rem; font-size: 0.85rem; border-radius: 10px; background: #8b5cf6;" onclick="showQrModal({{ res.id }})">{% if current_lang == 'en' %}Show QR{% else %}QR Göster{% endif %}</button>
+                <button type="button" class="btn btn-warning" style="width: auto; padding: 0.5rem 1.15rem; font-size: 0.85rem; border-radius: 10px; background: #f59e0b; border: none; color: white;" onclick="showExitQrModal({{ res.id }})">{% if current_lang == 'en' %}Exit QR{% else %}Çıkış QR{% endif %}</button>
                 
                 {% if is_active %}
                 {% if is_owner_or_admin %}
                 {% set end_early_confirm_msg = "Are you sure you want to end this meeting early and free up the room?" if current_lang == "en" else "Bu toplantıyı erken bitirip odayı boşa çıkarmak istediğinize emin misiniz?" %}
-                <form action="{{ url_for('main.end_reservation_early', res_id=res.id) }}" method="POST" style="display:inline;">
-                    <button type="submit" class="btn btn-warning" style="width: auto; padding: 0.5rem 1.2rem; font-size: 0.875rem; background: #ea580c; border: none; color: white; margin-right: 0.5rem;" onclick="return confirm('{{ end_early_confirm_msg }}');">{% if current_lang == 'en' %}⏹️ End Early{% else %}⏹️ Erken Bitir{% endif %}</button>
+                <form action="{{ url_for('main.end_reservation_early', res_id=res.id) }}" method="POST" style="display:inline-flex;">
+                    <button type="submit" class="btn btn-warning" style="width: auto; padding: 0.5rem 1.15rem; font-size: 0.85rem; border-radius: 10px; background: #ea580c; border: none; color: white;" onclick="return confirm('{{ end_early_confirm_msg }}');">{% if current_lang == 'en' %}⏹️ End Early{% else %}⏹️ Erken Bitir{% endif %}</button>
                 </form>
                 {% endif %}
                 {% else %} 
                 {% set cancel_confirm_msg = "Are you sure you want to cancel this reservation?" if current_lang == "en" else "Bu rezervasyonu iptal etmek istediğinize emin misiniz?" %}
-                <form action="{{ url_for('main.delete_reservation', res_id=res.id) }}" method="POST" style="display:inline;">
-                    <button type="submit" class="btn btn-danger" style="width: auto; padding: 0.5rem 1.5rem; font-size: 0.875rem; background: #ef4444; border-color: #ef4444; color: white;" onclick="return confirm('{{ cancel_confirm_msg }}');">{% if current_lang == 'en' %}Cancel{% else %}İptal Et{% endif %}</button>
+                <form action="{{ url_for('main.delete_reservation', res_id=res.id) }}" method="POST" style="display:inline-flex;">
+                    <button type="submit" class="btn btn-danger" style="width: auto; padding: 0.5rem 1.15rem; font-size: 0.85rem; border-radius: 10px; background: #ef4444; border-color: #ef4444; color: white;" onclick="return confirm('{{ cancel_confirm_msg }}');">{% if current_lang == 'en' %}Cancel{% else %}İptal Et{% endif %}</button>
                 </form>
                 {% endif %}
                 {% endif %}
+
             </div>
         </div>
     </div>
@@ -108,7 +110,7 @@
 {% else %}
 <div style="text-align: center; padding: 4rem 2rem; background: var(--card-bg); border-radius: 1rem; border: 1px solid var(--border-color);">
     <h3 style="color: #94a3b8; font-weight: 400; margin-bottom: 1rem;">{% if current_lang == 'en' %}You don't have any reservations yet.{% else %}Henüz bir rezervasyonunuz bulunmuyor.{% endif %}</h3>
-    <a href="{{ url_for('main.rooms') }}" class="btn btn-primary">{% if current_lang == 'en' %}Book a Room Now{% else %}Hemen Oda Rezervasyonu Yap{% endif %}</a>
+    <a href="{{ url_for('main.rooms') }}" class="btn btn-primary" style="border-radius: 10px; width: auto;">{% if current_lang == 'en' %}Book a Room Now{% else %}Hemen Oda Rezervasyonu Yap{% endif %}</a>
 </div>
 {% endif %}
 
@@ -116,30 +118,32 @@
 {% if invited_reservations %}
 <div class="dashboard-grid">
     {% for res in invited_reservations %}
-    <div class="res-card" style="border-left: 4px solid #10b981;">
+    <div class="res-card" style="border-top: 3px solid #10b981;">
         <div class="res-header">
             <h3>{{ res.room.name_en if current_lang == 'en' and res.room.name_en else res.room.display_name }} {% if current_lang == 'en' %}Room{% else %}Odası{% endif %}</h3>
             <span class="res-date">{{ res.date }}</span>
         </div>
         <div class="res-body">
-            <div style="font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem; color: #f8fafc;">
+            <div class="res-time-text" style="font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem; color: var(--text-color);">
                 {{ res.start_time }} - {{ res.end_time }}
             </div>
 
-            <div style="margin-bottom: 1rem; font-size: 0.875rem; color: #cbd5e1;">
-                <strong>{% if current_lang == 'en' %}Created By{% else %}Oluşturan{% endif %}:</strong> <span style="color: white;">{{ res.user.username }}</span>
+            <div style="margin-bottom: 1rem; font-size: 0.875rem; color: var(--text-color); opacity: 0.85;">
+                <strong class="res-label">{% if current_lang == 'en' %}Created By{% else %}Oluşturan{% endif %}:</strong> <span style="color: var(--text-color); font-weight: 600;">{{ res.user.username }}</span>
             </div>
 
             {% if res.note %}
-            <div style="margin-bottom: 1rem; padding: 0.6rem 0.75rem; background: rgba(99, 102, 241, 0.12); border-left: 3px solid #6366f1; border-radius: 6px; font-size: 0.85rem; color: #e2e8f0; line-height: 1.4;">
-                <strong style="color: #a5b4fc;">📝 {% if current_lang == 'en' %}Note{% else %}Not{% endif %}:</strong> {{ res.note }}
+            <div class="res-note-box" style="margin-bottom: 1rem; padding: 0.75rem 1rem; background: rgba(99, 102, 241, 0.1); border: 1px solid rgba(99, 102, 241, 0.25); border-radius: 12px; font-size: 0.875rem; color: var(--text-color); line-height: 1.5;">
+                <strong class="res-note-title" style="color: #6366f1;">📝 {% if current_lang == 'en' %}Note{% else %}Not{% endif %}:</strong> {{ res.note }}
             </div>
             {% endif %}
+
 
             {% if res.documents %}
 
             <div style="margin-bottom: 1rem;">
-                <strong style="color: #cbd5e1; font-size: 0.875rem;">{% if current_lang == 'en' %}📄 Documents{% else %}📄 Dökümanlar{% endif %}:</strong>
+                <strong class="res-label" style="color: var(--text-color); opacity: 0.85; font-size: 0.875rem;">{% if current_lang == 'en' %}📄 Documents{% else %}📄 Dökümanlar{% endif %}:</strong>
+
                 <div style="display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.5rem;">
                     {% for doc in res.documents %}
                     <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.05); padding: 0.5rem; border-radius: 4px;">
@@ -177,21 +181,22 @@
                 {% if is_past_inv %}
                 <span class="badge" style="background: #10b981; color: white; padding: 0.5rem 1rem; border-radius: 0.5rem; font-weight: 600; font-size: 0.875rem; display: inline-flex; align-items: center; gap: 0.3rem;">✓ {% if current_lang == 'en' %}Completed{% else %}Tamamlandı{% endif %}</span>
                 {% elif res.invitation_status == 'pending' %}
-                <form action="{{ url_for('main.accept_reservation_invitation', res_id=res.id) }}" method="POST" style="display:inline;">
-                    <button type="submit" class="btn btn-success" style="width: auto; padding: 0.5rem 1.5rem; font-size: 0.875rem; background: #10b981; border: none; color: white; margin-right: 0.5rem; font-weight: 600;">✓ {% if current_lang == 'en' %}Accept{% else %}Onayla{% endif %}</button>
+                <form action="{{ url_for('main.accept_reservation_invitation', res_id=res.id) }}" method="POST" style="display:inline-flex;">
+                    <button type="submit" class="btn btn-success" style="width: auto; padding: 0.5rem 1.15rem; font-size: 0.85rem; background: #10b981; border: none; color: white; font-weight: 600; border-radius: 10px;">✓ {% if current_lang == 'en' %}Accept{% else %}Onayla{% endif %}</button>
                 </form>
-                <form action="{{ url_for('main.reject_reservation_invitation', res_id=res.id) }}" method="POST" style="display:inline;">
-                    <button type="submit" class="btn btn-danger" style="width: auto; padding: 0.5rem 1.5rem; font-size: 0.875rem; background: #ef4444; border-color: #ef4444; color: white; font-weight: 600;">✕ {% if current_lang == 'en' %}Reject{% else %}Reddet{% endif %}</button>
+                <form action="{{ url_for('main.reject_reservation_invitation', res_id=res.id) }}" method="POST" style="display:inline-flex;">
+                    <button type="submit" class="btn btn-danger" style="width: auto; padding: 0.5rem 1.15rem; font-size: 0.85rem; background: #ef4444; border-color: #ef4444; color: white; font-weight: 600; border-radius: 10px;">✕ {% if current_lang == 'en' %}Reject{% else %}Reddet{% endif %}</button>
                 </form>
                 {% else %}
-                <a href="{{ res.cal_url }}" target="_blank" class="btn" style="width: auto; padding: 0.5rem 1.5rem; font-size: 0.875rem; background: #3b82f6; margin-right: 0.5rem;">{% if current_lang == 'en' %}Add to Calendar{% else %}Takvime Ekle{% endif %}</a>
-                <button type="button" class="btn" style="width: auto; padding: 0.5rem 1.5rem; font-size: 0.875rem; background: #8b5cf6; margin-right: 0.5rem;" onclick="showQrModal({{ res.id }})">{% if current_lang == 'en' %}Show QR{% else %}QR Göster{% endif %}</button>
-                <button type="button" class="btn btn-warning" style="width: auto; padding: 0.5rem 1.5rem; font-size: 0.875rem; background: #f59e0b; border: none; color: white; margin-right: 0.5rem;" onclick="showExitQrModal({{ res.id }})">{% if current_lang == 'en' %}Exit QR{% else %}Çıkış QR{% endif %}</button>
+                <a href="{{ res.cal_url }}" target="_blank" class="btn" style="width: auto; padding: 0.5rem 1.15rem; font-size: 0.85rem; background: #3b82f6; border-radius: 10px;">{% if current_lang == 'en' %}Add to Calendar{% else %}Takvime Ekle{% endif %}</a>
+                <button type="button" class="btn" style="width: auto; padding: 0.5rem 1.15rem; font-size: 0.85rem; background: #8b5cf6; border-radius: 10px;" onclick="showQrModal({{ res.id }})">{% if current_lang == 'en' %}Show QR{% else %}QR Göster{% endif %}</button>
+                <button type="button" class="btn btn-warning" style="width: auto; padding: 0.5rem 1.15rem; font-size: 0.85rem; background: #f59e0b; border: none; color: white; border-radius: 10px;" onclick="showExitQrModal({{ res.id }})">{% if current_lang == 'en' %}Exit QR{% else %}Çıkış QR{% endif %}</button>
                 {% set leave_confirm_msg = "Are you sure you want to leave this meeting?" if current_lang == "en" else "Bu toplantıdan ayrılmak istediğinize emin misiniz?" %}
-                <form action="{{ url_for('main.leave_reservation', res_id=res.id) }}" method="POST" style="display:inline;">
-                    <button type="submit" class="btn btn-danger" style="width: auto; padding: 0.5rem 1.5rem; font-size: 0.875rem; background: #ef4444; border-color: #ef4444; color: white;" onclick="return confirm('{{ leave_confirm_msg }}');">{% if current_lang == 'en' %}Leave Meeting{% else %}Toplantıdan Ayrıl{% endif %}</button>
+                <form action="{{ url_for('main.leave_reservation', res_id=res.id) }}" method="POST" style="display:inline-flex;">
+                    <button type="submit" class="btn btn-danger" style="width: auto; padding: 0.5rem 1.15rem; font-size: 0.85rem; background: #ef4444; border-color: #ef4444; color: white; border-radius: 10px;" onclick="return confirm('{{ leave_confirm_msg }}');">{% if current_lang == 'en' %}Leave Meeting{% else %}Toplantıdan Ayrıl{% endif %}</button>
                 </form>
                 {% endif %}
+
             </div>
 
         </div>

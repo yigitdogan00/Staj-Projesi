@@ -386,16 +386,61 @@ def ai_command():
         all_users = User.query.filter(User.id != cur_user.id).all()
         invited = []
         norm_t = normalize(cmd_text)
-        
         for u in all_users:
             u_norm = normalize(u.username)
-            if len(u_norm) < 2:
+            if not u_norm:
                 continue
             pattern = r'\b' + re.escape(u_norm) + r"(?:'?(?:[ieaıuüogsnmkvlzdthjrpfcb]|ile|yi|ye|ya|yu|yü)*)?"
             if re.search(pattern, norm_t, re.IGNORECASE) or u_norm in norm_t:
                 if u not in invited:
                     invited.append(u)
         return invited
+
+    def extract_note_from_command(cmd_text):
+        if not cmd_text:
+            return None
+
+        # 1. Text AFTER explicit note markers: "not:", "not et:", "not et", "not al:", "not al", "not ekle:", "not ekle", "note:", "note that:", "with note:"
+        after_match = re.search(
+            r'(?:not\s*[:=]|not\s+et\s*[:=]?|not\s+al\s*[:=]?|not\s+ekle\s*[:=]?|not\s+yaz\s*[:=]?|not\s+olarak\s*:|note\s*[:=]|note\s+that\s*[:=]?|with\s+note\s*[:=]?|add\s+note\s*[:=]?|notu\s*[:=])\s*(.+)',
+            cmd_text,
+            re.IGNORECASE
+        )
+        if after_match:
+            extracted = after_match.group(1).strip()
+            extracted = re.sub(r'\s+(?:ekle|yaz|bildir|belirt|kaydet|add)\s*$', '', extracted, flags=re.IGNORECASE)
+            extracted = re.sub(r'^(?:ve|ayrıca|ayrica|and)\s+', '', extracted, flags=re.IGNORECASE)
+            if extracted and len(extracted) > 1:
+                return extracted
+
+        # 2. Note inside quotes: not olarak "X", not et "X", note "X"
+        quote_match = re.search(r'(?:not|note)\s+(?:olarak|et|al|ekle|that)?\s*["\']([^"\']+)["\']', cmd_text, re.IGNORECASE)
+        if quote_match:
+            return quote_match.group(1).strip()
+
+        # 3. Text BEFORE suffix markers: "X notuyla", "X notu ile", "X not olarak ekle"
+        before_match = re.search(
+            r'(.+?)\s+(?:notuyla|notu\s+ile|not\s+olarak\s+ekle|not\s+olarak\s+yaz|not\s+olarak\s+kaydet)\b',
+            cmd_text,
+            re.IGNORECASE
+        )
+        if before_match:
+            part = before_match.group(1).strip()
+            m_after_action = re.search(r'(?:davet\s+et|rezerve\s+et|ayır|ayırt|booking|book|saatleri?\s+arasında|saatleri?\s+arasi)?\s*(?:ve|ayrıca|ayrica)?\s*(.+)', part, re.IGNORECASE)
+            if m_after_action and len(m_after_action.group(1).strip()) > 1:
+                candidate = m_after_action.group(1).strip()
+                candidate = re.sub(r'^(?:ve|ayrıca|ayrica)\s+', '', candidate, flags=re.IGNORECASE)
+                if candidate and len(candidate) > 1:
+                    return candidate
+            if part and len(part) > 1:
+                return part
+
+        return None
+
+
+
+    parsed_note = extract_note_from_command(command_text)
+
 
     # Cancel Selection Handler
     cancel_map = session.get('awaiting_cancel_selection')
@@ -525,15 +570,82 @@ def ai_command():
             }
 
             btn_confirm_html = f'''<div style="display: flex; gap: 0.35rem; margin-top: 0.4rem; flex-wrap: wrap;">
-                <button onclick="sendQuickChoice('Evet, Onaylıyorum')" type="button" style="background: #10b981; color: white; padding: 4px 10px; border-radius: 5px; border: none; cursor: pointer; font-weight: bold; font-size: 0.75rem; width: auto !important; flex-shrink: 0; display: inline-flex; align-items: center; gap: 3px; box-shadow: 0 2px 4px rgba(16,185,129,0.3);">{msg('✅ Evet, Onaylıyorum', '✅ Yes, I Confirm')}</button>
-                <button onclick="sendQuickChoice('Hayır, İptal Et')" type="button" style="background: #ef4444; color: white; padding: 4px 10px; border-radius: 5px; border: none; cursor: pointer; font-weight: bold; font-size: 0.75rem; width: auto !important; flex-shrink: 0; display: inline-flex; align-items: center; gap: 3px;">{msg('❌ Hayır, İptal Et', '❌ No, Cancel')}</button>
+                <button onclick="sendQuickChoice('{msg("Evet, Onaylıyorum", "Yes, I Confirm")}')" type="button" style="background: #10b981; color: white; padding: 4px 10px; border-radius: 5px; border: none; cursor: pointer; font-weight: bold; font-size: 0.75rem; width: auto !important; flex-shrink: 0; display: inline-flex; align-items: center; gap: 3px; box-shadow: 0 2px 4px rgba(16,185,129,0.3);">{msg('✅ Evet, Onaylıyorum', '✅ Yes, I Confirm')}</button>
+                <button onclick="sendQuickChoice('{msg("Hayır, İptal Et", "No, Cancel")}')" type="button" style="background: #ef4444; color: white; padding: 4px 10px; border-radius: 5px; border: none; cursor: pointer; font-weight: bold; font-size: 0.75rem; width: auto !important; flex-shrink: 0; display: inline-flex; align-items: center; gap: 3px;">{msg('❌ Hayır, İptal Et', '❌ No, Cancel')}</button>
             </div>'''
 
             m_tr = f"<b>{room.name}</b> odasını <b>{date_str}</b> tarihinde <b>{start_time} - {end_time}</b> saatleri arasında (<b>{duration_str}</b>) rezerve ediyorum, onaylıyor musunuz?<br>{btn_confirm_html}"
             m_en = f"I am booking <b>{room.name}</b> room on <b>{date_str}</b> between <b>{start_time} - {end_time}</b> ({duration_str}), do you confirm?<br>{btn_confirm_html}"
             return jsonify({'success': True, 'reload': False, 'message': msg(m_tr, m_en)})
+        elif step == 'awaiting_note_decision':
+            from app.models import User
+            room_id = booking_state.get('room_id')
+            date_str = booking_state.get('date')
+            start_time = booking_state.get('start_time')
+            end_time = booking_state.get('end_time')
+            invited_ids = booking_state.get('invited_user_ids', [])
+            room = Room.query.get(room_id)
+
+            # Check if user tried to invite someone in this turn
+            new_invited = find_invited_users(command_text, current_user)
+            if new_invited:
+                for u_n in new_invited:
+                    if u_n.id not in invited_ids:
+                        invited_ids.append(u_n.id)
+                invited_users = User.query.filter(User.id.in_(invited_ids)).all() if invited_ids else []
+                inv_names = ", ".join([u.username for u in invited_users])
+                session['interactive_booking_state'] = {
+                    'step': 'awaiting_note_decision',
+                    'room_id': room_id,
+                    'date': date_str,
+                    'start_time': start_time,
+                    'end_time': end_time,
+                    'invited_user_ids': invited_ids
+                }
+                btn_no_note = f'''<div style="display: flex; gap: 0.35rem; margin-top: 0.5rem; flex-wrap: wrap;">
+                    <button onclick="sendQuickChoice('{msg("Hayır, Not Eklemek İstemiyorum", "No, Skip Note")}')" type="button" style="background: #64748b; color: white; padding: 4px 10px; border-radius: 5px; border: none; cursor: pointer; font-weight: bold; font-size: 0.75rem; width: auto !important; flex-shrink: 0;">{msg("❌ Hayır, Not Ekleme (Devam Et)", "❌ No, Skip Note (Continue)")}</button>
+                </div>'''
+                m_tr = f"Harika! <b>{inv_names}</b> davetli listesine eklendi. 📩<br><br>Davetlilere iletilmek üzere toplantıya bir <b>NOT</b> eklemek ister misiniz?<br><small style='opacity: 0.85;'><i>(Notunuzu mesaj olarak gönderebilir veya aşağıdaki butona tıklayabilirsiniz)</i></small>{btn_no_note}"
+                m_en = f"Great! <b>{inv_names}</b> added to attendees. 📩<br><br>Would you like to add a <b>NOTE</b> for the meeting?<br><small style='opacity: 0.85;'><i>(You can type your note as a message or click the button below)</i></small>{btn_no_note}"
+                return jsonify({'success': True, 'reload': False, 'message': msg(m_tr, m_en)})
+
+            no_note_keywords = ["hayir", "hayır", "no", "not ekleme", "not eklemek istemiyorum", "not istemiyorum", "ekleme", "pas", "gec", "geç", "es gec", "es geç", "direkt", "dogrudan", "doğrudan", "skip"]
+            if any(k in norm_cmd for k in no_note_keywords):
+                passed_note = None
+            else:
+                raw_note = command_text.strip()
+                raw_note = re.sub(r'^(?:not|note|notu)\s*[:=]\s*', '', raw_note, flags=re.IGNORECASE).strip()
+                raw_note = re.sub(r'^(?:not\s+ekle|not\s+et|not\s+al|not\s+yaz|add\s+note)\s*[:=]?\s*', '', raw_note, flags=re.IGNORECASE).strip()
+                passed_note = raw_note if len(raw_note) > 1 else None
+
+            invited_users = User.query.filter(User.id.in_(invited_ids)).all() if invited_ids else []
+
+            session['interactive_booking_state'] = {
+                'step': 'awaiting_confirmation',
+                'room_id': room_id,
+                'date': date_str,
+                'start_time': start_time,
+                'end_time': end_time,
+                'invited_user_ids': invited_ids,
+                'note': passed_note
+            }
+
+            btn_confirm_html = f'''<div style="display: flex; gap: 0.35rem; margin-top: 0.4rem; flex-wrap: wrap;">
+                <button onclick="sendQuickChoice('{msg("Evet, Onaylıyorum", "Yes, I Confirm")}')" type="button" style="background: #10b981; color: white; padding: 4px 10px; border-radius: 5px; border: none; cursor: pointer; font-weight: bold; font-size: 0.75rem; width: auto !important; flex-shrink: 0; display: inline-flex; align-items: center; gap: 3px; box-shadow: 0 2px 4px rgba(16,185,129,0.3);">{msg('✅ Evet, Onaylıyorum', '✅ Yes, I Confirm')}</button>
+                <button onclick="sendQuickChoice('{msg("Hayır, İptal Et", "No, Cancel")}')" type="button" style="background: #ef4444; color: white; padding: 4px 10px; border-radius: 5px; border: none; cursor: pointer; font-weight: bold; font-size: 0.75rem; width: auto !important; flex-shrink: 0; display: inline-flex; align-items: center; gap: 3px;">{msg('❌ Hayır, İptal Et', '❌ No, Cancel')}</button>
+            </div>'''
+
+            inv_info_tr = f" (davetli: <b>{', '.join([u.username for u in invited_users])}</b>)" if invited_users else ""
+            inv_info_en = f" (invited: <b>{', '.join([u.username for u in invited_users])}</b>)" if invited_users else ""
+            note_info_tr = f"<br>📝 <b>Eklenen Not:</b> {passed_note}" if passed_note else "<br>📝 <i>Eklenen Not Yok</i>"
+            note_info_en = f"<br>📝 <b>Added Note:</b> {passed_note}" if passed_note else "<br>📝 <i>No Note Added</i>"
+            m_tr = f"<b>{room.display_name}</b> odasını <b>{date_str}</b> tarihinde <b>{start_time} - {end_time}</b> saatleri arasında{inv_info_tr} sizin adınıza rezerve ediyorum.{note_info_tr}<br><br>Onaylıyor musunuz?<br>{btn_confirm_html}"
+            m_en = f"I am booking <b>{room.display_name}</b> room on <b>{date_str}</b> between <b>{start_time} - {end_time}</b>{inv_info_en} for you.{note_info_en}<br><br>Do you confirm?<br>{btn_confirm_html}"
+            return jsonify({'success': True, 'reload': False, 'message': msg(m_tr, m_en)})
+
 
         elif step == 'awaiting_confirmation':
+
             if any(w in norm_cmd for w in ["evet", "onay", "onayliyorum", "onaylıyorum", "yes", "tamam", "olur", "confirm"]):
                 room_id = booking_state.get('room_id')
                 date_str = booking_state.get('date')
@@ -543,6 +655,7 @@ def ai_command():
                 room = Room.query.get(room_id)
                 session.pop('interactive_booking_state', None)
 
+                note = booking_state.get('note')
                 sh_int, sm_int = map(int, start_time.split(':'))
                 eh_int, em_int = map(int, end_time.split(':'))
                 if (sh_int * 60 + sm_int >= 18 * 60) or (eh_int * 60 + em_int > 18 * 60):
@@ -564,7 +677,8 @@ def ai_command():
                         room_id=room.id,
                         date=date_str,
                         start_time=start_time,
-                        end_time=end_time
+                        end_time=end_time,
+                        note=note
                     )
                     invited_users = User.query.filter(User.id.in_(invited_ids)).all() if invited_ids else []
                     for u_inv in invited_users:
@@ -577,6 +691,8 @@ def ai_command():
                     for u_inv in invited_users:
                         invited_names.append(u_inv.username)
                         notif_msg = f"{current_user.username} sizi {date_str} tarihinde {start_time}-{end_time} saatleri arasında {room.name} odasındaki toplantıya davet etti."
+                        if note:
+                            notif_msg += f"\n📝 Not: {note}"
                         notif = Notification(user_id=u_inv.id, reservation_id=new_res.id, message=notif_msg, type='invitation', status='pending')
                         db.session.add(notif)
 
@@ -584,13 +700,16 @@ def ai_command():
 
                     inv_text_tr = f"<br><br>📩 <b>Toplantı Daveti:</b> <b>{', '.join(invited_names)}</b> kullanıcısına davetiye gönderildi." if invited_names else ""
                     inv_text_en = f"<br><br>📩 <b>Meeting Invitation:</b> Invitation sent to <b>{', '.join(invited_names)}</b>." if invited_names else ""
+                    note_text_tr = f"<br><br>📝 <b>Eklenen Not:</b> {note}" if note else ""
+                    note_text_en = f"<br><br>📝 <b>Added Note:</b> {note}" if note else ""
 
                     from app.utils import generate_google_calendar_url
                     cal_url = generate_google_calendar_url(room.display_name, date_str, start_time, end_time)
                     cal_btn = f'''<br><a href="{cal_url}" target="_blank" style="display: inline-flex; align-items: center; gap: 4px; margin-top: 6px; background: #3b82f6; color: white; padding: 4px 10px; border-radius: 5px; text-decoration: none; font-size: 0.75rem; font-weight: bold; box-shadow: 0 2px 4px rgba(59,130,246,0.3);">{msg("📅 Takvime Ekle", "📅 Add to Calendar")}</a>'''
-                    m_tr = f"Harika! <b>{room.display_name}</b> odası <b>{date_str}</b> tarihinde <b>{start_time} - {end_time}</b> arası başarıyla sizin adınıza rezerve edildi. 🎉{inv_text_tr}<br>{cal_btn}<br><br>📌 <b>Hatırlatma:</b> QR kodunuzu kullanarak giriş yapabilirsiniz."
-                    m_en = f"Great! <b>{room.display_name}</b> room has been successfully booked for you on <b>{date_str}</b> between <b>{start_time} - {end_time}</b>. 🎉{inv_text_en}<br>{cal_btn}"
+                    m_tr = f"Harika! <b>{room.display_name}</b> odası <b>{date_str}</b> tarihinde <b>{start_time} - {end_time}</b> arası başarıyla sizin adınıza rezerve edildi. 🎉{inv_text_tr}{note_text_tr}<br>{cal_btn}<br><br>📌 <b>Hatırlatma:</b> QR kodunuzu kullanarak giriş yapabilirsiniz."
+                    m_en = f"Great! <b>{room.display_name}</b> room has been successfully booked for you on <b>{date_str}</b> between <b>{start_time} - {end_time}</b>. 🎉{inv_text_en}{note_text_en}<br>{cal_btn}"
                     return jsonify({'success': True, 'reload': True, 'message': msg(m_tr, m_en)})
+
                 except Exception as e:
                     db.session.rollback()
                     return jsonify({'success': False, 'message': msg('Rezervasyon oluşturulurken bir hata oluştu: ' + str(e), 'An error occurred while creating the reservation.')})
@@ -1086,8 +1205,8 @@ def ai_command():
         parsed_start_time = f"{sh.zfill(2)}:{sm}"
         parsed_end_time = f"{eh.zfill(2)}:{em}"
     else:
-        # Check hour-to-hour range like "17-18", "17.18", "17 ile 18", "17-18 arasi"
-        hour_range_match = re.search(r'\b([01]?\d|2[0-3])\s*(?:-|[.:]|ile|ve|to|and)\s*([01]?\d|2[0-3])\s*(?:arasi|arası|saat|st|hours)?\b', norm_cmd, re.IGNORECASE)
+        # Check hour-to-hour range like "17-18", "17.-18.", "17.18", "17 ile 18", "17-18 arasi"
+        hour_range_match = re.search(r'\b([01]?\d|2[0-3])\s*[\.\-:]*\s*(?:-|[.:]|ile|ve|to|and)\s*[\.\-:]*\s*([01]?\d|2[0-3])\s*[\.]*(?:\s*(?:arasi|arası|saat|st|hours))?\b', norm_cmd, re.IGNORECASE)
         if hour_range_match:
             h1, h2 = int(hour_range_match.group(1)), int(hour_range_match.group(2))
             if 0 <= h1 < 24 and 0 <= h2 <= 24 and h1 < h2:
@@ -1108,7 +1227,8 @@ def ai_command():
     time_match = (parsed_start_time is not None) or (single_time_match is not None)
 
     # Only inherit last queried room & date if explicit time or booking/inquiry intent is present
-    action_keywords = ["ayir", "ayırt", "ayır", "rezerv", "rezerve", "randevu", "sorgula", "sorgulamak", "sorgu", "durum", "bilgi", "kontrol", "bak", "book", "schedule", "create", "reservation", "appoint", "appointment", "reserve", "make", "find", "check"]
+    action_keywords = ["ayir", "ayırt", "ayır", "rezerv", "rezerve", "randevu", "davet", "daveti", "not", "not et", "not al", "not olarak", "notuyla", "ekle", "kaydet", "sorgula", "sorgulamak", "sorgu", "durum", "bilgi", "kontrol", "bak", "book", "schedule", "create", "reservation", "appoint", "appointment", "reserve", "make", "find", "check", "invite"]
+
     has_time_or_action = time_match or any(k in norm_cmd for k in action_keywords)
     
     if not explicit_date and session.get('last_queried_date') and has_time_or_action and not any(k in norm_cmd for k in ["iptal", "cancel"]):
@@ -1148,12 +1268,14 @@ def ai_command():
     if parsed_start_time and parsed_end_time:
         start_time = parsed_start_time
         end_time = parsed_end_time
+        is_single_time_booking = True
     elif single_time_match:
         sh, sm = single_time_match.groups()
         start_time = f"{sh.zfill(2)}:{sm}"
         sh_int = int(sh)
         end_time = f"{sh_int + 1:02d}:{sm}"
         is_single_time_booking = True
+
 
     if start_time and end_time:
         req_start = time_to_minutes(start_time)
@@ -1226,25 +1348,66 @@ def ai_command():
         if is_single_time_booking:
             invited_users = find_invited_users(command_text, current_user)
             invited_ids = [u.id for u in invited_users]
+
+            has_invite_intent = any(w in norm_cmd for w in ["davet", "davet et", "davetiye", "davetli", "invite"])
+            cur_user_norm = normalize(current_user.username)
+            tried_self = cur_user_norm in norm_cmd and any(w in norm_cmd for w in ["davet et", "davet", "davetiye"])
+
+            # Trigger note decision if invited_users exist OR has_invite_intent is present, and no note was provided yet
+            if (invited_users or has_invite_intent) and not parsed_note:
+                session['interactive_booking_state'] = {
+                    'step': 'awaiting_note_decision',
+                    'room_id': found_room.id,
+                    'date': date_str,
+                    'start_time': start_time,
+                    'end_time': end_time,
+                    'invited_user_ids': invited_ids
+                }
+                btn_no_note = f'''<div style="display: flex; gap: 0.35rem; margin-top: 0.5rem; flex-wrap: wrap;">
+                    <button onclick="sendQuickChoice('{msg("Hayır, Not Eklemek İstemiyorum", "No, Skip Note")}')" type="button" style="background: #64748b; color: white; padding: 4px 10px; border-radius: 5px; border: none; cursor: pointer; font-weight: bold; font-size: 0.75rem; width: auto !important; flex-shrink: 0;">{msg("❌ Hayır, Not Ekleme (Devam Et)", "❌ No, Skip Note (Continue)")}</button>
+                </div>'''
+
+                if invited_users:
+                    inv_names = ", ".join([u.username for u in invited_users])
+                    inv_msg_tr = f"<b>{inv_names}</b> kullanıcısına toplantı daveti gönderilecek. 📩"
+                    inv_msg_en = f"Invitation will be sent to <b>{inv_names}</b>. 📩"
+                elif tried_self:
+                    inv_msg_tr = f"Toplantı zaten sizin (<b>{current_user.username}</b>) adınıza oluşturuluyor. ℹ️"
+                    inv_msg_en = f"Meeting is already being created under your name (<b>{current_user.username}</b>). ℹ️"
+                else:
+                    inv_msg_tr = "Toplantı daveti seçeneği belirtildi. 📩"
+                    inv_msg_en = "Meeting invitation option specified. 📩"
+
+                m_tr = f"<b>{found_room.display_name}</b> odası <b>{date_str}</b> tarihi <b>{start_time} - {end_time}</b> saatleri arasına rezerve ediliyor. {inv_msg_tr}<br><br>Toplantıya davetlilere veya kendinize iletilmek üzere bir <b>NOT</b> eklemek ister misiniz?<br><small style='opacity: 0.85;'><i>(Eklemek istediğiniz notu mesaj olarak yazıp gönderebilir veya aşağıdaki butona tıklayabilirsiniz)</i></small>{btn_no_note}"
+                m_en = f"Booking <b>{found_room.display_name}</b> room on <b>{date_str}</b> between <b>{start_time} - {end_time}</b>. {inv_msg_en}<br><br>Would you like to add a <b>NOTE</b> for the meeting?<br><small style='opacity: 0.85;'><i>(You can type your note as a message or click the button below)</i></small>{btn_no_note}"
+                return jsonify({'success': True, 'reload': False, 'message': msg(m_tr, m_en)})
+
+
+
             session['interactive_booking_state'] = {
                 'step': 'awaiting_confirmation',
                 'room_id': found_room.id,
                 'date': date_str,
                 'start_time': start_time,
                 'end_time': end_time,
-                'invited_user_ids': invited_ids
+                'invited_user_ids': invited_ids,
+                'note': parsed_note
             }
             
             btn_confirm_html = f'''<div style="display: flex; gap: 0.35rem; margin-top: 0.4rem; flex-wrap: wrap;">
-                <button onclick="sendQuickChoice('Evet, Onaylıyorum')" type="button" style="background: #10b981; color: white; padding: 4px 10px; border-radius: 5px; border: none; cursor: pointer; font-weight: bold; font-size: 0.75rem; width: auto !important; flex-shrink: 0; display: inline-flex; align-items: center; gap: 3px; box-shadow: 0 2px 4px rgba(16,185,129,0.3);">{msg('✅ Evet, Onaylıyorum', '✅ Yes, I Confirm')}</button>
-                <button onclick="sendQuickChoice('Hayır, İptal Et')" type="button" style="background: #ef4444; color: white; padding: 4px 10px; border-radius: 5px; border: none; cursor: pointer; font-weight: bold; font-size: 0.75rem; width: auto !important; flex-shrink: 0; display: inline-flex; align-items: center; gap: 3px;">{msg('❌ Hayır, İptal Et', '❌ No, Cancel')}</button>
+                <button onclick="sendQuickChoice('{msg("Evet, Onaylıyorum", "Yes, I Confirm")}')" type="button" style="background: #10b981; color: white; padding: 4px 10px; border-radius: 5px; border: none; cursor: pointer; font-weight: bold; font-size: 0.75rem; width: auto !important; flex-shrink: 0; display: inline-flex; align-items: center; gap: 3px; box-shadow: 0 2px 4px rgba(16,185,129,0.3);">{msg('✅ Evet, Onaylıyorum', '✅ Yes, I Confirm')}</button>
+                <button onclick="sendQuickChoice('{msg("Hayır, İptal Et", "No, Cancel")}')" type="button" style="background: #ef4444; color: white; padding: 4px 10px; border-radius: 5px; border: none; cursor: pointer; font-weight: bold; font-size: 0.75rem; width: auto !important; flex-shrink: 0; display: inline-flex; align-items: center; gap: 3px;">{msg('❌ Hayır, İptal Et', '❌ No, Cancel')}</button>
             </div>'''
+
             
             inv_info_tr = f" (davetli: <b>{', '.join([u.username for u in invited_users])}</b>)" if invited_users else ""
             inv_info_en = f" (invited: <b>{', '.join([u.username for u in invited_users])}</b>)" if invited_users else ""
-            m_tr = f"<b>{found_room.display_name}</b> odasını <b>{date_str}</b> tarihinde <b>{start_time} - {end_time}</b> saatleri arasında{inv_info_tr} sizin adınıza rezerve ediyorum, onaylıyor musunuz?<br>{btn_confirm_html}"
-            m_en = f"I am booking <b>{found_room.display_name}</b> room on <b>{date_str}</b> between <b>{start_time} - {end_time}</b>{inv_info_en}, do you confirm?<br>{btn_confirm_html}"
+            note_info_tr = f"<br>📝 <b>Not:</b> {parsed_note}" if parsed_note else ""
+            note_info_en = f"<br>📝 <b>Note:</b> {parsed_note}" if parsed_note else ""
+            m_tr = f"<b>{found_room.display_name}</b> odasını <b>{date_str}</b> tarihinde <b>{start_time} - {end_time}</b> saatleri arasında{inv_info_tr} sizin adınıza rezerve ediyorum, onaylıyor musunuz?{note_info_tr}<br>{btn_confirm_html}"
+            m_en = f"I am booking <b>{found_room.display_name}</b> room on <b>{date_str}</b> between <b>{start_time} - {end_time}</b>{inv_info_en}, do you confirm?{note_info_en}<br>{btn_confirm_html}"
             return jsonify({'success': True, 'reload': False, 'message': msg(m_tr, m_en)})
+
     else:
         from app.models import get_turkey_time
         now = get_turkey_time()
@@ -1353,7 +1516,8 @@ def ai_command():
                     date=cur_date,
                     start_time=start_time,
                     end_time=end_time,
-                    recurrence_id=rec_id
+                    recurrence_id=rec_id,
+                    note=parsed_note
                 )
                 db.session.add(r_item)
                 created_res.append(r_item)
@@ -1380,7 +1544,8 @@ def ai_command():
             room_id=found_room.id,
             date=date_str,
             start_time=start_time,
-            end_time=end_time
+            end_time=end_time,
+            note=parsed_note
         )
         for u_inv in invited_users:
             new_res.attendees.append(u_inv)
@@ -1393,6 +1558,8 @@ def ai_command():
         for u_inv in invited_users:
             invited_names.append(u_inv.username)
             notif_msg = f"{current_user.username} sizi {date_str} tarihinde {start_time}-{end_time} saatleri arasında {found_room.name} odasındaki toplantıya davet etti."
+            if parsed_note:
+                notif_msg += f"\n📝 Not: {parsed_note}"
             notif = Notification(user_id=u_inv.id, reservation_id=new_res.id, message=notif_msg, type='invitation', status='pending')
             db.session.add(notif)
 
@@ -1400,13 +1567,16 @@ def ai_command():
 
         inv_text_tr = f"<br><br>📩 <b>Toplantı Daveti:</b> <b>{', '.join(invited_names)}</b> kullanıcısına davetiye gönderildi." if invited_names else ""
         inv_text_en = f"<br><br>📩 <b>Meeting Invitation:</b> Invitation sent to <b>{', '.join(invited_names)}</b>." if invited_names else ""
+        note_text_tr = f"<br><br>📝 <b>Eklenen Not:</b> {parsed_note}" if parsed_note else ""
+        note_text_en = f"<br><br>📝 <b>Added Note:</b> {parsed_note}" if parsed_note else ""
 
         from app.utils import generate_google_calendar_url
         cal_url = generate_google_calendar_url(found_room.display_name, date_str, start_time, end_time)
         cal_btn = f'''<br><a href="{cal_url}" target="_blank" style="display: inline-flex; align-items: center; gap: 4px; margin-top: 6px; background: #3b82f6; color: white; padding: 4px 10px; border-radius: 5px; text-decoration: none; font-size: 0.75rem; font-weight: bold; box-shadow: 0 2px 4px rgba(59,130,246,0.3);">{msg("📅 Takvime Ekle", "📅 Add to Calendar")}</a>'''
-        msg_tr = f"Harika! <b>{found_room.display_name}</b> odası <b>{date_str}</b> tarihinde <b>{start_time}-{end_time}</b> arası sizin için rezerve edildi. 🎉{inv_text_tr}<br>{cal_btn}<br><br>📌 <b>Hatırlatmalar:</b><br>• Gerekli belgeleri yüklemeyi unutmayın.<br>• QR ile giriş yapmayı unutmayın."
-        msg_en = f"Great! <b>{found_room.display_name}</b> has been booked for you on <b>{date_str}</b> between <b>{start_time}-{end_time}</b>. 🎉{inv_text_en}<br>{cal_btn}<br><br>📌 <b>Reminders:</b><br>• Do not forget to upload the necessary documents.<br>• Do not forget to log in with QR."
+        msg_tr = f"Harika! <b>{found_room.display_name}</b> odası <b>{date_str}</b> tarihinde <b>{start_time}-{end_time}</b> arası sizin için rezerve edildi. 🎉{inv_text_tr}{note_text_tr}<br>{cal_btn}<br><br>📌 <b>Hatırlatmalar:</b><br>• Gerekli belgeleri yüklemeyi unutmayın.<br>• QR ile giriş yapmayı unutmayın."
+        msg_en = f"Great! <b>{found_room.display_name}</b> has been booked for you on <b>{date_str}</b> between <b>{start_time}-{end_time}</b>. 🎉{inv_text_en}{note_text_en}<br>{cal_btn}<br><br>📌 <b>Reminders:</b><br>• Do not forget to upload the necessary documents.<br>• Do not forget to log in with QR."
         return jsonify({'success': True, 'reload': True, 'message': msg(msg_tr, msg_en)})
+
     except Exception as e:
         db.session.rollback()
         return jsonify({'success': False, 'message': 'Bir hata oluştu: ' + str(e)})
