@@ -32,7 +32,14 @@
             </div>
             {% endif %}
 
+            {% if res.note %}
+            <div style="margin-bottom: 1rem; padding: 0.6rem 0.75rem; background: rgba(99, 102, 241, 0.12); border-left: 3px solid #6366f1; border-radius: 6px; font-size: 0.85rem; color: #e2e8f0; line-height: 1.4;">
+                <strong style="color: #a5b4fc;">📝 {% if current_lang == 'en' %}Note{% else %}Not{% endif %}:</strong> {{ res.note }}
+            </div>
+            {% endif %}
+
             {% if res.documents %}
+
             <div style="margin-bottom: 1rem;">
                 <strong style="color: #cbd5e1; font-size: 0.875rem;">{% if current_lang == 'en' %}📄 Documents{% else %}📄 Dökümanlar{% endif %}:</strong>
                 <div style="display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.5rem;">
@@ -123,7 +130,14 @@
                 <strong>{% if current_lang == 'en' %}Created By{% else %}Oluşturan{% endif %}:</strong> <span style="color: white;">{{ res.user.username }}</span>
             </div>
 
+            {% if res.note %}
+            <div style="margin-bottom: 1rem; padding: 0.6rem 0.75rem; background: rgba(99, 102, 241, 0.12); border-left: 3px solid #6366f1; border-radius: 6px; font-size: 0.85rem; color: #e2e8f0; line-height: 1.4;">
+                <strong style="color: #a5b4fc;">📝 {% if current_lang == 'en' %}Note{% else %}Not{% endif %}:</strong> {{ res.note }}
+            </div>
+            {% endif %}
+
             {% if res.documents %}
+
             <div style="margin-bottom: 1rem;">
                 <strong style="color: #cbd5e1; font-size: 0.875rem;">{% if current_lang == 'en' %}📄 Documents{% else %}📄 Dökümanlar{% endif %}:</strong>
                 <div style="display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.5rem;">
@@ -162,6 +176,13 @@
                 {% set is_past_inv = (res.date < today or (res.date == today and res.end_time <= current_hour)) %}
                 {% if is_past_inv %}
                 <span class="badge" style="background: #10b981; color: white; padding: 0.5rem 1rem; border-radius: 0.5rem; font-weight: 600; font-size: 0.875rem; display: inline-flex; align-items: center; gap: 0.3rem;">✓ {% if current_lang == 'en' %}Completed{% else %}Tamamlandı{% endif %}</span>
+                {% elif res.invitation_status == 'pending' %}
+                <form action="{{ url_for('main.accept_reservation_invitation', res_id=res.id) }}" method="POST" style="display:inline;">
+                    <button type="submit" class="btn btn-success" style="width: auto; padding: 0.5rem 1.5rem; font-size: 0.875rem; background: #10b981; border: none; color: white; margin-right: 0.5rem; font-weight: 600;">✓ {% if current_lang == 'en' %}Accept{% else %}Onayla{% endif %}</button>
+                </form>
+                <form action="{{ url_for('main.reject_reservation_invitation', res_id=res.id) }}" method="POST" style="display:inline;">
+                    <button type="submit" class="btn btn-danger" style="width: auto; padding: 0.5rem 1.5rem; font-size: 0.875rem; background: #ef4444; border-color: #ef4444; color: white; font-weight: 600;">✕ {% if current_lang == 'en' %}Reject{% else %}Reddet{% endif %}</button>
+                </form>
                 {% else %}
                 <a href="{{ res.cal_url }}" target="_blank" class="btn" style="width: auto; padding: 0.5rem 1.5rem; font-size: 0.875rem; background: #3b82f6; margin-right: 0.5rem;">{% if current_lang == 'en' %}Add to Calendar{% else %}Takvime Ekle{% endif %}</a>
                 <button type="button" class="btn" style="width: auto; padding: 0.5rem 1.5rem; font-size: 0.875rem; background: #8b5cf6; margin-right: 0.5rem;" onclick="showQrModal({{ res.id }})">{% if current_lang == 'en' %}Show QR{% else %}QR Göster{% endif %}</button>
@@ -172,6 +193,7 @@
                 </form>
                 {% endif %}
             </div>
+
         </div>
     </div>
     {% endfor %}

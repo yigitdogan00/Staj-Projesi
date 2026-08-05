@@ -30,10 +30,10 @@ def seed_data():
         # Create 5 distinct meeting rooms
         rooms_data = [
             {"name": "İnovasyon", "capacity": 12, "description": "TV, Klima, Kablosuz Yansıtma Özelliği, Beyaz Tahta ve Video Konferans Sistemi."},
-            {"name": "Sinerji", "capacity": 12, "description": "TV, Klima, HDMI Yansıtma, Toplantı Masası ve Ergonomik Koltuklar."},
-            {"name": "Vizyon", "capacity": 12, "description": "Akıllı Tahta, Klima, Projeksiyon ile Yansıtma Özelliği ve Apple TV."},
-            {"name": "Strateji", "capacity": 12, "description": "Çift TV Ekranı, Klima, Yansıtma Özelliği ve Ses Yalıtımı."},
-            {"name": "Dinamik", "capacity": 12, "description": "Geniş Ekran TV, Klima, Yansıtma Özelliği ve Dinlenme Alanı."}
+            {"name": "Sinerji", "capacity": 12, "description": "TV, Klima, HDMI Yansıtma, Toplantı Masası, Ergonomik Koltuklar, Beyaz Tahta."},
+            {"name": "Yeşil Enerji", "capacity": 12, "description": "Klima, TV, Video Konferans Sistemi, Ergonomik Koltuk, Yazı Tahtası."},
+            {"name": "Strateji", "capacity": 12, "description": "Çift TV Ekranı, Klima, Yansıtma Özelliği, Ses Yalıtımı ve Beyaz Tahta."},
+            {"name": "Sarı Enerji", "capacity": 12, "description": "TV, Klima, Yansıtma Özelliği, Dinlenme Alanı, Video Konferans Sistemi ve Beyaz Tahta."}
         ]
 
         for r_data in rooms_data:

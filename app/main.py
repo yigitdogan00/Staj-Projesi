@@ -117,10 +117,18 @@ def inject_lang():
         # Check for active meeting
         
         # Find if user is in any meeting right now (as creator or attendee)
-        # We need to check all user's reservations and invited_reservations for today
+        # Check for active meeting
         all_today_res = Reservation.query.filter_by(date=today_str).all()
         for res in all_today_res:
-            if res.user_id == current_user.id or current_user in res.attendees:
+            is_valid_user = False
+            if res.user_id == current_user.id:
+                is_valid_user = True
+            elif current_user in res.attendees:
+                notif = Notification.query.filter_by(user_id=current_user.id, reservation_id=res.id, type='invitation').first()
+                if notif and notif.status == 'accepted':
+                    is_valid_user = True
+            
+            if is_valid_user:
                 if res.start_time <= time_str < res.end_time:
                     if current_user in res.active_users:
                         active_meeting = res
@@ -139,6 +147,10 @@ def inject_lang():
 
         my_upcoming_meetings = []
         for res in all_user_res:
+            if res.user_id != current_user.id:
+                notif = Notification.query.filter_by(user_id=current_user.id, reservation_id=res.id, type='invitation').first()
+                if not notif or notif.status != 'accepted':
+                    continue
             if res.date > today_str or (res.date == today_str and res.end_time > time_str):
                 my_upcoming_meetings.append(res)
 
@@ -148,13 +160,22 @@ def inject_lang():
         # Prepare list of today's meetings for frontend timers
         today_meetings_list = []
         for res in all_today_res:
-            if res.user_id == current_user.id or current_user in res.attendees:
+            if res.user_id == current_user.id:
+                is_valid = True
+            elif current_user in res.attendees:
+                notif = Notification.query.filter_by(user_id=current_user.id, reservation_id=res.id, type='invitation').first()
+                is_valid = (notif and notif.status == 'accepted')
+            else:
+                is_valid = False
+
+            if is_valid:
                 today_meetings_list.append({
                     'id': res.id,
                     'room_name': res.room.name,
                     'start_time': res.start_time,
                     'date': res.date
                 })
+
                     
     def translate_log_details(text):
         if lang == 'tr':
@@ -241,9 +262,15 @@ def inject_lang():
         match = re.match(r"'(.*?)' odasındaki toplantınız (\d+) dakika içinde başlıyor\. Lütfen odaya geçin\.", msg)
         if match:
             return gettext("'%(room)s' odasındaki toplantınız %(mins)s dakika içinde başlıyor. Lütfen odaya geçin.", room=match.group(1), mins=match.group(2))
-        match = re.match(r"(.*?) sizi (.*?) tarihinde (.*?)-(.*?) saatleri arasında (.*?) odasındaki toplantıya davet etti\.", msg)
+        match = re.match(r"(.*?) sizi (.*?) tarihinde (.*?)-(.*?) saatleri arasında (.*?) odasındaki toplantıya davet etti\.(?:\n📝 Not: (.*))?", msg, re.DOTALL)
         if match:
-            return gettext("%(user)s sizi %(date)s tarihinde %(start)s-%(end)s saatleri arasında %(room)s odasındaki toplantıya davet etti.", user=match.group(1), date=match.group(2), start=match.group(3), end=match.group(4), room=match.group(5))
+            inv_user, inv_date, inv_start, inv_end, inv_room, inv_note = match.groups()
+            res_str = gettext("%(user)s sizi %(date)s tarihinde %(start)s-%(end)s saatleri arasında %(room)s odasındaki toplantıya davet etti.", user=inv_user, date=inv_date, start=inv_start, end=inv_end, room=inv_room)
+            if inv_note:
+                note_lbl = gettext("Not")
+                res_str += f"\n📝 {note_lbl}: {inv_note}"
+            return res_str
+
         match = re.match(r"(.*?), (.*?) tarihindeki (.*?)-(.*?) toplantı davetini reddetti\.", msg)
         if match:
             return gettext("%(user)s, %(date)s tarihindeki %(start)s-%(end)s toplantı davetini reddetti.", user=match.group(1), date=match.group(2), start=match.group(3), end=match.group(4))
@@ -1833,6 +1860,8 @@ def book_room(room_id):
         conflicting_dates = []
         base_date_obj = datetime.strptime(req_date, '%Y-%m-%d').date()
 
+        invitation_note = request.form.get('invitation_note', '').strip()
+
         for i in range(repeat_weeks + 1):
             target_date = (base_date_obj + timedelta(weeks=i)).strftime('%Y-%m-%d')
             # OVERLAP PREVENTION: Check if already booked
@@ -1855,7 +1884,8 @@ def book_room(room_id):
                     room_id=room.id,
                     date=target_date,
                     start_time=start_time,
-                    end_time=end_time
+                    end_time=end_time,
+                    note=invitation_note if invitation_note else None
                 )
                 for user in invited_users:
                     new_reservation.attendees.append(user)
@@ -1863,13 +1893,16 @@ def book_room(room_id):
                 db.session.add(new_reservation)
                 db.session.flush() # To get new_reservation.id
         
-                # Now update notifications with reservation_id
+                # Now update notifications with reservation_id and note
                 for user in invited_users:
                     msg = f"{current_user.username} sizi {target_date} tarihinde {start_time}-{end_time} saatleri arasında {room.name} odasındaki toplantıya davet etti."
+                    if invitation_note:
+                        msg += f"\n📝 Not: {invitation_note}"
                     notif = Notification(user_id=user.id, reservation_id=new_reservation.id, message=msg, type='invitation', status='pending')
                     db.session.add(notif)
                 
                 created_dates.append(target_date)
+
 
         if not created_dates:
             # Kullanıcıya boş olan diğer odaları öner
@@ -1937,9 +1970,50 @@ def dashboard():
         if res.date < today_str:
             continue
         res.cal_url = generate_google_calendar_url(res.room.name, res.date, res.start_time, res.end_time)
+        notif = Notification.query.filter_by(user_id=current_user.id, reservation_id=res.id, type='invitation').first()
+        res.invitation_status = notif.status if notif else 'pending'
         invited_reservations.append(res)
         
     return render_template('dashboard.html', title='Dashboard', reservations=reservations, invited_reservations=invited_reservations, today=today_str, current_hour=time_str)
+
+@bp.route('/reservation/<int:res_id>/accept', methods=['POST'])
+@login_required
+def accept_reservation_invitation(res_id):
+    from app.models import Notification
+    from flask_babel import gettext
+    notif = Notification.query.filter_by(user_id=current_user.id, reservation_id=res_id, type='invitation').first()
+    if notif:
+        notif.status = 'accepted'
+        notif.is_read = True
+        db.session.commit()
+    flash(gettext('Daveti kabul ettiniz. Toplantı ajandanıza eklendi.'), 'success')
+    return redirect(request.referrer or url_for('main.dashboard'))
+
+@bp.route('/reservation/<int:res_id>/reject', methods=['POST'])
+@login_required
+def reject_reservation_invitation(res_id):
+    from app.models import Reservation, Notification
+    from flask_babel import gettext
+    notif = Notification.query.filter_by(user_id=current_user.id, reservation_id=res_id, type='invitation').first()
+    if notif:
+        notif.status = 'rejected'
+        notif.is_read = True
+    reservation = Reservation.query.get_or_404(res_id)
+    if current_user in reservation.attendees:
+        reservation.attendees.remove(current_user)
+    if current_user in reservation.active_users:
+        reservation.active_users.remove(current_user)
+        
+    if reservation.user_id != current_user.id:
+        creator = reservation.user
+        reject_msg = f"{current_user.username}, {reservation.date} tarihindeki {reservation.room.name} odası davetinizi reddetti."
+        info_notif = Notification(user_id=creator.id, reservation_id=reservation.id, message=reject_msg, type='info')
+        db.session.add(info_notif)
+        
+    db.session.commit()
+    flash(gettext('Daveti reddettiniz.'), 'info')
+    return redirect(request.referrer or url_for('main.dashboard'))
+
 
 @bp.route('/reservation/<int:res_id>/delete', methods=['POST'])
 @login_required
@@ -1968,8 +2042,20 @@ def delete_reservation(res_id):
     # First, delete all notifications related to this reservation (like pending invites)
     Notification.query.filter_by(reservation_id=res_id).delete()
     
-    # Remove attendees to clean up the association table
+    # Remove attendees and active users to clean up association tables
     reservation.attendees.clear()
+    reservation.active_users.clear()
+    
+    # Remove documents linked to this reservation
+    documents = Document.query.filter_by(reservation_id=res_id).all()
+    import os
+    for doc in documents:
+        if os.path.exists(doc.file_path):
+            try:
+                os.remove(doc.file_path)
+            except OSError:
+                pass
+        db.session.delete(doc)
         
     db.session.delete(reservation)
     db.session.commit()
@@ -2224,7 +2310,7 @@ def delete_logs_by_date():
     from datetime import datetime, time
     from flask_babel import gettext
     
-    date_to_delete = request.form.get('date')
+    date_to_delete = request.form.get('date') or request.form.get('start_date')
     if not date_to_delete:
         flash(gettext('Silinecek tarihi seçmeniz gerekiyor.'), 'danger')
         return redirect(url_for('main.admin_logs'))
@@ -2290,7 +2376,8 @@ def delete_selected_logs():
 @bp.route('/admin/reservations/clear_old', methods=['POST'])
 @admin_required
 def clear_old_reservations():
-    from app.models import Reservation, Notification, get_turkey_time
+    from app.models import Reservation, Notification, Document, get_turkey_time
+    import os
     now = get_turkey_time()
     today_str = now.strftime('%Y-%m-%d')
     time_str = now.strftime('%H:%M')
@@ -2300,6 +2387,16 @@ def clear_old_reservations():
     for res in all_res:
         if res.date < today_str or (res.date == today_str and res.end_time <= time_str):
             Notification.query.filter_by(reservation_id=res.id).update({'reservation_id': None})
+            res.attendees.clear()
+            res.active_users.clear()
+            documents = Document.query.filter_by(reservation_id=res.id).all()
+            for doc in documents:
+                if os.path.exists(doc.file_path):
+                    try:
+                        os.remove(doc.file_path)
+                    except OSError:
+                        pass
+                db.session.delete(doc)
             db.session.delete(res)
             count += 1
             
@@ -2398,7 +2495,22 @@ def delete_user(user_id):
 @admin_required
 def delete_room(room_id):
     room = Room.query.get_or_404(room_id)
-    Reservation.query.filter_by(room_id=room.id).delete()
+    room_reservations = Reservation.query.filter_by(room_id=room.id).all()
+    import os
+    for res in room_reservations:
+        Notification.query.filter_by(reservation_id=res.id).delete()
+        res.attendees.clear()
+        res.active_users.clear()
+        documents = Document.query.filter_by(reservation_id=res.id).all()
+        for doc in documents:
+            if os.path.exists(doc.file_path):
+                try:
+                    os.remove(doc.file_path)
+                except OSError:
+                    pass
+            db.session.delete(doc)
+        db.session.delete(res)
+        
     room_name = room.display_name
     db.session.delete(room)
     db.session.commit()

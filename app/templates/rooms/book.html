@@ -282,11 +282,16 @@
                         </span>
                     </label>
                     {% endfor %}
-                    {% if not all_users %}
-                    <div style="padding: 0.75rem 0.5rem; color: #94a3b8; font-style: italic; text-align: center; font-size: 0.85rem;">Sistemde davet edilecek başka kullanıcı bulunmuyor.</div>
-                    {% endif %}
                 </div>
             </div>
+            
+            <div style="margin-top: 1.5rem;">
+                <label class="form-section-label" style="display: block; color: var(--text-color); margin-bottom: 0.5rem; font-weight: 600; font-size: 0.9rem;">
+                    {% if current_lang == 'en' %}Invitation Note (Optional){% else %}Davet Notu (Opsiyonel){% endif %}
+                </label>
+                <textarea name="invitation_note" rows="2" class="form-control" placeholder="{% if current_lang == 'en' %}Add a note for invited users (e.g. Please review project report before coming)...{% else %}Davet edilen kişilere iletilecek bir not yazın (ör: Gelmeden önce proje raporunu inceleyin)...{% endif %}" style="width: 100%; background: rgba(15, 23, 42, 0.9); color: var(--text-color); border: 1px solid var(--border-color); padding: 0.6rem; border-radius: 0.5rem; font-size: 0.85rem; resize: vertical;"></textarea>
+            </div>
+
             
             <script>
             function filterAttendeeList() {

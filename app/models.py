@@ -115,6 +115,8 @@ class Reservation(db.Model):
     created_at = db.Column(db.DateTime, nullable=False, default=get_turkey_time)
     checked_in = db.Column(db.Boolean, default=False)
     recurrence_id = db.Column(db.String(50), nullable=True)
+    note = db.Column(db.Text, nullable=True)
+
 
     # Relationships
     attendees = db.relationship('User', secondary=reservation_attendees, lazy='subquery', backref=db.backref('invited_reservations', lazy=True))

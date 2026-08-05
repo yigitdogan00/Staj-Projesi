@@ -18,18 +18,34 @@ def register():
     if form.validate_on_submit():
         hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
         code = f"{random.randint(100000, 999999)}"
-        user = User(
-            username=form.username.data,
-            email=form.email.data,
-            password_hash=hashed_password,
-            first_name=form.first_name.data,
-            last_name=form.last_name.data,
-            is_verified=False,
-            verification_code=code,
-            verification_code_expires_at=get_turkey_time() + timedelta(minutes=15)
-        )
-        try:
+        existing_user = User.query.filter_by(email=form.email.data).first()
+        
+        if existing_user:
+            if not existing_user.is_verified:
+                existing_user.username = form.username.data
+                existing_user.first_name = form.first_name.data
+                existing_user.last_name = form.last_name.data
+                existing_user.password_hash = hashed_password
+                existing_user.verification_code = code
+                existing_user.verification_code_expires_at = get_turkey_time() + timedelta(minutes=15)
+                user = existing_user
+            else:
+                flash(gettext('Bu e-posta adresi zaten kullanımda.'), 'danger')
+                return render_template('auth/register.html', title='Kayıt Ol', form=form)
+        else:
+            user = User(
+                username=form.username.data,
+                email=form.email.data,
+                password_hash=hashed_password,
+                first_name=form.first_name.data,
+                last_name=form.last_name.data,
+                is_verified=False,
+                verification_code=code,
+                verification_code_expires_at=get_turkey_time() + timedelta(minutes=15)
+            )
             db.session.add(user)
+
+        try:
             db.session.commit()
             send_verification_code_email(user, code)
             session['unverified_user_id'] = user.id
@@ -38,9 +54,10 @@ def register():
         except Exception as e:
             db.session.rollback()
             current_app.logger.error(f"Registration Error: {e}", exc_info=True)
-            flash(gettext('Kayıt işlemi sırasında bir hata oluştu. Bu e-posta zaten kayıtlı olabilir veya butona çift tıklamış olabilirsiniz.'), 'danger')
+            flash(gettext('Kayıt işlemi sırasında bir hata oluştu. Lütfen tekrar deneyin.'), 'danger')
             return render_template('auth/register.html', title='Kayıt Ol', form=form)
     return render_template('auth/register.html', title='Kayıt Ol', form=form)
+
 
 @bp.route('/verify-email', methods=['GET', 'POST'])
 def verify_email():

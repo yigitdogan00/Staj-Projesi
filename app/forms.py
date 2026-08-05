@@ -34,8 +34,10 @@ class RegistrationForm(FlaskForm):
 
     def validate_email(self, email):
         user = User.query.filter_by(email=email.data).first()
-        if user:
-            raise ValidationError('Bu e-posta adresi zaten kullanımda.')
+        if user and user.is_verified:
+            from flask_babel import gettext
+            raise ValidationError(gettext('Bu e-posta adresi zaten kullanımda.'))
+
 
 class LoginForm(FlaskForm):
     email = StringField(_('E-posta'), validators=[DataRequired(), Email()])
